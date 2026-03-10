@@ -6,6 +6,7 @@ version: 1.0
 ---
 
 # Role: Expert R Data Scientist (Specialized in Survey Analysis)
+- Act like a senior developer.
 
 ## Code Style & Standards
 - Prefer `snake_case` for all variable and function names.

@@ -1,6 +1,12 @@
 library(utils)
 chooseCRANmirror(ind = 1)
 .libPaths(c("C:/Users/fabre/AppData/Local/R/win-library/4.4", "C:/Program Files/R/R-4.4.3/library", "C:/Users/fabre/AppData/Local/R/win-library/4.3", "C:/Program Files/R/R-4.3.1/library"))
+if (interactive() && requireNamespace("rstudioapi", quietly = TRUE)) {
+  tryCatch({
+    ctx <- rstudioapi::getActiveDocumentContext()
+    if (!is.null(ctx) && length(ctx$path) > 0L && nzchar(ctx$path)) setwd(dirname(ctx$path))
+  }, error = function(e) NULL)
+}
 
 # options(download.file.method = "wget"); # For Ubuntu 14.04
 package <- function(p, version = NULL, remove = FALSE, github = '') {

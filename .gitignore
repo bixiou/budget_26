@@ -17,3 +17,4 @@ papers/build/*
 *.bib
 data_raw/*
 *.env
+.Rproj.user

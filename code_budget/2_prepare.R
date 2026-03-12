@@ -172,7 +172,7 @@ convert <- function(e) {
   }
   if ("education" %in% names(e)) e <- create_item("education", labels = c("Below upper secondary" = 1, "Upper secondary" = 2, "Above upper secondary" = 3), grep = TRUE, keep_original = TRUE, values = c("1|2", "3|4", "5|6|7"), df = e)
   if ("income" %in% names(e)) {
-    e <- create_item("income", new_var = "income_quartile", labels = c("Q1" = 1, "Q2" = 2, "Q3" = 3, "Q4" = 4, "PNR" = 0), values = c("100|200|250", "300|400|500", "600|700|750", "800|900", "not"), grep = TRUE, missing.values = c("PNR"), df = e)
+    e <- create_item("income", new_var = "income_quartile", labels = c("PNR" = 0, "Q1" = 1, "Q2" = 2, "Q3" = 3, "Q4" = 4), values = c("not", "100|200|250", "300|400|500", "600|700|750", "800|900"), grep = TRUE, missing.values = c("PNR"), df = e)
   }
   if ("employment_status" %in% names(e)) e <- create_item("employment_status", new_var = "employment_agg", labels = c("Not working", "Student", "Working", "Retired"), grep = TRUE, values = c("Inactive|Unemployed", "Student", "employed$", "Retired"), df = e)
   if ("urbanity" %in% names(e)) {
@@ -224,7 +224,7 @@ convert <- function(e) {
   }
 
   # Likert / create_item for variables present in Budget (already in former convert)
-  if ("ncs_support" %in% names(e)) e <- create_item("ncs_support", labels = c("No" = 0, "PNR" = -0.1, "Yes" = 100), values = c("No", "Prefer not to say", "Yes"), missing.values = c("", NA, "PNR"), df = e)
+  if ("ncs_support" %in% names(e)) e <- create_item("ncs_support", labels = c("PNR" = -0.1, "No" = 0, "Yes" = 100), values = c("Prefer not to say", "No", "Yes"), missing.values = c("", NA, "PNR"), df = e)
   if ("convergence_support" %in% names(e)) {
     e$convergence_support[is.na(e$convergence_support)] <- "prefer not"
     e <- create_item("convergence_support", labels = c("No" = -1, "PNR" = 0, "Yes" = 1), grep = TRUE, values = c("No", "prefer not", "Yes"), missing.values = c(0, NA), df = e)
@@ -279,17 +279,17 @@ convert <- function(e) {
 
   # --- Batch 1: effect_program, budget_progressistes (create_item), wtp_certainty (numeric 1-10 only) ---
   # effect_program_1..17: 5-level scale (Beaucoup moins / Moins / Ne changerait rien / Plus / Beaucoup plus)
-  effect_program_vars <- grep("^effect_program_[0-9]+$", names(e), value = TRUE)
-  for (v in effect_program_vars) {
-    e <- create_item(v, labels = c("Beaucoup moins favorable" = -2, "Beaucoup plus favorable" = 2, "Moins favorable" = -1, "Plus favorable" = 1, "Ne changerait rien" = 0),
-                     values = c("Beaucoup moins", "Beaucoup plus", "Moins favorable", "Plus favorable", "Ne changerait rien"), grep = TRUE, df = e)
+  variables_effect_program <- grep("^effect_program_[0-9]+$", names(e), value = TRUE)
+  if (length(variables_effect_program) > 0) {
+    e <- create_item(variables_effect_program, labels = c("Beaucoup moins favorable" = -2, "Moins favorable" = -1, "Ne changerait rien" = 0, "Plus favorable" = 1, "Beaucoup plus favorable" = 2),
+                     values = c("Beaucoup moins", "Moins favorable", "Ne changerait rien", "Plus favorable", "Beaucoup plus"), grep = TRUE, df = e)
   }
-  e <- rename_vars_by_suffix(e, effect_program_vars, "effect_program_", var_suffix_effect_program)
+  e <- rename_vars_by_suffix(e, variables_effect_program, "effect_program_", var_suffix_effect_program)
   # budget_progressistes_1..30: 5-level (Souhaitable / Convenable / Supportable / Inacceptable / Ne sais pas)
-  budget_progressistes_vars <- grep("^budget_progressistes_[0-9]+$", names(e), value = TRUE)
-  for (v in budget_progressistes_vars) {
-    e <- create_item(v, labels = c("Souhaitable" = 2, "Convenable" = 1, "Supportable" = 0, "Inacceptable" = -2, "Ne sais pas" = -0.1),
-                     values = c("Souhaitable", "Convenable", "Supportable", "Inacceptable", "Ne sais pas"), grep = TRUE, missing.values = -0.1, df = e)
+  variables_budget_progressistes <- grep("^budget_progressistes_[0-9]+$", names(e), value = TRUE)
+  if (length(variables_budget_progressistes) > 0) {
+    e <- create_item(variables_budget_progressistes, labels = c("Inacceptable" = -2, "Ne sais pas" = -0.1, "Supportable" = 0, "Convenable" = 1, "Souhaitable" = 2),
+                     values = c("Inacceptable", "Ne sais pas", "Supportable", "Convenable", "Souhaitable"), grep = TRUE, missing.values = -0.1, df = e)
   }
   # Rename budget_progressistes_N to variable_name from data_ext/budget_policies.xlsx
   if (!is.null(budget_policies) && "variable_name" %in% names(budget_policies) && "id" %in% names(budget_policies) && "amount" %in% names(budget_policies)) {
@@ -365,8 +365,8 @@ convert <- function(e) {
     if (!is.null(lab)) label(e[[v]]) <- lab
   }
   intl_policy_vars <- grep("^intl_policy_[0-9]+$", names(e), value = TRUE)
-  for (v in intl_policy_vars) {
-    e <- create_item(v, labels = c("Très mauvais" = -5, "Mauvais" = -3, "Plutôt mauvais" = -1, "Plutôt bien" = 1, "Bien" = 3, "Très bien" = 5),
+  if (length(intl_policy_vars) > 0) {
+    e <- create_item(intl_policy_vars, labels = c("Très mauvais" = -5, "Mauvais" = -3, "Plutôt mauvais" = -1, "Plutôt bien" = 1, "Bien" = 3, "Très bien" = 5),
                      values = c("Très mauvais", "Mauvais", "Plutôt mauvais", "Plutôt bien", "Bien", "Très bien"), grep = TRUE, df = e)
   }
   e <- rename_vars_by_suffix(e, intl_policy_vars, "intl_policy_", var_suffix_intl_policy)
@@ -386,12 +386,12 @@ convert <- function(e) {
     if (!is.null(lab)) label(e$group_helping) <- lab
   }
   # group_identified_1..5: 6-level Likert → -5, -3, -1, 1, 3, 5
-  group_identified_vars <- grep("^group_identified_[0-9]+$", names(e), value = TRUE)
-  for (v in group_identified_vars) {
-    e <- create_item(v, labels = c("Pas du tout" = -5, "Très peu" = -3, "Peu" = -1, "Plutôt" = 1, "Beaucoup" = 3, "Tout à fait" = 5),
+  variables_group_identified <- grep("^group_identified_[0-9]+$", names(e), value = TRUE)
+  if (length(variables_group_identified) > 0) {
+    e <- create_item(variables_group_identified, labels = c("Pas du tout" = -5, "Très peu" = -3, "Peu" = -1, "Plutôt" = 1, "Beaucoup" = 3, "Tout à fait" = 5),
                      values = c("Pas du tout", "Très peu", "Peu", "Plutôt", "Beaucoup", "Tout à fait"), grep = TRUE, df = e)
   }
-  e <- rename_vars_by_suffix(e, group_identified_vars, "group_identified_", var_suffix_group_identified)
+  e <- rename_vars_by_suffix(e, variables_group_identified, "group_identified_", var_suffix_group_identified)
   if ("group_defended_world" %in% names(e)) e <- create_item("group_defended_world",
     labels = c("Ma famille et moi" = -2, "ma communauté" = -1, "Les Français" = 0, "Les humains" = 1, "êtres sentients" = 2),
     values = c("Ma famille et moi", "communauté", "Français", "Les humains", "sentients"), grep = TRUE, df = e)
@@ -408,33 +408,36 @@ convert <- function(e) {
 
   # --- Batch 5: intl_governance_1..6 (6-level), assembly_outcome_1..4 (5-level), intl_cooperation_1..4 (6-level) ---
   # 6-level Likert: -5, -3, -1, 1, 3, 5
-  intl_gov_vars <- grep("^intl_governance_[0-9]+$", names(e), value = TRUE)
-  for (v in intl_gov_vars) {
-    e <- create_item(v, labels = c("Complètement défavorable" = -5, "Défavorable" = -3, "Plutôt défavorable" = -1, "Plutôt favorable" = 1, "Favorable" = 3, "Complètement favorable" = 5),
+  variables_intl_governance <- grep("^intl_governance_[0-9]+$", names(e), value = TRUE)
+  if (length(variables_intl_governance) > 0) {
+    e <- create_item(variables_intl_governance, labels = c("Complètement défavorable" = -5, "Défavorable" = -3, "Plutôt défavorable" = -1, "Plutôt favorable" = 1, "Favorable" = 3, "Complètement favorable" = 5),
                      values = c("Complètement défavorable", "Défavorable", "Plutôt défavorable", "Plutôt favorable", "Favorable", "Complètement favorable"), grep = TRUE, df = e)
   }
-  e <- rename_vars_by_suffix(e, intl_gov_vars, "intl_governance_", var_suffix_intl_governance)
-  assembly_outcome_vars <- grep("^assembly_outcome_[0-9]+$", names(e), value = TRUE)
-  for (v in assembly_outcome_vars) {
-    e <- create_item(v, labels = c("Complètement défavorable" = -2, "Défavorable" = -1, "Indécis⋅e" = 0, "Favorable" = 1, "Complètement favorable" = 2),
+  e <- rename_vars_by_suffix(e, variables_intl_governance, "intl_governance_", var_suffix_intl_governance)
+  variables_assembly_outcome <- grep("^assembly_outcome_[0-9]+$", names(e), value = TRUE)
+  if (length(variables_assembly_outcome) > 0) {
+    e <- create_item(variables_assembly_outcome, labels = c("Complètement défavorable" = -2, "Défavorable" = -1, "Indécis⋅e" = 0, "Favorable" = 1, "Complètement favorable" = 2),
                      values = c("Complètement défavorable", "Défavorable", "Indécis⋅e", "Favorable", "Complètement favorable"), grep = TRUE, df = e)
   }
-  e <- rename_vars_by_suffix(e, assembly_outcome_vars, "assembly_outcome_", var_suffix_assembly_outcome)
-  for (v in grep("^intl_cooperation_[0-9]+$", names(e), value = TRUE)) {
-    e <- create_item(v, labels = c("Complètement défavorable" = -5, "Défavorable" = -3, "Plutôt défavorable" = -1, "Plutôt favorable" = 1, "Favorable" = 3, "Complètement favorable" = 5),
+  e <- rename_vars_by_suffix(e, variables_assembly_outcome, "assembly_outcome_", var_suffix_assembly_outcome)
+  intl_cooperation_vars <- grep("^intl_cooperation_[0-9]+$", names(e), value = TRUE)
+  if (length(intl_cooperation_vars) > 0) {
+    e <- create_item(intl_cooperation_vars, labels = c("Complètement défavorable" = -5, "Défavorable" = -3, "Plutôt défavorable" = -1, "Plutôt favorable" = 1, "Favorable" = 3, "Complètement favorable" = 5),
                      values = c("Complètement défavorable", "Défavorable", "Plutôt défavorable", "Plutôt favorable", "Favorable", "Complètement favorable"), grep = TRUE, df = e)
   }
 
   # --- Batch 6: inheritance_type_1..6, tax_*, inheritance_400k/1m/10m/1g/100g, tax_millionaires ---
-  inheritance_type_vars <- grep("^inheritance_type_[0-9]+$", names(e), value = TRUE)
-  for (v in inheritance_type_vars) {
+  variables_inheritance_type <- grep("^inheritance_type_[0-9]+$", names(e), value = TRUE)
+  for (v in variables_inheritance_type) {
     lab <- attr(e[[v]], "label")
     e[[v]] <- suppressWarnings(as.numeric(as.character(e[[v]])))
     if (!is.null(lab)) label(e[[v]]) <- lab
   }
-  e <- rename_vars_by_suffix(e, inheritance_type_vars, "inheritance_type_", var_suffix_inheritance_type)
-  for (v in c("tax_business_bequest", "inter_vivo_gifts", "net_wealth_tax", "tax_millionaires")) {
-    if (v %in% names(e)) e <- create_item(v, labels = c("Très défavorable" = -2, "Défavorable" = -1, "Indécis⋅e" = 0, "Favorable" = 1, "Très favorable" = 2),
+  e <- rename_vars_by_suffix(e, variables_inheritance_type, "inheritance_type_", var_suffix_inheritance_type)
+  variables_tax_policy <- c("tax_business_bequest", "inter_vivo_gifts", "net_wealth_tax", "tax_millionaires")
+  variables_tax_policy <- intersect(variables_tax_policy, names(e))
+  if (length(variables_tax_policy) > 0) {
+    e <- create_item(variables_tax_policy, labels = c("Très défavorable" = -2, "Défavorable" = -1, "Indécis⋅e" = 0, "Favorable" = 1, "Très favorable" = 2),
                      values = c("Très défavorable", "Défavorable", "Indécis⋅e", "Favorable", "Très favorable"), grep = TRUE, df = e)
   }
   # Inheritance amounts and implicit tax rates
@@ -515,6 +518,11 @@ define_var_lists <- function(e) {
   variables_inheritance_type <<- grep("^inheritance_type_", nms, value = TRUE)
   variables_budget_policies <<- grep("^budget_", nms, value = TRUE)
   variables_budget_policies <<- setdiff(variables_budget_policies, c("sum_souhaitable", "sum_convenable", "sum_supportable"))
+  variables_sustainable_future <<- setdiff(grep("^sustainable_future", nms, value = TRUE), "variant_sustainable_future")
+  variables_group_defended <<- setdiff(grep("^group_defended", nms, value = TRUE), c("variant_group_defended", "group_defended_agg"))
+  variables_wealth_tax_support <<- intersect(c("solidary_tax_support", "national_tax_support", "intl_tax_support", "wealth_tax_support"), nms)
+  variables_top_tax_support <<- intersect(c("top8_tax_support", "top5_tax_support", "top_tax_support"), nms)
+  variables_gcs_support <<- setdiff(grep("^gcs_support", nms, value = TRUE), "variant_gcs")
 }
 
 # Adapted from former_2_prepare.R: guards for columns that may be absent in Budget.

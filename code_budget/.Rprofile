@@ -99,6 +99,7 @@ if (!is.element("plotly", installed.packages()[,1])) install.packages("https://g
 package("plotly") # used in barres; in case of bug due to kaleido: "pip install kaleido" in the python console. À PA, version 4.10.0
 #' # package("plotly", version = "4.9.4.1") # If bug, do instead: install.packages("https://github.com/plotly/plotly.R/archive/refs/tags/v4.9.4.1.tar.gz", repos=NULL) The last version of Plotly changes the place of Legend and makes it over several lines unless one increases width. If the install bugs as admin, try as simple user. If it still bugs, make sure Rtools is installed and found by R. If already installed (to check: package("installr"); install.Rtools()), try: write('PATH="${RTOOLS40_HOME}\\usr\\bin;${PATH}"', file = "~/.Renviron", append = TRUE) then check that Sys.which("make") returns "C:\\rtools40\\usr\\bin\\make.exe". (cf. https://cran.r-project.org/bin/windows/Rtools/rtools40.html)
 #' # On ARM Mac, if this doesn't work (runs infinitely). Download the archive and from the Terminal run `R CMD INSTALL plotly.R-4.9.4.1.tar.gz'
+package("webshot")
 #' # package("reticulate")
 #' if (!is.element("gdata", installed.packages()[,1])) package("memisc")
 #' package('gdata')
@@ -195,6 +196,7 @@ package("Hmisc") # describe, decrit, wtd.mean
 #' package("ggpubr")
 #' package("RStata")
 package("relaimpo") # Variance decomposition works well with 21 variables, not much more. install from: install.packages("https://prof.bht-berlin.de/fileadmin/prof/groemp/downloads/relaimpo_2.2-5.zip", repos = NULL)
+package("ellmer")
 #' package("missMDA") # PCA
 #' package("forcats")
 #' package("modi")
@@ -256,6 +258,7 @@ package("psych") # KMO library(psych, exclude = "describe")
 #   if (exists(tolower(str)) && is.data.frame(eval(str2expression(tolower(str))))) return(eval(str2expression(tolower(str)))) # data from name
 #   else return(alt_data[alt_data[[alt_var]] == toupper(str),])
 # }
+
 set.seed(42)
 d <- function(str, alt_data = eu, alt_var = "country") {
   if (exists(str) && is.data.frame(eval(str2expression(str)))) return(eval(str2expression(str))) # data from name
@@ -598,6 +601,33 @@ Levels <- function(variable, data = e, miss = TRUE, numbers = FALSE, values = TR
 #       else describe(variable[variable!="" & !is.missing(variable)], weights = weights[variable!="" & !is.missing(variable)], descript=paste(length(which(is.missing(variable))), "missing obs.", Label(variable)))
 #     } else describe(variable[variable!=""], weights = weights[variable!=""])  }
 # }
+
+# Rename variables prefix_1, prefix_2, ... to prefix_<suffix> using a mapping (named vector: "1" -> suffix).
+rename_vars_by_suffix <- function(e, prefix, vars = NULL, suffix_map = NULL) {
+    if (is.null(suffix_map)) suffix_map <- eval(str2expression(paste0("var_suffix_", prefix)))
+    if (is.null(vars)) vars <- paste0(prefix, "_", names(suffix_map))
+    new_names <- eval(str2expression(paste0("variables_", prefix)))
+    # prefix <- sub("__", "_", paste0(prefix, "_"))
+    if (length(vars) == 0 || is.null(suffix_map)) return(e)
+    # new_names <- character(length(vars))
+    # for (i in seq_along(vars)) {
+    #     num <- sub(paste0("^", prefix), "", vars[i])
+    #     suf <- suffix_map[num]
+    #     new_names[i] <- if (!is.na(suf)) paste0(prefix, suf) else vars[i]
+    # }
+    used <- character(0)
+    for (i in seq_along(vars)) {
+        if (new_names[i] %in% used || new_names[i] %in% names(e)) new_names[i] <- vars[i]
+        else used <- c(used, new_names[i])
+    }
+    for (i in seq_along(vars)) {
+        if (new_names[i] != vars[i] && vars[i] %in% names(e)) {
+          names(e)[names(e) == vars[i]] <- new_names[i]
+          label(e[[new_names[i]]]) <- sub(vars[i], new_names[i], Label(e[[new_names[i]]]))
+        }
+    }
+    e
+}
 export_codebook <- function(data, file = "../data/codebook.csv", stata = TRUE, dta_file = NULL, csv_file = NULL, rds_file = NULL, keep = NULL, omit = NULL, folder = "../data/") {
   if (missing(keep)) keep <- 1:length(data)
   if (!missing(omit)) keep <- setdiff(keep, omit)
@@ -850,6 +880,28 @@ same_reg_subsamples <- function(dep.var, dep.var.caption = NULL, covariates = se
   if (!missing(replace_endAB) & length(table) == 50) table <- c(table[1:43], replace_endAB)
   table <- table_mean_lines_save(table, omit = omit, mean_above = mean_above, only_mean = only_mean, indep_labels = covariate_labels, indep_vars = covariates, add_lines = add_lines, file_path = file_path, oecd_latex = FALSE, nb_columns = length(along.levels) + include.total)
   return(table)
+}
+create_item <- function(var, new_var = var, labels, df, grep = FALSE, keep_original = FALSE, missing.values = NA, values = names(labels), annotation = NULL) {
+  # Creates a memisc item s.t. var %in% values[[i]] will yield value/label labels[i]/names(labels)[i]
+  # var: a character or vector of characters
+  # labels: a named numeric vector
+  # missing.values: a numeric or character vector
+  # values: a vector of characters or a list of such vectors
+  if (length(var) > 1) {
+    for (v in 1:length(var)) df <- create_item(var[v], new_var = new_var[v], df = df, labels = labels, grep = grep, missing.values = missing.values, values = values, annotation = NULL)
+  } else { if (var %in% names(df)) {
+    # print(var)
+    if (keep_original) df[[paste0(var, "_original")]] <- df[[var]]
+    temp <- NA
+    for (i in seq(labels)) temp[if (grep) grepl(values[[i]], df[[var]]) else df[[var]] %in% values[[i]]] <- labels[i]
+    temp[is.na(df[[var]])] <- NA
+    df[[new_var]] <- as.item(temp, labels = labels, grep = grep, missing.values = missing.values, annotation = if (is.null(annotation)) paste0(var, ": [", # Levels(df[[var]], concatenate = T),
+                                                                                                                                               paste(sapply(names(labels), function(i) paste0(labels[i], ": ", i)), collapse = "; "), sub("[^:]*: ", "] ", Label(df[[var]]))) else annotation)
+    # Turns it into a factor if it is not numeric
+    if (is.character(labels)) df[[new_var]] <- as.factor(df[[new_var]])
+    if (is.character(labels) & !is.null(annotation)) label(df[[new_var]]) <- annotation
+  }  }
+  return(df)
 }
 create_covariate_labels <- function(coefs_names, regressors_names = labels_vars, keep = NULL, omit = "Constant") {
   if (any(c("Constant", "Intercept", "(Intercept)") %in% omit) & coefs_names[1] %in% c("Constant", "Intercept", "(Intercept)")) coefs_names <- coefs_names[-1]
@@ -1118,15 +1170,15 @@ export_quotas <- function(waves = countries, order_cols = c("country", "Gender",
 #' #'   else return(matrice)
 #' #'   # return(as.data.frame(matrice))
 #' #' }
-#' data1 <- function(vars, data=e, weights=T) {
-#'   if (is.null(data[['weight']])) weights <- F # TODO? warning
-#'   res <- c()
-#'   for (var in vars) {
-#'     if (weights) { res <- c(res, sum(data[['weight']][which(data[[var]]==TRUE)])/sum(data[['weight']][which(data[[var]]==TRUE | data[[var]]==FALSE)])) }
-#'     else { res <- c(res, length(which(data[[var]]==T))/length(which(data[[var]]==T | data[[var]]==FALSE))) }
-#'   }
-#'   return( matrix(res, ncol=length(vars)) )
-#' }
+data1 <- function(vars, data=e, weights=T) {
+ if (is.null(data[['weight']])) weights <- F # TODO? warning
+ res <- c()
+ for (var in vars) {
+   if (weights) { res <- c(res, sum(data[['weight']][which(data[[var]]==TRUE)])/sum(data[['weight']][which(data[[var]]==TRUE | data[[var]]==FALSE)])) }
+   else { res <- c(res, length(which(data[[var]]==T))/length(which(data[[var]]==T | data[[var]]==FALSE))) }
+ }
+ return( matrix(res, ncol=length(vars)) )
+}
 dataN <- function(var, data=e, miss=T, weights = T, return = "", fr=F, rev=FALSE, rev_legend = FALSE, levels = NULL, weight_non_na = T) {
   missing_labels <- c("NSP", "PNR", "Non concerné·e", "Included", "Don't know", "PNR or other", "NSP ou autre", "PNR ou autre", "PNR/Non-voter") # TODO: allow for non-standard PNR in a more straightforward way than adding the argument "fr" and putting its value below
   if (is.character(fr)) missing_labels <- c(missing_labels, fr)
@@ -1578,12 +1630,14 @@ save_plotly <- function(plot, filename = deparse(substitute(plot)), folder = '..
     write.xlsx(plot, file, row.names = T, overwrite = T)
     print(file)
   } else {
-    file <- paste(folder, filename, ".", format, sep='')
+    file <- file.path(folder, paste0(filename, ".", format))
     # print(file)
     if (grepl('webshot', method)) { # four times faster: 2.5s (vs. 10s) but saves useless widgets and doesn't exactly respect the display
-      saveWidget(plot, 'temp.html')
-      webshot('temp.html', file, delay = 0.1, vwidth = width, vheight = height)
-      file.remove('temp.html')}
+      tmp_html <- tempfile(fileext = ".html")
+      htmlwidgets::saveWidget(plot, tmp_html, selfcontained = TRUE)
+      webshot::webshot(tmp_html, file, delay = 0.1, vwidth = width, vheight = height)
+      unlink(tmp_html)
+    }
     # else orca(plot, file = file, width = width, height = height, format = format) # bug with encoding in Windows
     else {
       server <- orca_serve() # doesn't work within a function because requires admin rights
@@ -3227,3 +3281,4 @@ convert_html_to_latex <- function(text) {
   return(text)
 }
 
+attr <- base::attr

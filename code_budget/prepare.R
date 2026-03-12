@@ -301,7 +301,7 @@ convert <- function(e) {
 
     names(e)[names(e) == "wtp_contribution"] <- "variant_wtp"
 
-    e <- create_item("climate_belief", labels = c("CC pas réel" = -3, "principalement naturel" = -2, "autant humain que naturel" = -1, "principalement humain" = 0, "entièrement humain" = 1),
+    e <- create_item("climate_belief", labels = c("CC pas réel" = -3, "Principalement naturel" = -2, "Autant humain que naturel" = -1, "Principalement humain" = 0, "Entièrement humain" = 1),
                                        values = c("n'est pas une r", "principalement dû.*variabilité", "autant dû", "principalement dû.*activité", "entièrement dû"), grep = TRUE, df = e)
     e <- create_item("gcs_support_no_info", labels = c("No" = 0, "Yes" = 1), values = c("Non", "Oui"), df = e)
     e <- create_item("gcs_support_info", labels = c("No" = 0, "Yes" = 1), values = c("Non", "Oui"), df = e)
@@ -374,8 +374,8 @@ convert <- function(e) {
 
 e <- prepare(fetch = F, weighting = F, remove_id = T)
 d <- prepare(fetch = F, weighting = F, convert = F, remove_id = T)
-# for (i in c(17:37, 100,104, 110:116, 128:129, 140,141, 149:161, 165,166,168,170,177:179, 186:191, 219, 252:289)) print(decrit(e[[i]]))
-
+for (i in c(17:37, 100,104, 110:116, 128:129, 140,141, 149:161, 165,166,168,170,177:179, 186:189, 191, 219, 252:289)) { print(names(e)[i]); print(decrit(e[[i]])) }
+# TODO: foreign, 
 
 ##### Codebook #####
 export_codebook(e, "../data_ext/codebook.csv", stata = FALSE) #, omit = c(1, 2, 7, 9:13, 197))

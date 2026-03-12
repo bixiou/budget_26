@@ -61,6 +61,7 @@ labels_vars <- c(
   "wtp_5" = "WTP at 5% of income",
   "wtp_7" = "WTP at 7% of income",
   "wtp_10" = "WTP at 10% of income",
+  "wtp_certainty" = "WTP certainty",
   "gcs_support_info" = "Global climate scheme (with info)",
   "gcs_support_no_info" = "Global climate scheme (no info)",
   # "effect_program_reduire_aide_developpement" = "Effect: reduce development aid",
@@ -120,6 +121,11 @@ labels_vars <- c(
   "inheritance_tax_10m" = "Inheritance tax rate at 10M€",
   "inheritance_tax_1g" = "Inheritance tax rate at 1G€",
   "inheritance_tax_100g" = "Inheritance tax rate at 100G€",
+  "inheritance_tax_agg_400k" = "Inheritance tax rate at 400k€",
+  "inheritance_tax_agg_1m" = "Inheritance tax rate at 1M€",
+  "inheritance_tax_agg_10m" = "Inheritance tax rate at 10M€",
+  "inheritance_tax_agg_1g" = "Inheritance tax rate at 1G€",
+  "inheritance_tax_agg_100g" = "Inheritance tax rate at 100G€",
   "sum_souhaitable" = "Sum (G€) Souhaitable",
   "sum_convenable" = "Sum (G€) Souhaitable or Convenable",
   "sum_supportable" = "Sum (G€) Souhaitable, Convenable or Supportable",
@@ -143,7 +149,7 @@ barres_defs <- list(
   "intl_governance"      = list(vars = variables_intl_governance, width = 900, height = 500),
   "assembly_outcome"     = list(vars = variables_assembly_outcome, width = 850, height = 400),
   "inheritance_type"     = list(vars = variables_inheritance_type, width = 900, height = 500),
-  "budget_policies"      = list(vars = variables_budget, width = 950, height = 700),
+  "budget"               = list(vars = variables_budget, width = 950, height = 1500, miss = T),
   "sustainable_future"   = list(vars = variables_sustainable_future, width = 850, height = 450),
   "group_defended"       = list(vars = variables_group_defended, width = 870, height = 500),
   "wealth_tax_support"   = list(vars = variables_wealth_tax_support, width = 850, height = 450),
@@ -151,12 +157,13 @@ barres_defs <- list(
   "gcs_support"          = list(vars = variables_gcs_support, width = 850, height = 450),
   "tax_policy"           = list(vars = variables_tax_policy, width = 850, height = 450),
   "inheritance_agg"      = list(vars = variables_inheritance_agg, width = 900, height = 500),
-  "inheritance_tax"      = list(vars = variables_inheritance_tax, width = 900, height = 500),
-  "wtp"                  = list(vars = variables_wtp, width = 850, height = 450),
+  "inheritance_tax_agg"  = list(vars = variables_inheritance_tax_agg, width = 900, height = 500),
+  "wtp"                  = list(vars = variables_wtp, width = 850, height = 450, sort = F),
   "climate_belief"       = list(vars = "climate_belief", width = 850, height = 450),
   "group_considered"     = list(vars = "group_considered", width = 850, height = 450),
   "gcs_comprehension"    = list(vars = "gcs_comprehension", width = 850, height = 450),
-  "vote_factor"          = list(vars = "vote_factor", width = 850, height = 500)
+  "vote_factor"          = list(vars = "vote_factor", width = 850, height = 500),
+  "wtp_certainty"        = list(vars = "wtp_certainty", width = 850, height = 450)
 )
 
 vars_barres <- c()
@@ -170,7 +177,7 @@ barres_defs_nolabel <- list(
   "intl_governance"      = list(vars = variables_intl_governance, width = 980),
   "assembly_outcome"     = list(vars = variables_assembly_outcome, width = 900),
   "inheritance_type"     = list(vars = variables_inheritance_type, width = 980),
-  "budget_policies"      = list(vars = variables_budget, width = 1100),
+  "budget"               = list(vars = variables_budget, width = 1100, height = 1500, miss = T),
   "sustainable_future"   = list(vars = variables_sustainable_future, width = 980),
   "group_defended"       = list(vars = variables_group_defended, width = 980),
   "wealth_tax_support"   = list(vars = variables_wealth_tax_support, width = 980),
@@ -178,12 +185,13 @@ barres_defs_nolabel <- list(
   "gcs_support"          = list(vars = variables_gcs_support, width = 980),
   "tax_policy"           = list(vars = variables_tax_policy, width = 980),
   "inheritance_agg"      = list(vars = variables_inheritance_agg, width = 980),
-  "inheritance_tax"      = list(vars = variables_inheritance_tax, width = 980),
+  "inheritance_tax_agg"  = list(vars = variables_inheritance_tax_agg, width = 980),
   "wtp"                  = list(vars = variables_wtp, width = 900),
   "climate_belief"       = list(vars = "climate_belief", width = 900),
   "group_considered"     = list(vars = "group_considered", width = 900),
   "gcs_comprehension"    = list(vars = "gcs_comprehension", width = 900),
-  "vote_factor"          = list(vars = "vote_factor", width = 900)
+  "vote_factor"          = list(vars = "vote_factor", width = 900),
+  "wtp_certainty"        = list(vars = "wtp_certainty", width = 900)
 )
 barres_defs_nolabel <- fill_barres(c(), barres_defs_nolabel, df = e)
 
@@ -191,4 +199,26 @@ barres_defs_nolabel <- fill_barres(c(), barres_defs_nolabel, df = e)
 barres_multiple(barres_defs, df = e, format = "pdf") # method = "webshot", 
 barres_multiple(barres_defs_nolabel, df = e, nolabel = TRUE, format = "pdf") # , method = "webshot"
 
-# TODO! budget, WTP, inheritance_tax
+
+##### Budget policy acceptability table #####
+{
+  bp <- budget_policies[, c("variable_name", "amount", "label")]
+  bp$souhaitable <- bp$conv_souh <- bp$supp_conv_souh <- bp$souhaitable_xpnr <- bp$conv_souh_xpnr <- bp$supp_conv_souh_xpnr <- NA
+  for (i in seq_len(nrow(bp))) {
+    v <- bp$variable_name[i]
+    bp$souhaitable[i]      <- wtd.mean(e[[v]] == 2, e$weight)
+    bp$conv_souh[i]        <- wtd.mean(e[[v]] >= 1, e$weight)
+    bp$supp_conv_souh[i]   <- wtd.mean(e[[v]] >= 0, e$weight)
+    bp$souhaitable_xpnr[i]    <- wtd.mean(e[[v]] == 2, e$weight * !is.missing(e[[v]]))
+    bp$conv_souh_xpnr[i]      <- wtd.mean(e[[v]] >= 1, e$weight * !is.missing(e[[v]]))
+    bp$supp_conv_souh_xpnr[i] <- wtd.mean(e[[v]] >= 0, e$weight * !is.missing(e[[v]]))
+  }
+  bp <- bp[order(-bp$conv_souh_xpnr), ]
+  bp$cum_conv_souh <- cumsum(ifelse(is.na(bp$conv_souh_xpnr), 0, bp$amount))
+  names(bp) <- c("variable", "amount", "label", "supp+conv+souh xPNR", "conv+souh xPNR", "souh xPNR", "supp+conv+souh", "conv+souh", "souhaitable", "cum conv+souh")
+  num_cols <- 4:10
+  bp[, num_cols] <- round(bp[, num_cols], 3)
+  write.csv(bp, "../figures/budget_policy_table.csv", row.names = FALSE)
+  print(bp[, c("variable", "amount", "souhaitable", "conv+souh", "supp+conv+souh", "souh xPNR", "conv+souh xPNR", "supp+conv+souh xPNR", "cum conv+souh")])
+}
+

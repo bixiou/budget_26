@@ -275,10 +275,10 @@ n <- function(var) { as.numeric(as.vector(var)) }
 #'   return(ci) }
 #' match.nona <- function(v, t) {return(as.vector(na.omit(match(v, t))))} # returns match(v, t) purged from NAs, i.e. the (first) position of v elements (that are in t) in t (screened/ordered from v), cf. below
 #' # so df$foo[match.nona(db$bar, df$bar)] <- db$foo[db$bar %in% df$bar] replaces elements of df$foo such that df$bar is in db$bar by corresponding db$foo
-Label <- function(var, df = e, multi = FALSE) {
+Label <- function(var, df = if (exists("e")) e, multi = FALSE) {
   if (multi) sapply(var, function(v) Label(v, df = df, multi = FALSE))
   else {
-    if (length(var) == 1 & nrow(df) > 1) var <- df[[var]]
+    if (length(var) == 1 && nrow(df) > 1) var <- df[[var]]
     if (length(memisc::annotation(var))==1) { memisc::annotation(var)[1] }
     else { label(var)  }
   }
@@ -960,31 +960,27 @@ representativity_index <- function(weights, digits = 3) { return(round(sum(weigh
 
 # If bug, detach memisc (namespace content) and plotly (namespace config); and run qualtrics_credential.R
 # surveys are assumed to be name [country]_survey
-export_quotas <- function(waves = countries, order_cols = c("country", "Gender", "Age", "Education", "Urbanity", "Income", "Region", "Race"), gdoc = "https://docs.google.com/spreadsheets/d/1S8QObjDtPzqKHTB-pKjEAT1qXiRfCLNpK1pk2yIeJ3k/", domain = "wumarketing.eu") {
+export_quotas <- function(survey = "Budget", order_cols = c("country", "Gender", "Age", "Education", "Urbanity", "Income", "Region", "Race"), gdoc = "https://docs.google.com/spreadsheets/d/1EkkyVWX3LgLjyw-lm7c6r5iBXe1VZy2EMI3oR7ALgXI/", domain = "wumarketing.eu") {
   quotas_limit_current <- quotas_count <- data.frame()
   survey_list <- all_surveys()
-  for (country in waves) {
-    api_response <- GET(paste0("https://", domain, ".qualtrics.com/API/v3/survey-definitions/", survey_list$id[survey_list$name == paste0(country, "_survey")], "/quotas"),
-                        query = list(pageSize = 50), # accept_json(),
-                        add_headers('x-api-token' = Sys.getenv("QUALTRICS_API_KEY")))
-    api_response <- fromJSON(content(api_response, as = "text", encoding = "UTF-8"), flatten = TRUE)$result$elements
-    if (nrow(quotas_limit_current) > 0) quotas_limit_current <- merge(quotas_limit_current, as.data.frame(t(c("country" = country, setNames(api_response$Occurrences, api_response$Name)))), all = T)
-    else quotas_limit_current <- as.data.frame(t(c("country" = country, setNames(api_response$Occurrences, api_response$Name))))
-    if (nrow(quotas_count) > 0) quotas_count <- merge(quotas_count, as.data.frame(t(c("country" = country, setNames(api_response$Count, api_response$Name)))), all = T)
-    else quotas_count <- as.data.frame(t(c("country" = country, setNames(api_response$Count, api_response$Name))))
-  }
-  row.names(quotas_limit_current) <- row.names(quotas_count) <- waves[order(waves)]
+  api_response <- GET(paste0("https://", domain, ".qualtrics.com/API/v3/survey-definitions/", survey_list$id[survey_list$name == survey], "/quotas"),
+                      query = list(pageSize = 50), # accept_json(),
+                      add_headers('x-api-token' = Sys.getenv("QUALTRICS_API_KEY")))
+  api_response <- fromJSON(content(api_response, as = "text", encoding = "UTF-8"), flatten = TRUE)$result$elements
+  if (nrow(quotas_limit_current) > 0) quotas_limit_current <- merge(quotas_limit_current, as.data.frame(t(c(setNames(api_response$Occurrences, api_response$Name)))), all = T)
+  else quotas_limit_current <- as.data.frame(t(c(setNames(api_response$Occurrences, api_response$Name))))
+  if (nrow(quotas_count) > 0) quotas_count <- merge(quotas_count, as.data.frame(t(c(setNames(api_response$Count, api_response$Name)))), all = T)
+  else quotas_count <- as.data.frame(t(c(setNames(api_response$Count, api_response$Name))))
   new_order <- c()
   for (i in order_cols) new_order <- c(new_order, sort(names(quotas_count))[grepl(i, sort(names(quotas_count)))])
   new_order <- c(new_order, sort(names(quotas_count))[!multi_grepl(order_cols, sort(names(quotas_count)))])
-  quotas_limit_current <- quotas_limit_current[waves, new_order]
-  quotas_count <- quotas_count[waves, new_order]
+  quotas_limit_current <- quotas_limit_current[, new_order]
+  quotas_count <- quotas_count[, new_order]ory
+  setNames(data.frame(t(rbind(names(quotas_count), quotas_limit_current, quotas_count))), c("category", "quota current", "count")) %>%  write_sheet(ss = gs4_get(gdoc), sheet = "quotas")
   # quotas_limit_current <- quotas_limit_current[waves, order(names(quotas_limit_current))]
   # quotas_count <- quotas_count[waves, order(names(quotas_count))]
-  # quotas_limit_current <- quotas_limit_current[, colSums(quotas_limit_current != 0, na.rm = T) > 0]
-  # quotas_count <- quotas_count[, colSums(quotas_count != 0, na.rm = T) > 0]
-  quotas_limit_current %>%  write_sheet(ss = gs4_get(gdoc), sheet = "quotas_limit_current")
-  quotas_count %>%  write_sheet(ss = gs4_get(gdoc), sheet = "quotas_count")
+  # quotas_limit_current %>%  write_sheet(ss = gs4_get(gdoc), sheet = "quotas_limit_current")
+  # quotas_count %>%  write_sheet(ss = gs4_get(gdoc), sheet = "quotas_count")
 }
 #' #'
 #' #'
@@ -1630,7 +1626,7 @@ save_plotly <- function(plot, filename = deparse(substitute(plot)), folder = '..
     write.xlsx(plot, file, row.names = T, overwrite = T)
     print(file)
   } else {
-    file <- file.path(folder, paste0(filename, ".", format))
+    file <- paste0(folder, filename, ".", format)
     # print(file)
     if (grepl('webshot', method)) { # four times faster: 2.5s (vs. 10s) but saves useless widgets and doesn't exactly respect the display
       tmp_html <- tempfile(fileext = ".html")
@@ -1664,7 +1660,7 @@ automatic_folder <- function(along = "country", data = e, several = "country_com
     return(folder)
   } else {
     if (length(unique(data$country)) == 1) return(paste0('../figures/', unique(data$country), '/'))
-    else return(paste0('../figures/all/'))
+    else return(paste0('../figures/'))
   }
 }
 heatmap_plot <- function(data, type = "full", p.mat = NULL, proportion = T, percent = FALSE, colors = 'RdYlBu', nb_digits = NULL) { # type in full, upper, lower
@@ -1866,7 +1862,7 @@ heatmap_multiple <- function(heatmaps = heatmaps_defs, data = e, trim = FALSE, w
   }
 }
 
-barres_multiple <- function(barres = barres_defs, df = e, folder = "../figures/country_comparison", print = T, export_xls = FALSE, trim = T, method = 'orca', format = 'pdf', weights = T, nolabel = F, levels = levels_default) {
+barres_multiple <- function(barres = barres_defs, df = e, folder = "../figures", print = T, export_xls = FALSE, trim = T, method = 'orca', format = 'pdf', weights = T, nolabel = F, levels = levels_default) {
   for (def in barres) {
     if (missing(folder)) folder <- automatic_folder(along = def$along, data = df)
     # tryCatch({

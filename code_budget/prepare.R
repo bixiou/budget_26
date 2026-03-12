@@ -64,7 +64,7 @@ define_var_lists <- function() {
     var_suffix_inheritance_type <<- c("1" = "designees_defunt", "2" = "epoux_descendants", "3" = "employes_societe", "4" = "etat_actionnaire", "5" = "fonds_citoyens", "6" = "onu_education_sante")
     var_suffix_home <<- c("1" = "tenant", "2" = "owner", "3" = "landlord", "4" = "hosted")
     var_suffix_difficulty <<- c("1" = "trop_difficile", "2" = "difficile", "3" = "comprehensible", "4" = "facile")
-    var_suffix_budget <<- setNames(budget_policies$variable_name, budget_policies$id)
+    var_suffix_budget <<- sub("budget_", "", setNames(budget_policies$variable_name, budget_policies$id))
     prefixes <<- c("effect_program", "intl_policy", "group_identified", "intl_governance", "assembly_outcome", "inheritance_type", "home", "difficulty", "budget")
 
     variables_duration <<- paste0("duration_", c("consent", "sociodemos", "program", "budget", "wtp", "gcs", "wealth_tax", "global_inheritance", "sustainable_future", "top_tax", "comprehension", "custom_redistr", "synthetic", "main_questions"))
@@ -88,6 +88,10 @@ define_var_lists <- function() {
     variables_top_tax_support_all <<- paste0(c("top5", "top8", "top"), "_tax_support")
     variables_gcs_support <<- paste0("gcs_support_", c("info", "no_info")) # setdiff(grep("^gcs_support", nms, value = TRUE), "variant_gcs")
     variables_gcs_support_all <<- paste0("gcs_support", c("_info", "_no_info", ""))
+    variables_inheritance_tax <<- paste0("inheritance_tax_", c("400k", "1m", "10m", "1g", "100g"))
+    variables_inheritance_agg <<- paste0("inheritance_agg_", var_suffix_inheritance_type)
+    variables_tax_policy <<- c("tax_business_bequest", "inter_vivo_gifts", "net_wealth_tax", "tax_millionaires")
+    variables_wtp <<- paste0("wtp_", c("0.5", 1, 2, 3, 5, 7, 10))
     variables_numeric <<- c(variables_duration, variables_inheritance_type, paste0("custom_", c("min_income", "winners", "losers")), paste0("custom_slider_", c("win", "lose")), "hh_size", "Nb_children__14", "wtp", "income_exact", "trust", "wtp_certainty", "wtp_contribution")
 }
 
@@ -149,6 +153,7 @@ prepare <- function(scope = "final", fetch = FALSE, convert = TRUE, rename = FAL
 
 convert <- function(e) {
     for (i in prefixes) e <- rename_vars_by_suffix(e, i)
+    for (i in budget_policies$id) label(e[[variables_budget[i]]]) <- sub("policy", budget_policies$label[i], label(e[[variables_budget[i]]]))
     
     e$wtp_contribution <- suppressWarnings(as.numeric(gsub("[^0-9.]", "", gsub(",", ".", as.character(e$wtp_contribution)))))
     
@@ -283,6 +288,7 @@ convert <- function(e) {
     e <- create_item(variables_budget, labels = c("Inacceptable" = -1, "Ne sais pas" = -0.1, "Supportable" = 0, "Convenable" = 1, "Souhaitable" = 2),
                          values = c("Inacceptable", "Ne sais pas", "Supportable", "Convenable", "Souhaitable"), grep = TRUE, missing.values = -0.1, df = e)
     
+    
     # for (i in seq_len(nrow(budget_policies))) {
     #     id <- budget_policies$id[i]
     #     new_name <- budget_policies$variable_name[i]
@@ -300,6 +306,7 @@ convert <- function(e) {
     label(e$sum_supportable) <- "sum_supportable: Sum of budget policy amounts rated Souhaitable, Convenable or Supportable (G€)."
 
     names(e)[names(e) == "wtp_contribution"] <- "variant_wtp"
+    for (i in unique(e$variant_wtp)) e[[paste0("wtp_", i)]][e$variant_wtp == i] <- e$wtp[e$variant_wtp == i]
 
     e <- create_item("climate_belief", labels = c("CC pas réel" = -3, "Principalement naturel" = -2, "Autant humain que naturel" = -1, "Principalement humain" = 0, "Entièrement humain" = 1),
                                        values = c("n'est pas une r", "principalement dû.*variabilité", "autant dû", "principalement dû.*activité", "entièrement dû"), grep = TRUE, df = e)
@@ -373,9 +380,11 @@ convert <- function(e) {
 }
 
 e <- prepare(fetch = F, weighting = F, remove_id = T)
-d <- prepare(fetch = F, weighting = F, convert = F, remove_id = T)
-for (i in c(17:37, 100,104, 110:116, 128:129, 140,141, 149:161, 165,166,168,170,177:179, 186:189, 191, 219, 252:289)) { print(names(e)[i]); print(decrit(e[[i]])) }
-# TODO: foreign, 
+# d <- prepare(fetch = F, weighting = F, convert = F, remove_id = T)
+# for (i in c(17:37, 100,104, 110:116, 128:129, 140,141, 149:161, 165,166,168,170,177:179, 186:189, 191, 219, 252:289)) { print(names(e)[i]); print(decrit(e[[i]])) }
+# TODO: foreign, weight & quotas
+
+export_quotas()
 
 ##### Codebook #####
 export_codebook(e, "../data_ext/codebook.csv", stata = FALSE) #, omit = c(1, 2, 7, 9:13, 197))

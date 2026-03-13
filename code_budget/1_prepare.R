@@ -186,6 +186,12 @@ define_var_lists <- function() {
     variables_tax_policy <<- c("tax_business_bequest", "inter_vivo_gifts", "net_wealth_tax", "tax_millionaires")
     variables_wtp <<- paste0("wtp_", c("0.5", 1, 2, 3, 5, 7, 10))
     variables_numeric <<- c(variables_duration, variables_inheritance_type, paste0("custom_", c("min_income", "winners", "losers")), paste0("custom_slider_", c("win", "lose")), "hh_size", "Nb_children__14", "income_exact", "trust", "wtp_certainty", "wtp_contribution")
+    variables_sociodemos_all <<- c("gender", "age_exact", "foreign", "foreign_born_family", "foreign_born", "foreign_origin", "couple", "hh_size", "Nb_children__14", "race", "income", "income_quartile", "income_exact", "education_original", "education", "education_quota", 
+                                   "employment_status", "employment_agg", "working", "retired_or_not_working", "employment_18_64", "urbanity", "region", "owner", "millionaire", "nationality_SA", "voted", "vote")
+    variables_quotas_base <<- c("man", "age_factor", "income_quartile", "education", "urbanity", "region") 
+    variables_socio_demos <<- c(variables_quotas_base, "millionaire_agg", "couple", "employment_agg", "vote_factor") # add "hh_size", "owner", "wealth_factor", "donation_charities"?
+    variables_sociodemos <<- c("man", "age_factor", "income_factor", "education_factor", "urbanity_factor", "region_factor", "millionaire_factor", "couple", "employment_agg", "vote_factor") # add "hh_size", "owner", "wealth_factor", "donation_charities"?
+    control_variables <<- c("vote_factor", "man", "age_factor", "income_factor", "education_factor", "urbanity_factor", "millionaire_factor", "couple", "employment_agg", "foreign_born", "country_name", "country_region") # add "hh_size", "owner", "wealth_factor", "donation_charities"? "region_factor", "region_factor:country"
 }
 
 define_var_lists()
@@ -240,6 +246,7 @@ prepare <- function(scope = "final", fetch = FALSE, convert = TRUE, rename = FAL
         label(e$weight_vote) <- "weight_vote: [0.25; 4] Weight to adjust to country demographics. Sums to nrow([country]). Quota variables used: vote, quotas$[country], with frequencies pop_freq$[country]."
         # if (any(e$custom_redistr_asked) & !pilot) e <- compute_custom_redistr(e, name = "FR") # TODO 
     } else e$weight <- 1
+    e$n <- if (scope == "all") paste0("FRa", 1:nrow(e)) else paste0("FRn", 1:nrow(e))
     
     e
 }
@@ -296,10 +303,12 @@ convert <- function(e) {
     if ("education" %in% names(e)) e <- create_item("education", labels = c("Below upper secondary" = 1, "Upper secondary" = 2, "Above upper secondary" = 3), grep = TRUE, keep_original = TRUE, values = c("1|2", "3|4", "5|6|7"), df = e)
     e$education_quota <- ifelse(e$age > 25 & e$age < 65, e$education, 0)
     e <- create_item("education_quota", labels = c("Not 25-64" = 0, "Below upper secondary" = 1, "Upper secondary" = 2, "Post secondary" = 3), values = 0:3, missing.values = c(NA, 0), df = e, annotation = "education_quota: ifelse(age > 25 & age < 65, education, 0).")
-    if ("income" %in% names(e)) {
-        e <- create_item("income", new_var = "income_quartile", labels = c("PNR" = 0, "Q1" = 1, "Q2" = 2, "Q3" = 3, "Q4" = 4), values = c("not", "100|200|250", "300|400|500", "600|700|750", "800|900"), grep = TRUE, missing.values = c("PNR"), df = e)
-    }
-    if ("employment_status" %in% names(e)) e <- create_item("employment_status", new_var = "employment_agg", labels = c("Not working", "Student", "Working", "Retired"), grep = TRUE, values = c("Inactive|Unemployed", "Student", "employed$", "Retired"), df = e)
+    if ("income" %in% names(e)) e <- create_item("income", new_var = "income_quartile", labels = c("PNR" = 0, "Q1" = 1, "Q2" = 2, "Q3" = 3, "Q4" = 4), values = c("not", "100|200|250", "300|400|500", "600|700|750", "800|900"), grep = TRUE, missing.values = c("PNR"), df = e)
+    e <- create_item("income", new_var = "income_decile", labels = c("d1" = 1, "d2" = 2, "d3" = 3, "d4" = 4, "d5" = 5, "d6" = 6, "d7" = 7, "d8" = 8, "d9" = 9, "d10" = 10, "PNR" = 0), values = c("less", "100 and", "201|300", "301", "401", "501", "601", "701|800", "801", "more", "not"), grep = T, missing.values = c("PNR"), df = e)  
+    e$uc <- .5 + .5*pmax(0, e$hh_size - e$Nb_children__14) + .3*e$Nb_children__14
+    
+    e <- create_item("employment_status", new_var = "employment_agg", labels = c("Not working", "Student", "Working", "Retired"), grep = T, values = c("Inacti|Unemployed|chômage", "Student|Étudiant", "employed$|Employé|Indépend", "Retired|Retrait"), df = e, 
+                     annotation = "employment_agg: Not working (Inactive or Unemployed) / Student / Retired / Employed (full-time, part-time, or self-employed). Built from employment_status.")
     if ("urbanity" %in% names(e)) {
         e$urban <- e$urbanity == 1
         e <- create_item("urbanity", labels = c("Cities" = 1, "Towns and suburbs" = 2, "Rural" = 3), grep = TRUE, values = c("1", "2", "3|4"), keep_original = TRUE, missing.values = 0, df = e)
@@ -312,7 +321,7 @@ convert <- function(e) {
     
     e <- create_item("millionaire", new_var = "millionaire_agg", labels = c("Unlikely" = -1, "Likely" = 0, "Already" = 1), grep = TRUE, values = c("nlikely|eu", "Very l|Likely|Prob|Très prob", "already|déjà"), df = e)
     e <- create_item("millionaire", labels = c("Très peu probable" = -3, "Peu probable" = -1, "Probable" = 1, "Très probable" = 3, "Je suis déjà millionnaire" = 5), df = e)
-    
+    e$millionaire_factor <- factor(e$millionaire_agg)
     e <- create_item("wealth", new_var = "wealth_quantile", labels = c("< d3" = 15, "d3-d5" = 40, "d5-d6" = 55, "d6-d7" = 65, "d7-d8" = 75, "d8-d9" = 85, "p91-p95" = 93, "> p95" = 97, "NSP" = -.1), grep = T, df = e, missing.values = -.1,
                      values = c("Moins", "Entre 25", "Entre 100", "Entre 200", "Entre 300", "Entre 400", "Entre 700", "Plus", "Ne")) # https://www.insee.fr/fr/statistiques/7941421?sommaire=7941491
     e <- create_item("wealth", new_var = "wealth_quartile_5", labels = c("Q1" = 1, "Q2" = 2, "Q3" = 3, "Q4" = 4, "D10" = 5, "NSP" = -.1), grep = T, df = e, missing.values = -.1,
@@ -489,9 +498,6 @@ convert <- function(e) {
 e <- prepare(fetch = T, weighting = T, remove_id = T)
 # d <- prepare(fetch = F, weighting = F, convert = F, remove_id = T)
 # for (i in c(17:37, 100,104, 110:116, 128:129, 140,141, 149:161, 165,166,168,170,177:179, 186:189, 191, 219, 252:289)) { print(names(e)[i]); print(decrit(e[[i]])) }
-# f <- prepare(scope = "all", fetch = T, weighting = F, convert = F, remove_id = F)
-# drops <- as.character(read.csv("drops.csv")[,1])
-# length(match.nona(as.character(f$m), drops))
 
 export_quotas() # https://docs.google.com/spreadsheets/d/1EkkyVWX3LgLjyw-lm7c6r5iBXe1VZy2EMI3oR7ALgXI/edit?gid=265678696#gid=265678696
 stats_exclude()
@@ -504,3 +510,5 @@ export_codebook(e, "../data_ext/codebook.csv", stata = FALSE) #, omit = c(1, 2, 
 
 ##### Save #####
 save.image(".RData")
+
+

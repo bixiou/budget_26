@@ -190,7 +190,7 @@ package("dplR") # latexify, used in table_mean_lines_save hence in desc_table
 package("tm") # must be loaded before memisc; used for wordcloud
 package("wordcloud")
 package("wordcloud2")
-package("xfun") # required by Hmisc, knitr
+# package("xfun") # required by Hmisc, knitr
 package("Hmisc") # describe, decrit, wtd.mean
 # package("readxl")
 #' package("ggpubr")
@@ -975,7 +975,7 @@ export_quotas <- function(survey = "Budget", order_cols = c("country", "Gender",
   for (i in order_cols) new_order <- c(new_order, sort(names(quotas_count))[grepl(i, sort(names(quotas_count)))])
   new_order <- c(new_order, sort(names(quotas_count))[!multi_grepl(order_cols, sort(names(quotas_count)))])
   quotas_limit_current <- quotas_limit_current[, new_order]
-  quotas_count <- quotas_count[, new_order]ory
+  quotas_count <- quotas_count[, new_order]
   setNames(data.frame(t(rbind(names(quotas_count), quotas_limit_current, quotas_count))), c("category", "quota current", "count")) %>%  write_sheet(ss = gs4_get(gdoc), sheet = "quotas")
   # quotas_limit_current <- quotas_limit_current[waves, order(names(quotas_limit_current))]
   # quotas_count <- quotas_count[waves, order(names(quotas_count))]

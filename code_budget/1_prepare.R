@@ -6,8 +6,100 @@ votes <- list()
 for (c in unique(votes_xlsx$country)) votes[[c]] <- votes_xlsx[votes_xlsx$country == c, ]  
 for (c in unique(votes_xlsx$country)) row.names(votes[[c]]) <- votes[[c]]$party
 
+
+##### Quotas #####
+{
+    levels_quotas <- list(
+        "gender" = c("Femme", "Autre", "Homme"), # c("Woman", "Other", "Man"), # we could add: urbanity, education, wealth, occupation, employment_agg, marital_status, Nb_children, HH_size, home (ownership)
+        "income_quartile" = c("Q1", "Q2", "Q3", "Q4"), # 1:4, 
+        "age" = c("18-24", "25-34", "35-49", "50-64", "65+"),
+        "urbanity" = c("Cities", "Towns and suburbs", "Rural"),
+        "education_quota" = c("Below upper secondary", "Upper secondary", "Post secondary", "Not 25-64"), # "Not 25-64"
+        "employment_18_64" = c("Inactive", "Unemployed", "Employed", "65+"),
+        "vote" = c("Left", "Center-right or Right", 'Far right', "Non-voter, PNR or Other"),
+        "region" = 1:5, # It's OK if some values are missing in one population. (2 regions: IT, PL; 3 regions: DE, CH; 4 regions: RU, SA, US)
+        "urban" = c(TRUE, FALSE),
+        "gcs_support" = c("Yes", "No"),
+        "gcs_understood" = c(TRUE, FALSE)
+    )
+    
+    # TODO? automatic _vote in quotas, nb_regions automatic
+    quotas <- list("default" = c("gender", "income_quartile", "age", "education_quota", "urbanity", "region")
+                   # "FR" = c("gender", "income_quartile", "age", "education_quota", "urbanity", "region"), #, "urban_category") From oecd_climate: Pb sur cette variable car il y a des codes postaux à cheval sur plusieurs types d'aires urbaines. Ça doit fausser le type d'aire urbaine sur un peu moins de 10% des répondants. Plus souvent que l'inverse, ça les alloue au rural alors qu'ils sont urbains.
+                   # # Au final ça rajoute plus du bruit qu'autre chose, et ça gène pas tant que ça la représentativité de l'échantillon (surtout par rapport à d'autres variables type age ou diplôme). Mais ça justifie de pas repondérer par rapport à cette variable je pense. cf. FR_communes.R pour les détails.
+    )
+    for (q in names(quotas)) quotas[[paste0(q, "_vote")]] <- c(quotas[[q]], "vote")
+    for (q in names(quotas)) quotas[[paste0(q, "_gcs")]] <- c(quotas[[q]], "gcs_support")
+    # for (q in names(quotas)) quotas[[paste0(q, "_gcs_simple")]] <- c("gcs_support")
+    for (q in names(quotas)) quotas[[paste0(q, "_vote_gcs")]] <- c(quotas[[q]], "vote", "gcs_support")
+    for (q in names(quotas)) quotas[[paste0(q, "_all_gcs")]] <- c(quotas[[q]], "vote", "gcs_support", "gcs_understood")
+    # for (q in names(quotas)) quotas[[paste0(q, "_vote_gcs_simple")]] <- c("gender", "income_quartile", "age", "education_quota", "vote", "gcs_support")
+    # for (c in countries_EU) quotas[[paste0(c, "_all")]] <- c(quotas[[c]], "employment_18_64", "vote")
+    
+    qs <- round(read.xlsx("../data_ext/sources.xlsx", sheet = "Quotas", rowNames = T, rows = 1:2, cols = 1:57))
+    
+    pop_freq <- list()
+    for (c in "FR") {
+        pop_freq[[c]]$gender <- c("Femme" = qs[c,"women"], 0.001, "Homme" = qs[c,"men"])/1000
+        pop_freq[[c]]$income_quartile <- rep(.25, 4)
+        pop_freq[[c]]$age <- unlist(qs[c, c("18-24", "25-34", "35-49", "50-64", "65+")]/1000)
+        pop_freq[[c]]$education_quota <- unlist(c(qs[c, c("Below.upper.secondary.25-64.0-2", "Upper.secondary.25-64.3", "Above.Upper.secondary.25-64.4-8")]/1000, "Not 25-64" = sum(unlist(qs[c, c("18-24", "65+")]/1000)))) # It's called 3 and 4-8 though in reality it's 3-4 and 5-8.
+        pop_freq[[c]]$urbanity <- unlist(qs[c, c("Cities", "Towns.and.suburbs", "Rural")]/1000)
+        pop_freq[[c]]$region <- unlist(qs[c, paste0("Region.", 1:5)]/1000)
+        pop_freq[[c]]$employment_18_64 <- unlist(c(c("Inactive" = qs[c, "Inactivity"], "Unemployed" = qs[c, "Unemployment"]*(1000-qs[c, "Inactivity"])/1000, "Employed" =  1000-qs[c, "Inactivity"]-qs[c, "Unemployment"]*(1000-qs[c, "Inactivity"])/1000)*(1000-qs[c, c("65+")])/1000, "65+" = qs[c, c("65+")])/1000)
+        # pop_freq[[c]]$vote <- unlist(c(c("Left" = qs[c, "Left"], "Center-right or Right" = qs[c, "Center-right.or.Right"], "Far right" = qs[c, "Far.right"])*(1000-qs[c, "Abstention"])/sum(qs[c, c("Left", "Center-right.or.Right", "Far.right")], na.rm = T), "Abstention" = qs[c, "Abstention"])/1000) # We exclude Other in this variant
+        pop_freq[[c]]$vote <- unlist(c("Left" = qs[c, "Left"], "Center-right or Right" = qs[c, "Center-right.or.Right"], "Far right" = qs[c, "Far.right"], "Non-voter, PNR or Other" = sum(qs[c, "Abstention"], qs[c, "Vote_other"]))/1000) # We exclude Other in this variant
+    }
+}
+
+
 ##### Functions #####
-stats_exclude <- function(data_name, all = FALSE, old_names = FALSE) {
+weighting <- function(e, country = e$country[1], printWeights = T, variant = NULL, min_weight_for_missing_level = F, trim = T) {
+    if (nrow(e) == 0) return(1)
+    else {
+        if (!missing(variant) & printWeights) print(variant)
+        country_variant <- paste0(c(country, variant), collapse = "_") 
+        if (!country_variant %in% names(quotas)) {
+            warning("No country-variant quotas found, using default variables.")
+            country_variant <- ifelse(is.null(variant), "default", paste0("default_", variant)) }
+        vars <- quotas[[country_variant]]
+        freqs <- list()
+        for (v in vars) {
+            if (!(v %in% names(e))) warning(paste(v, "not in data"))
+            e[[v]] <- as.character(e[[v]], include.missings = T)
+            e[[v]][is.na(e[[v]])] <- "NA"
+            var <- ifelse(v %in% names(levels_quotas), v, paste(country, v, sep="_"))
+            if (!(var %in% names(levels_quotas))) warning(paste(var, "not in levels_quotas"))
+            levels_v <- as.character(levels_quotas[[var]])
+            levels_v <- levels_v[levels_v != 0]
+            missing_levels <- setdiff(levels(as.factor(e[[v]])), levels_v) 
+            present_levels <- which(levels_v %in% levels(as.factor(e[[v]]))) 
+            if (length(present_levels) != length(levels_v)) warning(paste0("Following levels are missing from data: ", var, ": ", 
+                                                                           paste(levels_v[!1:length(levels_v) %in% present_levels], collapse = ', '), " (for ", country, "). Weights are still computed, neglecting this category."))
+            prop_v <- pop_freq[[country]][[var]][present_levels]
+            if (min_weight_for_missing_level) freq_missing <- rep(0.000001, length(missing_levels)) # imputes 0 weight for levels present in data but not in the weight's definition
+            else freq_missing <- vapply(missing_levels, function(x) sum(e[[v]]==x), FUN.VALUE = c(0))
+            freq_v <- c(prop_v*(nrow(e)-sum(freq_missing)), freq_missing)
+            df <- data.frame(c(levels_v[present_levels], missing_levels), freq_v)
+            # df <- data.frame(c(levels_v, missing_levels), nrow(e)*c(pop_freq[[country]][[var]], rep(0.0001, length(missing_levels))))
+            names(df) <- c(v, "Freq")
+            freqs <- c(freqs, list(df))
+        }
+        # print(freqs)
+        unweigthed <- svydesign(ids=~1, data=e)
+        raked <- rake(design= unweigthed, sample.margins = lapply(vars, function(x) return(as.formula(paste("~", x)))), population.margins = freqs)
+        
+        if (printWeights) {    print(summary(weights(raked))  )
+            print(paste("(mean w)^2 / (n * mean w^2): ", representativity_index(weights(raked)), " (pb if < 0.5)")) # <0.5 : problématique
+            print(paste("proportion not in [0.25; 4]: ", round(length(which(weights(raked)<0.25 | weights(raked)>4))/ length(weights(raked)), 3), "Nb obs. in sample: ", nrow(e)))
+        }
+        if (trim) return(weights(trimWeights(raked, lower=0.25, upper=4, strict=TRUE)))
+        else return(weights(raked, lower=0.25, upper=4, strict=TRUE))
+        
+    }
+}
+
+stats_exclude <- function(data_name = "Budget", all = FALSE, old_names = FALSE) {
     cat("\n\nSURVEY:", data_name, "\n\n")
     e <- read_csv(paste0("../data_raw/", data_name, ".csv"), guess_max = Inf)
     if (!old_names) {
@@ -90,15 +182,22 @@ define_var_lists <- function() {
     variables_gcs_support_all <<- paste0("gcs_support", c("_info", "_no_info", ""))
     variables_inheritance_tax <<- paste0("inheritance_tax_", c("400k", "1m", "10m", "1g", "100g"))
     variables_inheritance_agg <<- paste0("inheritance_agg_", var_suffix_inheritance_type)
+    variables_inheritance_tax_agg <<- paste0("inheritance_tax_agg_", c("400k", "1m", "10m", "1g", "100g"))
     variables_tax_policy <<- c("tax_business_bequest", "inter_vivo_gifts", "net_wealth_tax", "tax_millionaires")
     variables_wtp <<- paste0("wtp_", c("0.5", 1, 2, 3, 5, 7, 10))
-    variables_numeric <<- c(variables_duration, variables_inheritance_type, paste0("custom_", c("min_income", "winners", "losers")), paste0("custom_slider_", c("win", "lose")), "hh_size", "Nb_children__14", "wtp", "income_exact", "trust", "wtp_certainty", "wtp_contribution")
+    variables_numeric <<- c(variables_duration, variables_inheritance_type, paste0("custom_", c("min_income", "winners", "losers")), paste0("custom_slider_", c("win", "lose")), "hh_size", "Nb_children__14", "income_exact", "trust", "wtp_certainty", "wtp_contribution")
+    variables_sociodemos_all <<- c("gender", "age_exact", "foreign", "foreign_born_family", "foreign_born", "foreign_origin", "couple", "hh_size", "Nb_children__14", "race", "income", "income_quartile", "income_exact", "education_original", "education", "education_quota", 
+                                   "employment_status", "employment_agg", "working", "retired_or_not_working", "employment_18_64", "urbanity", "region", "owner", "millionaire", "nationality_SA", "voted", "vote")
+    variables_quotas_base <<- c("man", "age_factor", "income_quartile", "education", "urbanity", "region") 
+    variables_socio_demos <<- c(variables_quotas_base, "millionaire_agg", "couple", "employment_agg", "vote_factor") # add "hh_size", "owner", "wealth_factor", "donation_charities"?
+    variables_sociodemos <<- c("man", "age_factor", "income_factor", "education_factor", "urbanity_factor", "region_factor", "millionaire_factor", "couple", "employment_agg", "vote_factor") # add "hh_size", "owner", "wealth_factor", "donation_charities"?
+    control_variables <<- c("vote_factor", "man", "age_factor", "income_factor", "education_factor", "urbanity_factor", "millionaire_factor", "couple", "employment_agg", "foreign_born", "country_name", "country_region") # add "hh_size", "owner", "wealth_factor", "donation_charities"? "region_factor", "region_factor:country"
 }
 
 define_var_lists()
 
 # Budget prepare: load Budget.csv, filter by scope, rename, convert.
-prepare <- function(scope = "final", fetch = FALSE, convert = TRUE, rename = FALSE, duration_min = 360, weighting = FALSE, remove_id = TRUE) {
+prepare <- function(scope = "final", fetch = FALSE, convert = TRUE, rename = FALSE, duration_min = 360, weighting = T, remove_id = TRUE) {
     sample_name <- "Budget"
     if (fetch) {
         survey_list <- all_surveys()
@@ -107,7 +206,7 @@ prepare <- function(scope = "final", fetch = FALSE, convert = TRUE, rename = FAL
         if (!remove_id) e$DistributionChannel <- e$IPAddress
         if (remove_id) e$interview <- grepl("@", e$interview)
         if (remove_id) e$budget_mail <- grepl("@", e$budget_mail)
-        e <- e[,which(!(names(e) %in% c("PSID", "ResponseId", "PID", "tic", "IPAddress", "m")))]
+        if (remove_id) e <- e[,which(!(names(e) %in% c("PSID", "ResponseId", "PID", "tic", "IPAddress", "m")))]
         for (v in names(e)) label(e[[v]]) <- c(v = paste0(v, ": ", gsub("\n", "§", label(e[[v]]))))
         write_csv(e, paste0("../data_raw/", sample_name, ".csv"), na = "")
         saveRDS(label(e), paste0("../data_raw/labels_", sample_name, ".rds"))
@@ -147,6 +246,7 @@ prepare <- function(scope = "final", fetch = FALSE, convert = TRUE, rename = FAL
         label(e$weight_vote) <- "weight_vote: [0.25; 4] Weight to adjust to country demographics. Sums to nrow([country]). Quota variables used: vote, quotas$[country], with frequencies pop_freq$[country]."
         # if (any(e$custom_redistr_asked) & !pilot) e <- compute_custom_redistr(e, name = "FR") # TODO 
     } else e$weight <- 1
+    e$n <- if (scope == "all") paste0("FRa", 1:nrow(e)) else paste0("FRn", 1:nrow(e))
     
     e
 }
@@ -170,6 +270,10 @@ convert <- function(e) {
         labs <- setNames(e[[paste0(v, "_num")]], e[[v]])
         labs <- sort(labs[!duplicated(labs)])
         e <- create_item(v, labels = labs, values = names(labs), df = e)
+        e <- create_item(sub("^inheritance_", "inheritance_tax_", v), new_var = sub("^inheritance_", "inheritance_tax_agg_", v), labels = c("0%" = 0, "5%" = .05, "10% - 12.5%" = .1, "25%" = .25, "50%" = .5, "75%" = .75, "90% - 95%" = .9, "99% - 100%" = 1), 
+                         values = list(0, .05, c(.1, .125), .25, .5, .75, c(.9, .95), c(.995, .9995, .99995, .999995, 1)), df = e)
+        # e <- create_item(sub("^inheritance_", "inheritance_tax_", v), new_var = sub("^inheritance_", "inheritance_tax_agg_", v), labels = c("0%" = 0, "5% - 12.5%" = .1, "25%" = .25, "50%" = .5, "75%" = .75, "90%" = .9, "95%" = .95, "99.x%" = .995, "100%" = 1), 
+        #                  values = list(0, c(.05, .1, .125), .25, .5, .75, .9, .95, c(.995, .9995, .99995, .999995), 1), df = e)
     }
     
     for (i in intersect(variables_numeric, names(e))) {
@@ -197,18 +301,27 @@ convert <- function(e) {
         e$age_factor <- relevel(as.factor(e$age), "35-49")
     }
     if ("education" %in% names(e)) e <- create_item("education", labels = c("Below upper secondary" = 1, "Upper secondary" = 2, "Above upper secondary" = 3), grep = TRUE, keep_original = TRUE, values = c("1|2", "3|4", "5|6|7"), df = e)
-    if ("income" %in% names(e)) {
-        e <- create_item("income", new_var = "income_quartile", labels = c("PNR" = 0, "Q1" = 1, "Q2" = 2, "Q3" = 3, "Q4" = 4), values = c("not", "100|200|250", "300|400|500", "600|700|750", "800|900"), grep = TRUE, missing.values = c("PNR"), df = e)
-    }
-    if ("employment_status" %in% names(e)) e <- create_item("employment_status", new_var = "employment_agg", labels = c("Not working", "Student", "Working", "Retired"), grep = TRUE, values = c("Inactive|Unemployed", "Student", "employed$", "Retired"), df = e)
+    e$education_quota <- ifelse(e$age > 25 & e$age < 65, e$education, 0)
+    e <- create_item("education_quota", labels = c("Not 25-64" = 0, "Below upper secondary" = 1, "Upper secondary" = 2, "Post secondary" = 3), values = 0:3, missing.values = c(NA, 0), df = e, annotation = "education_quota: ifelse(age > 25 & age < 65, education, 0).")
+    if ("income" %in% names(e)) e <- create_item("income", new_var = "income_quartile", labels = c("PNR" = 0, "Q1" = 1, "Q2" = 2, "Q3" = 3, "Q4" = 4), values = c("not", "100|200|250", "300|400|500", "600|700|750", "800|900"), grep = TRUE, missing.values = c("PNR"), df = e)
+    e <- create_item("income", new_var = "income_decile", labels = c("d1" = 1, "d2" = 2, "d3" = 3, "d4" = 4, "d5" = 5, "d6" = 6, "d7" = 7, "d8" = 8, "d9" = 9, "d10" = 10, "PNR" = 0), values = c("less", "100 and", "201|300", "301", "401", "501", "601", "701|800", "801", "more", "not"), grep = T, missing.values = c("PNR"), df = e)  
+    e$uc <- .5 + .5*pmax(0, e$hh_size - e$Nb_children__14) + .3*e$Nb_children__14
+    
+    e <- create_item("employment_status", new_var = "employment_agg", labels = c("Not working", "Student", "Working", "Retired"), grep = T, values = c("Inacti|Unemployed|chômage", "Student|Étudiant", "employed$|Employé|Indépend", "Retired|Retrait"), df = e, 
+                     annotation = "employment_agg: Not working (Inactive or Unemployed) / Student / Retired / Employed (full-time, part-time, or self-employed). Built from employment_status.")
     if ("urbanity" %in% names(e)) {
         e$urban <- e$urbanity == 1
         e <- create_item("urbanity", labels = c("Cities" = 1, "Towns and suburbs" = 2, "Rural" = 3), grep = TRUE, values = c("1", "2", "3|4"), keep_original = TRUE, missing.values = 0, df = e)
     }
-    if ("foreign" %in% names(e)) e <- create_item("foreign", new_var = "foreign_born_family", labels = c("No" = 0, "One parent" = 1, "Two parents" = 2, "Self" = 3), grep = TRUE, values = c("too", "one of", "both", "Yes"), df = e)
+    e <- create_item("foreign", new_var = "foreign_born_family", labels = c("No" = 0, "One parent" = 1, "Two parents" = 2, "Self" = 3), grep = TRUE, values = c("too|Non", "one of|un de", "both|deux", "Yes|Oui"), df = e) 
+    e$foreign_born <- e$foreign_born_family %in% 3
+    label(e$foreign_born) <- "foreign_born: T/F. Born abroad (foreign == 3)."
+    e$foreign_origin <- e$foreign_born_family > 0 
+    label(e$foreign_origin) <- "foreign_origin: T/F. At least one parent (or self) born abroad (foreign > 0)."
+    
     e <- create_item("millionaire", new_var = "millionaire_agg", labels = c("Unlikely" = -1, "Likely" = 0, "Already" = 1), grep = TRUE, values = c("nlikely|eu", "Very l|Likely|Prob|Très prob", "already|déjà"), df = e)
     e <- create_item("millionaire", labels = c("Très peu probable" = -3, "Peu probable" = -1, "Probable" = 1, "Très probable" = 3, "Je suis déjà millionnaire" = 5), df = e)
-    
+    e$millionaire_factor <- factor(e$millionaire_agg)
     e <- create_item("wealth", new_var = "wealth_quantile", labels = c("< d3" = 15, "d3-d5" = 40, "d5-d6" = 55, "d6-d7" = 65, "d7-d8" = 75, "d8-d9" = 85, "p91-p95" = 93, "> p95" = 97, "NSP" = -.1), grep = T, df = e, missing.values = -.1,
                      values = c("Moins", "Entre 25", "Entre 100", "Entre 200", "Entre 300", "Entre 400", "Entre 700", "Plus", "Ne")) # https://www.insee.fr/fr/statistiques/7941421?sommaire=7941491
     e <- create_item("wealth", new_var = "wealth_quartile_5", labels = c("Q1" = 1, "Q2" = 2, "Q3" = 3, "Q4" = 4, "D10" = 5, "NSP" = -.1), grep = T, df = e, missing.values = -.1,
@@ -306,6 +419,9 @@ convert <- function(e) {
     label(e$sum_supportable) <- "sum_supportable: Sum of budget policy amounts rated Souhaitable, Convenable or Supportable (G€)."
 
     names(e)[names(e) == "wtp_contribution"] <- "variant_wtp"
+    lab <- Label(e$wtp)
+    e$wtp <- grepl("POUR", e$wtp)
+    label(e$wtp) <- lab
     for (i in unique(e$variant_wtp)) e[[paste0("wtp_", i)]][e$variant_wtp == i] <- e$wtp[e$variant_wtp == i]
 
     e <- create_item("climate_belief", labels = c("CC pas réel" = -3, "Principalement naturel" = -2, "Autant humain que naturel" = -1, "Principalement humain" = 0, "Entièrement humain" = 1),
@@ -379,12 +495,13 @@ convert <- function(e) {
     return(e)
 }
 
-e <- prepare(fetch = F, weighting = F, remove_id = T)
+e <- prepare(fetch = T, weighting = T, remove_id = T)
 # d <- prepare(fetch = F, weighting = F, convert = F, remove_id = T)
 # for (i in c(17:37, 100,104, 110:116, 128:129, 140,141, 149:161, 165,166,168,170,177:179, 186:189, 191, 219, 252:289)) { print(names(e)[i]); print(decrit(e[[i]])) }
-# TODO: foreign, weight & quotas
 
-export_quotas()
+export_quotas() # https://docs.google.com/spreadsheets/d/1EkkyVWX3LgLjyw-lm7c6r5iBXe1VZy2EMI3oR7ALgXI/edit?gid=265678696#gid=265678696
+stats_exclude()
+
 
 ##### Codebook #####
 export_codebook(e, "../data_ext/codebook.csv", stata = FALSE) #, omit = c(1, 2, 7, 9:13, 197))
@@ -393,3 +510,5 @@ export_codebook(e, "../data_ext/codebook.csv", stata = FALSE) #, omit = c(1, 2, 
 
 ##### Save #####
 save.image(".RData")
+
+

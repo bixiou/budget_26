@@ -273,7 +273,7 @@ n <- function(var) { as.numeric(as.vector(var)) }
 #'   ci <- estimate + if (length(margin) > 1) matrix(margin, nrow = length(margin))%*%c(-1, 1) else margin*c(-1, 1)
 #'   if (print) ci <- paste0("[", round(if (is.matrix(ci)) ci[,1] else ci[1], digits), "; ", round(if (is.matrix(ci)) ci[,2] else ci[2], digits), "]")
 #'   return(ci) }
-#' match.nona <- function(v, t) {return(as.vector(na.omit(match(v, t))))} # returns match(v, t) purged from NAs, i.e. the (first) position of v elements (that are in t) in t (screened/ordered from v), cf. below
+match.nona <- function(v, t) {return(as.vector(na.omit(match(v, t))))} # returns match(v, t) purged from NAs, i.e. the (first) position of v elements (that are in t) in t (screened/ordered from v), cf. below
 #' # so df$foo[match.nona(db$bar, df$bar)] <- db$foo[db$bar %in% df$bar] replaces elements of df$foo such that df$bar is in db$bar by corresponding db$foo
 Label <- function(var, df = if (exists("e")) e, multi = FALSE) {
   if (multi) sapply(var, function(v) Label(v, df = df, multi = FALSE))
@@ -960,7 +960,7 @@ representativity_index <- function(weights, digits = 3) { return(round(sum(weigh
 
 # If bug, detach memisc (namespace content) and plotly (namespace config); and run qualtrics_credential.R
 # surveys are assumed to be name [country]_survey
-export_quotas <- function(survey = "Budget", order_cols = c("country", "Gender", "Age", "Education", "Urbanity", "Income", "Region", "Race"), gdoc = "https://docs.google.com/spreadsheets/d/1EkkyVWX3LgLjyw-lm7c6r5iBXe1VZy2EMI3oR7ALgXI/", domain = "wumarketing.eu") {
+export_quotas <- function(survey = "Budget", order_cols = c("country", "Gender", "Age", "Education", "Urbanity", "Income", "Region", "Race"), gdoc = "https://docs.google.com/spreadsheets/d/1EkkyVWX3LgLjyw-lm7c6r5iBXe1VZy2EMI3oR7ALgXI/", domain = "wumarketing.eu", quotas_original = if (exists("qs")) qs[1, 4:25]) {
   quotas_limit_current <- quotas_count <- data.frame()
   survey_list <- all_surveys()
   api_response <- GET(paste0("https://", domain, ".qualtrics.com/API/v3/survey-definitions/", survey_list$id[survey_list$name == survey], "/quotas"),
@@ -976,7 +976,10 @@ export_quotas <- function(survey = "Budget", order_cols = c("country", "Gender",
   new_order <- c(new_order, sort(names(quotas_count))[!multi_grepl(order_cols, sort(names(quotas_count)))])
   quotas_limit_current <- quotas_limit_current[, new_order]
   quotas_count <- quotas_count[, new_order]
-  setNames(data.frame(t(rbind(names(quotas_count), quotas_limit_current, quotas_count))), c("category", "quota current", "count")) %>%  write_sheet(ss = gs4_get(gdoc), sheet = "quotas")
+  quotas_original <- unname(c(quotas_original, 0, sum(quotas_original[1:2])))
+  # overfilling <- (quotas_count/quotas_original)/n(quotas_count[length(quotas_count)]/quotas_original[length(quotas_original)])
+  setNames(data.frame(t(rbind(names(quotas_count), quotas_original, quotas_limit_current, quotas_count))), # , quotas_count/quotas_original, overfilling
+           c("category", "quota original", "quota current", "count")) %>%  range_write(ss = gs4_get(gdoc), sheet = "quotas", range = "A:D", reformat = FALSE) # , "share", "overfilling"
   # quotas_limit_current <- quotas_limit_current[waves, order(names(quotas_limit_current))]
   # quotas_count <- quotas_count[waves, order(names(quotas_count))]
   # quotas_limit_current %>%  write_sheet(ss = gs4_get(gdoc), sheet = "quotas_limit_current")
@@ -1176,7 +1179,7 @@ data1 <- function(vars, data=e, weights=T) {
  return( matrix(res, ncol=length(vars)) )
 }
 dataN <- function(var, data=e, miss=T, weights = T, return = "", fr=F, rev=FALSE, rev_legend = FALSE, levels = NULL, weight_non_na = T) {
-  missing_labels <- c("NSP", "PNR", "Non concerné·e", "Included", "Don't know", "PNR or other", "NSP ou autre", "PNR ou autre", "PNR/Non-voter") # TODO: allow for non-standard PNR in a more straightforward way than adding the argument "fr" and putting its value below
+  missing_labels <- c("NSP", "PNR", "Non concerné·e", "Included", "Don't know", "PNR or other", "NSP ou autre", "PNR ou autre", "PNR/Non-voter", "Ne sais pas") # TODO: allow for non-standard PNR in a more straightforward way than adding the argument "fr" and putting its value below
   if (is.character(fr)) missing_labels <- c(missing_labels, fr)
   weight_var <- if (sum(!is.na(data$weight_country)) == nrow(data) && length(unique(data$country)) == 1) "weight_country" else "weight"
   if (weight_non_na && length(unique(data$country)) == 1 && sum(is.na(data[[var]])) > 0.1*nrow(data)) {
@@ -1405,7 +1408,7 @@ order_agree <- function(data, miss, rev = T, n = ncol(data)) { # used in barres
 barres <- function(data, vars, file, title="", labels, color=c(), rev_color = FALSE, hover=legend, nsp=TRUE, sort=TRUE, legend=hover, showLegend=T,
                    margin_r=0, margin_l=NULL, share_labels = NULL, online=FALSE, export_xls = F, digits = 0, add_means = FALSE, show_legend_means = T, transform_mean = NULL, name_mean = "Mean",
                    display_values=T, thin=T, legend_x=NA, show_ticks=T, xrange=NA, save = FALSE, df=e, miss=T, weight_non_na = T, width = dev.size('px')[1], height = dev.size('px')[2],
-                   weights = T, fr=F, rev=T, grouped = F, error_margin = F, color_margin = '#00000033', N = NA, font = 'Arial') { # default: Arial (also: Times, Latin Modern Sans, Computer Modern) # OECD: Computer Modern
+                   weights = T, fr = T, rev=T, grouped = F, error_margin = F, color_margin = '#00000033', N = NA, font = 'Arial') { # default: Arial (also: Times, Latin Modern Sans, Computer Modern) # OECD: Computer Modern
   if (missing(vars) & missing(legend) & missing(hover)) warning('hover or legend must be given')
   if (!missing(miss)) nsp <- miss
   labels <- rev(unname(labels))
@@ -3276,5 +3279,3 @@ convert_html_to_latex <- function(text) {
   # text <- gsub("\\\\\\s*\\[", "\\\\ \n [", text)
   return(text)
 }
-
-attr <- base::attr

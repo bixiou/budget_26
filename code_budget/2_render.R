@@ -210,10 +210,15 @@ barres_defs_nolabel <- fill_barres(c(), barres_defs_nolabel, df = e)
 barres_multiple(barres_defs, df = e, format = "pdf") # method = "webshot", 
 barres_multiple(barres_defs_nolabel, df = e, nolabel = TRUE, format = "pdf") # , method = "webshot"
 
+barres_defs_nolabel[["budget"]]$legend[5] <- "Ne sais pas"
+# barres_defs_nolabel[["budget"]]$width <- 1100
+barres_defs_nolabel[["budget"]]$labels <- break_strings(paste0(labels_vars[variables_budget], ": ", sub(".", ",", as.character(budget_policies_amounts), fixed = T), " Mds"), 64)
+sum(grepl("<br>.*<br", barres_defs_nolabel[["budget"]]$labels))
+# barres_defs_nolabel[["budget"]]$labels[1] <- paste(barres_defs_nolabel[["budget"]]$labels[1], "Mds €")
+# barres_defs_nolabel[["budget"]]$labels[17] <- break_strings(labels_vars[variables_budget[17]], 90)
+barres_multiple(barres_defs_nolabel["budget"], df = e, weights = F, nolabel = TRUE, format = "pdf")
 
-barres_multiple(barres_defs_nolabel["custom_min_income_agg"], df = e, , nolabel = TRUE, format = "pdf")
 
-# parameters_custom_redistr, 
 
 ##### Budget policy acceptability table #####
 {
@@ -221,12 +226,18 @@ barres_multiple(barres_defs_nolabel["custom_min_income_agg"], df = e, , nolabel 
   bp$souhaitable <- bp$conv_souh <- bp$supp_conv_souh <- bp$souhaitable_xpnr <- bp$conv_souh_xpnr <- bp$supp_conv_souh_xpnr <- NA
   for (i in seq_len(nrow(bp))) {
     v <- bp$variable_name[i]
-    bp$souhaitable[i]      <- wtd.mean(e[[v]] == 2, e$weight)
-    bp$conv_souh[i]        <- wtd.mean(e[[v]] >= 1, e$weight)
-    bp$supp_conv_souh[i]   <- wtd.mean(e[[v]] >= 0, e$weight)
-    bp$souhaitable_xpnr[i]    <- wtd.mean(e[[v]] == 2, e$weight * !is.missing(e[[v]]))
-    bp$conv_souh_xpnr[i]      <- wtd.mean(e[[v]] >= 1, e$weight * !is.missing(e[[v]]))
-    bp$supp_conv_souh_xpnr[i] <- wtd.mean(e[[v]] >= 0, e$weight * !is.missing(e[[v]]))
+    # bp$souhaitable[i]      <- wtd.mean(e[[v]] == 2, e$weight)
+    # bp$conv_souh[i]        <- wtd.mean(e[[v]] >= 1, e$weight)
+    # bp$supp_conv_souh[i]   <- wtd.mean(e[[v]] >= 0, e$weight)
+    # bp$souhaitable_xpnr[i]    <- wtd.mean(e[[v]] == 2, e$weight * !is.missing(e[[v]]))
+    # bp$conv_souh_xpnr[i]      <- wtd.mean(e[[v]] >= 1, e$weight * !is.missing(e[[v]]))
+    # bp$supp_conv_souh_xpnr[i] <- wtd.mean(e[[v]] >= 0, e$weight * !is.missing(e[[v]]))
+    bp$souhaitable[i]      <- wtd.mean(e[[v]] == 2, 1)
+    bp$conv_souh[i]        <- wtd.mean(e[[v]] >= 1, 1)
+    bp$supp_conv_souh[i]   <- wtd.mean(e[[v]] >= 0, 1)
+    bp$souhaitable_xpnr[i]    <- wtd.mean(e[[v]] == 2, !is.missing(e[[v]]))
+    bp$conv_souh_xpnr[i]      <- wtd.mean(e[[v]] >= 1, !is.missing(e[[v]]))
+    bp$supp_conv_souh_xpnr[i] <- wtd.mean(e[[v]] >= 0, !is.missing(e[[v]]))
   }
   bp <- bp[order(-bp$conv_souh_xpnr), ]
   bp$cum_conv_souh <- cumsum(ifelse(is.na(bp$conv_souh_xpnr), 0, bp$amount))
@@ -237,3 +248,9 @@ barres_multiple(barres_defs_nolabel["custom_min_income_agg"], df = e, , nolabel 
   print(bp[, c("variable", "amount", "souhaitable", "conv+souh", "supp+conv+souh", "souh xPNR", "conv+souh xPNR", "supp+conv+souh xPNR", "cum conv+souh")])
 }
 
+budget_majorite_convenable <- bp$variable[bp$`conv+souh xPNR` > 0.5]
+budget_majorite_souhaitable <- bp$variable[bp$`souh xPNR` > 0.5]
+decrit(budget_policies$leaning[budget_policies$variable_name %in% budget_majorite_convenable]) # 5 (37.5G€) hurt the rich, 3 shrink welfare state (26.7G€), 3 sectoral (24.7G€), 2 hurt foreigners (8G€)
+decrit(budget_policies$leaning[budget_policies$variable_name %in% budget_majorite_souhaitable]) # 2 hurt the rich (14.5G€), 2 hurt foreigners (8G€), 1 sectoral (9G€)
+decrit(budget_policies$leaning[budget_policies$variable_name %in% budget_majorite_convenable], weights = budget_policies$amount[budget_policies$variable_name %in% budget_majorite_convenable])
+decrit(budget_policies$leaning[budget_policies$variable_name %in% budget_majorite_souhaitable], weights = budget_policies$amount[budget_policies$variable_name %in% budget_majorite_souhaitable])

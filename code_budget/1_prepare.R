@@ -1,5 +1,5 @@
 ##### Load objects #####
-budget_policies <- read.xlsx("../data_ext/budget_policies.xlsx", sheet = 1) # leaning: -1 hurt rich; 1 shrink welfare state; 2 hurt foreigners; 0 cost many/everyone; empty: sectoral policy
+budget_policies <- read.xlsx("../data_ext/budget_policies.xlsx", sheet = 1) # leaning: -1 hurt rich; 1 shrink welfare state; 2 hurt foreigners; 0 cost many/everyone; 0.5: sectoral policy
 budget_policies_amounts <- setNames(budget_policies$amount, budget_policies$variable_name)
 votes_xlsx <- read.xlsx("../data_ext/sources.xlsx", sheet = "Election", cols = 1:6)
 votes <- list()

@@ -1,31 +1,31 @@
 "variable","amount","label","supp+conv+souh xPNR","conv+souh xPNR","souh xPNR","supp+conv+souh","conv+souh","souhaitable","cum conv+souh"
-"budget_eliminer_doublons_territoriaux",9,"Éliminer les doublons entre échelons territoriaux",0.982,0.908,0.64,0.787,0.728,0.513,9
-"budget_tva_luxe",3.5,"Créer un taux de TVA à 25 % pour les biens de luxe (montres, yachts, voitures de sport...)",0.908,0.811,0.6,0.851,0.76,0.563,12.5
-"budget_retablir_isf",11,"Rétablir une version renforcée de l'impôt sur la fortune des millionnaires (avec un taux de 2% pour les milliardaires)",0.911,0.795,0.59,0.844,0.737,0.547,23.5
-"budget_retirer_aides_sociales_etrangers",6.7,"Retirer les aides sociales aux étrangers non-européens (RSA, allocations familiales, APL, minimum vieillesse)",0.848,0.731,0.579,0.797,0.688,0.545,30.2
-"budget_geler_depenses_etat_collectivites",21.4,"Geler pendant deux ans les dépenses de l'État et des collectivités territoriales",0.877,0.684,0.366,0.776,0.606,0.324,51.6
-"budget_supprimer_ame",1.3,"Supprimer l'Aide Médicale de l'État, qui couvre les soins urgents des étrangers en situation irrégulière",0.796,0.674,0.515,0.756,0.64,0.489,52.9
-"budget_augmenter_impot_revenu_aises",4.7,"Augmenter l'impôt sur les revenus des plus aisés en rajoutant des tranches, avec un taux maximal à 65 %",0.827,0.666,0.437,0.763,0.615,0.403,57.6
-"budget_restaurer_taxe_habitation_aises",9.3,"Restaurer la taxe d'habitation sur les 20 % les plus aisés",0.802,0.635,0.406,0.753,0.597,0.382,66.9
-"budget_augmenter_duree_travail_droit_chomage",1.9,"Augmenter de 4 mois de la durée de travail pour avoir droit au chômage",0.82,0.603,0.372,0.767,0.565,0.348,68.8
-"budget_augmenter_impot_heritages_eleves",9,"Augmenter l'impôt sur l'héritage pour les 10% d'héritages les plus élevés",0.763,0.602,0.407,0.715,0.565,0.382,77.8
-"budget_diminuer_credit_impot_recherche",1.5,"Diminuer le crédit d'impôt recherche pour les grandes entreprises",0.866,0.588,0.231,0.765,0.52,0.204,79.3
-"budget_supprimer_exonerations_taxes_carburants",14.2,"Supprimer les exonérations de taxes (sur les carburants et autres) dans certains secteurs (maritime, aviation, routiers, agriculture) et augmenter la taxe sur les billets d'avion",0.763,0.522,0.273,0.686,0.47,0.246,93.5
-"budget_augmenter_taxe_revenus_capital",1.2,"Augmenter la taxe sur les revenus du capital de 30% à 33%",0.733,0.516,0.304,0.643,0.453,0.267,94.7
-"budget_geler_aides_sociales",3.4,"Geler les aides sociales (hors APL), diminuer les Aides Pour le Logement de 5% et les restreindre aux ménages modestes",0.731,0.514,0.283,0.676,0.475,0.262,98.1
-"budget_diminuer_subventions_ecole_privee",3.5,"Diminuer d'un tiers des subventions à l'enseignement privé",0.777,0.51,0.266,0.713,0.468,0.244,101.6
-"budget_reduire_depenses_militaires",12,"Réduire les dépenses militaires (annuler la hausse prévue)",0.616,0.421,0.198,0.565,0.385,0.181,113.6
-"budget_reduire_depenses_educatives_demographie",3.4,"Réduire les dépenses éducatives en proportion de la baisse démographique",0.665,0.381,0.118,0.597,0.342,0.106,117
-"budget_aligner_tva_restauration",4.2,"Aligner le taux de TVA dans la restauration (10%) sur le taux normal (20%)",0.63,0.38,0.118,0.565,0.341,0.106,121.2
-"budget_augmenter_impot_societes",4.4,"Augmenter le taux d'imposition des sociétés de 25% à 33,5%",0.621,0.379,0.192,0.557,0.341,0.172,125.6
-"budget_augmenter_age_retraite_65",15,"Augmenter l'âge légal de départ à la retraite de 64 à 65 ans sauf pour les carrières longues ou avec pénibilité",0.554,0.36,0.224,0.518,0.337,0.21,140.6
-"budget_supprimer_avantages_fiscaux_complements_salaire",18,"Supprimer les avantages fiscaux aux compléments de salaire (intéressement, participation, tickets-restaurants, etc.)",0.529,0.295,0.137,0.491,0.274,0.127,158.6
-"budget_reduire_aides_apprentissage",4.3,"Réduire les aides aux entreprises pour les contrats d'apprentissage",0.578,0.295,0.127,0.53,0.271,0.116,162.9
-"budget_reduire_remboursement_soins",5.3,"Réduire le remboursement de certains soins, des indemnités d'arrêt maladie, et du transport des patients",0.463,0.287,0.11,0.432,0.267,0.102,168.2
-"budget_augmenter_impot_revenu_tous",11.9,"Augmenter d'un point les taux de l'impôt sur le revenu et abaisser les seuils pour élargir le nombre de contribuables",0.54,0.256,0.081,0.491,0.233,0.073,180.1
-"budget_reduire_pensions_retraite",4.8,"Réduire d'un demi-point la revalorisation des pensions de retraites pendant 4 ans",0.448,0.244,0.091,0.405,0.22,0.082,184.9
-"budget_supprimer_abattement_ir_retraites",4.4,"Supprimer l'abattement de 10% sur les retraites pour le calcul de l'impôt sur le revenu",0.444,0.243,0.11,0.396,0.217,0.099,189.3
-"budget_augmenter_cotisations_salaires_moyens",11.4,"Augmenter les cotisations sur les salaires moyens (réduire les allègements de charges du CICE)",0.472,0.211,0.071,0.416,0.186,0.063,200.7
-"budget_augmenter_tva_1pt",6,"Augmenter d'un point le taux normal de TVA (de 20% à 21%)",0.402,0.209,0.09,0.369,0.192,0.082,206.7
-"budget_augmenter_csg_1pt",14.6,"Augmenter d'un point le taux de CSG (impôt qui s'applique à presque tous les revenus)",0.382,0.177,0.059,0.348,0.161,0.054,221.3
-"budget_soumettre_livret_a_impot",2.2,"Soumettre les intérêts du Livret A et du LDDS à l'impôt sur le revenu et aux prélèvements sociaux",0.296,0.175,0.06,0.276,0.163,0.056,223.5
+"budget_eliminer_doublons_territoriaux",9,"Éliminer les doublons entre échelons territoriaux",0.981,0.923,0.683,NA,NA,NA,9
+"budget_tva_luxe",3.5,"Créer un taux de TVA à 25 % pour les biens de luxe (montres, yachts, voitures de sport...)",0.903,0.807,0.605,NA,NA,NA,12.5
+"budget_retablir_isf",11,"Rétablir une version renforcée de l'impôt sur la fortune des millionnaires (avec un taux de 2% pour les milliardaires)",0.889,0.769,0.57,NA,NA,NA,23.5
+"budget_retirer_aides_sociales_etrangers",6.7,"Retirer les aides sociales aux étrangers non-européens (RSA, allocations familiales, APL, minimum vieillesse)",0.847,0.721,0.568,NA,NA,NA,30.2
+"budget_geler_depenses_etat_collectivites",21.4,"Geler pendant deux ans les dépenses de l'État et des collectivités territoriales",0.89,0.704,0.379,NA,NA,NA,51.6
+"budget_supprimer_ame",1.3,"Supprimer l'Aide Médicale de l'État, qui couvre les soins urgents des étrangers en situation irrégulière",0.807,0.677,0.527,NA,NA,NA,52.9
+"budget_augmenter_impot_revenu_aises",4.7,"Augmenter l'impôt sur les revenus des plus aisés en rajoutant des tranches, avec un taux maximal à 65 %",0.797,0.627,0.402,NA,NA,NA,57.6
+"budget_augmenter_duree_travail_droit_chomage",1.9,"Augmenter de 4 mois de la durée de travail pour avoir droit au chômage",0.818,0.619,0.381,NA,NA,NA,59.5
+"budget_augmenter_impot_heritages_eleves",9,"Augmenter l'impôt sur l'héritage pour les 10% d'héritages les plus élevés",0.752,0.6,0.394,NA,NA,NA,68.5
+"budget_diminuer_credit_impot_recherche",1.5,"Diminuer le crédit d'impôt recherche pour les grandes entreprises",0.851,0.58,0.249,NA,NA,NA,70
+"budget_restaurer_taxe_habitation_aises",9.3,"Restaurer la taxe d'habitation sur les 20 % les plus aisés",0.747,0.558,0.339,NA,NA,NA,79.3
+"budget_geler_aides_sociales",3.4,"Geler les aides sociales (hors APL), diminuer les Aides Pour le Logement de 5% et les restreindre aux ménages modestes",0.735,0.521,0.289,NA,NA,NA,82.7
+"budget_supprimer_exonerations_taxes_carburants",14.2,"Supprimer les exonérations de taxes (sur les carburants et autres) dans certains secteurs (maritime, aviation, routiers, agriculture) et augmenter la taxe sur les billets d'avion",0.748,0.503,0.261,NA,NA,NA,96.9
+"budget_diminuer_subventions_ecole_privee",3.5,"Diminuer d'un tiers des subventions à l'enseignement privé",0.751,0.491,0.244,NA,NA,NA,100.4
+"budget_augmenter_taxe_revenus_capital",1.2,"Augmenter la taxe sur les revenus du capital de 30% à 33%",0.721,0.489,0.278,NA,NA,NA,101.6
+"budget_augmenter_age_retraite_65",15,"Augmenter l'âge légal de départ à la retraite de 64 à 65 ans sauf pour les carrières longues ou avec pénibilité",0.582,0.392,0.251,NA,NA,NA,116.6
+"budget_reduire_depenses_educatives_demographie",3.4,"Réduire les dépenses éducatives en proportion de la baisse démographique",0.655,0.385,0.109,NA,NA,NA,120
+"budget_reduire_depenses_militaires",12,"Réduire les dépenses militaires (annuler la hausse prévue)",0.583,0.384,0.175,NA,NA,NA,132
+"budget_aligner_tva_restauration",4.2,"Aligner le taux de TVA dans la restauration (10%) sur le taux normal (20%)",0.65,0.377,0.134,NA,NA,NA,136.2
+"budget_augmenter_impot_societes",4.4,"Augmenter le taux d'imposition des sociétés de 25% à 33,5%",0.588,0.342,0.167,NA,NA,NA,140.6
+"budget_reduire_aides_apprentissage",4.3,"Réduire les aides aux entreprises pour les contrats d'apprentissage",0.586,0.306,0.133,NA,NA,NA,144.9
+"budget_reduire_remboursement_soins",5.3,"Réduire le remboursement de certains soins, des indemnités d'arrêt maladie, et du transport des patients",0.495,0.293,0.118,NA,NA,NA,150.2
+"budget_supprimer_avantages_fiscaux_complements_salaire",18,"Supprimer les avantages fiscaux aux compléments de salaire (intéressement, participation, tickets-restaurants, etc.)",0.519,0.289,0.135,NA,NA,NA,168.2
+"budget_augmenter_impot_revenu_tous",11.9,"Augmenter d'un point les taux de l'impôt sur le revenu et abaisser les seuils pour élargir le nombre de contribuables",0.562,0.276,0.103,NA,NA,NA,180.1
+"budget_reduire_pensions_retraite",4.8,"Réduire d'un demi-point la revalorisation des pensions de retraites pendant 4 ans",0.457,0.235,0.101,NA,NA,NA,184.9
+"budget_supprimer_abattement_ir_retraites",4.4,"Supprimer l'abattement de 10% sur les retraites pour le calcul de l'impôt sur le revenu",0.417,0.219,0.107,NA,NA,NA,189.3
+"budget_augmenter_cotisations_salaires_moyens",11.4,"Augmenter les cotisations sur les salaires moyens (réduire les allègements de charges du CICE)",0.46,0.205,0.073,NA,NA,NA,200.7
+"budget_augmenter_tva_1pt",6,"Augmenter d'un point le taux normal de TVA (de 20% à 21%)",0.406,0.203,0.086,NA,NA,NA,206.7
+"budget_augmenter_csg_1pt",14.6,"Augmenter d'un point le taux de CSG (impôt qui s'applique à presque tous les revenus)",0.384,0.167,0.053,NA,NA,NA,221.3
+"budget_soumettre_livret_a_impot",2.2,"Soumettre les intérêts du Livret A et du LDDS à l'impôt sur le revenu et aux prélèvements sociaux",0.279,0.147,0.052,NA,NA,NA,223.5

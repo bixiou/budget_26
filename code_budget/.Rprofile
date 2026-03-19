@@ -980,6 +980,7 @@ export_quotas <- function(survey = "Budget", order_cols = c("country", "Gender",
   # overfilling <- (quotas_count/quotas_original)/n(quotas_count[length(quotas_count)]/quotas_original[length(quotas_original)])
   setNames(data.frame(t(rbind(names(quotas_count), quotas_original, quotas_limit_current, quotas_count))), # , quotas_count/quotas_original, overfilling
            c("category", "quota original", "quota current", "count")) %>%  range_write(ss = gs4_get(gdoc), sheet = "quotas", range = "A:D", reformat = FALSE) # , "share", "overfilling"
+  print(quotas_count["Total count"])
   # quotas_limit_current <- quotas_limit_current[waves, order(names(quotas_limit_current))]
   # quotas_count <- quotas_count[waves, order(names(quotas_count))]
   # quotas_limit_current %>%  write_sheet(ss = gs4_get(gdoc), sheet = "quotas_limit_current")

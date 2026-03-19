@@ -21,4 +21,6 @@ figures/split_few_average.pdf
 */build/*
 *Adrien's/
 *deprecated/*
-*.csv
+data_ext/*.csv
+data_raw/*.csv
+deprecated/*.csv

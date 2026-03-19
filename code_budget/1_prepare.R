@@ -185,7 +185,8 @@ define_var_lists <- function() {
     variables_inheritance_tax_agg <<- paste0("inheritance_tax_agg_", c("400k", "1m", "10m", "1g", "100g"))
     variables_tax_policy <<- c("tax_business_bequest", "inter_vivo_gifts", "net_wealth_tax", "tax_millionaires")
     variables_wtp <<- paste0("wtp_", c("0.5", 1, 2, 3, 5, 7, 10))
-    variables_numeric <<- c(variables_duration, variables_inheritance_type, paste0("custom_", c("min_income", "winners", "losers")), paste0("custom_slider_", c("win", "lose")), "hh_size", "Nb_children__14", "income_exact", "trust", "wtp_certainty", "wtp_contribution")
+    variables_custom_redistr_all <<- c("custom_redistr", "custom_redistr_among_affected", "custom_redistr_among_non_affected")
+    variables_numeric <<- c(variables_duration, variables_inheritance_type, paste0("custom_slider_", c("win", "lose")), "hh_size", "Nb_children__14", "income_exact", "trust", "wtp_certainty", "wtp_contribution") # , paste0("custom_", c("min_income", "winners", "losers"))
     variables_sociodemos_all <<- c("gender", "age_exact", "foreign", "foreign_born_family", "foreign_born", "foreign_origin", "couple", "hh_size", "Nb_children__14", "race", "income", "income_quartile", "income_exact", "education_original", "education", "education_quota", 
                                    "employment_status", "employment_agg", "working", "retired_or_not_working", "employment_18_64", "urbanity", "region", "owner", "millionaire", "nationality_SA", "voted", "vote")
     variables_quotas_base <<- c("man", "age_factor", "income_quartile", "education", "urbanity", "region") 
@@ -474,13 +475,21 @@ convert <- function(e) {
         # lab <- attr(e[[v]], "label")
         # txt <- paste0(v, "_1_TEXT")
         # raw <- if (txt %in% names(e)) as.character(e[[txt]]) else as.character(e[[v]])
-        e[[v]] <- as.numeric(gsub("[^0-9.]", "", e[[paste0(v, "_1_TEXT")]]))
-        e[[v]][grepl("NSP", e[[paste0(v, "_1_TEXT")]], ignore.case = TRUE)] <- -.1 # "NSP"
-        e[[v]] <- as.item(e[[v]], missing.values = -.1)
-        e[[paste0(v, "_agg")]] <- e[[v]] # TODO
+        e[[v]][grepl("NSP", e[[v]], ignore.case = TRUE)] <- -.1 # "NSP"
+        e[[v]][!is.na(e[[v]]) & e[[v]] != -.1] <- as.numeric(gsub("[^0-9.]", "", gsub(",", ".", e[[paste0(v, "_1_TEXT")]])))[!is.na(e[[v]]) & e[[v]] != -.1]
+        e[[v]][is.na(e[[v]]) & is.na(e$custom_redistr)] <- -.1
+        e[[v]] <- as.item(n(e[[v]]), missing.values = -.1)
         # label(e[[v]]) <- label(e[[paste0(v, "_agg")]]) <- lab
     }
-    # for (v in c("custom_slider_win", "custom_slider_lose")) {
+    e <- create_item("custom_losers", new_var = "custom_losers_agg", labels = c("0% - 4%" = 2, "5%" = 5, "6% - 9%" = 7.5, "10%" = 10, "11% - 19%" = 15, "20% - 30%" = 25, "> 30%" = 50),
+                     values = list("0% - 4%" = c(0.5, 0:4), "5%" = 5, "6% - 9%" = 6:9, "10%" = 10, "11% - 19%" = 11:19, "20% - 30%" = 20:30, "> 30%" = 31:10440), df = e)
+    e <- create_item("custom_winners", new_var = "custom_winners_agg", labels = c("< 20%" = 2, "20% - 40%" = 5, "41% - 49%" = 7.5, "50%" = 10, "51% - 59%" = 15, "60% - 75%" = 25, "> 75%" = 50),
+                     values = list("< 20%" = c(0:19), "20% - 40%" = 20:40, "41% - 49%" = 41:49, "50%" = 50, "51% - 59%" = 51:59, "60% - 75%" = 60:75, "> 75%" = 76:1900), df = e)
+    # e$custom_min_income[!is.na(e$custom_min_income) & e$custom_min_income != -.1] <- round(e$custom_min_income[!is.na(e$custom_min_income) & e$custom_min_income != -.1])
+    e <- create_item("custom_min_income", new_var = "custom_min_income_agg", labels = c("< 60" = 30, "60 - 149" = 100, "150 - 249" = 200, "250 - 499" = 300, "500" = 500, "501 - 749" = 600, "750 - 999" = 800, "> 1000" = 1300),
+                     values = list("< 60" = 0:59, "60 - 149" = 60:149, "150 - 249" = 150:249, "250 - 499" = 250:499, "500" = 500, "501 - 749" = 501:749, "750 - 999" = 750:999, "1000" = 1000, "> 1000" = 1001:1e8), df = e)
+    
+        # for (v in c("custom_slider_win", "custom_slider_lose")) {
     #     lab <- attr(e[[v]], "label")
     #     e[[v]] <- as.numeric(as.character(e[[v]]))
     #     if (!is.null(lab)) label(e[[v]]) <- lab
@@ -490,6 +499,39 @@ convert <- function(e) {
     #     e[[v]] <- !is.na(e[[v]]) & as.character(e[[v]]) != ""
     #     if (!is.null(lab)) label(e[[v]]) <- lab
     # }
+    
+    e$income_exact_individualized <- e$income_exact / e$uc
+    label(e$income_exact_individualized) <- "income_exact_individualized: Individualized income (income_exact/uc) (€/month)."
+    e$income_exact_equal_split <- e$income_exact / (1 + (e$couple > 0))
+    label(e$income_exact_equal_split) <- "income_exact_equal_split: Equal-split income (income_exact/(1+couple)) (€ per month)."
+    e$income_exact_affected_top_tax <- e$income_exact_affected_top5_tax <- e$income_exact_affected_top8_tax <- e$income_exact_equal_split > ifelse(e$variant_top_tax == "top5", 4000, 3000)
+    label(e$income_exact_affected_top_tax) <- "income_exact_affected_top_tax: T/F Respondent's household is affected by the global income top_tax (i.e. their income_exact_equal_split > €4k or €3k depending on variant_top_tax)."
+    e$income_exact_affected_top5_tax[e$variant_top_tax == "top8"] <- NA
+    label(e$income_exact_affected_top5_tax) <- "income_exact_affected_top5_tax: T/F Respondent's household is affected by the global income top1_tax (i.e. their income_exact_equal_split > €4k or €3k depending on variant_top_tax)."
+    e$income_exact_affected_top8_tax[e$variant_top_tax == "top5"] <- NA
+    label(e$income_exact_affected_top8_tax) <- "income_exact_affected_top8_tax: T/F Respondent's household is affected by the global income top3_tax (i.e. their income_exact_equal_split > €4k or €3k depending on variant_top_tax)."
+    e$top5_tax_support_affected[!e$income_exact_affected_top5_tax %in% T] <- NA
+    e$top8_tax_support_affected[!e$income_exact_affected_top8_tax %in% T] <- NA
+    e$top_tax_support_affected[!e$income_exact_affected_top_tax %in% T] <- NA
+    label(e$top5_tax_support_affected) <- "top5_tax_support_affected: -2-2. [Among responents affected by the tax; other: NA] Supports an additional income tax on the top 5% to finance poverty reduction for the bottom 3.5 billion people (10% > 4k; 25% > 5k; 40% > 6k; 65% > 50k/month)."
+    label(e$top8_tax_support_affected) <- "top8_tax_support_affected: -2-2. [Among responents affected by the tax; other: NA] Supports an additional income tax on the top 8% to finance poverty reduction for the bottom 4 billion people (10% > 3k; 25% > 5k; 40% > 7.5k; 90% > 50k/month)."
+    label(e$top_tax_support_affected) <- "top_tax_support_affected: -2-2. [Among responents affected by the tax; other: NA] Supports an additional income tax on the top 5 or 8% (depending on variant_top_tax) to finance poverty reduction for the bottom 3.5 or 4 billion people."
+    e$custom_redistr_affected <- e$income_exact_equal_split > 2100
+    label(e$custom_redistr_affected) <- "custom_redistr_affected: T/F Respondent's household is affected by the custom_redistr (i.e. their income_exact_equal_split > €2.1k)."
+    e$custom_redistr_among_affected <- e$custom_redistr_among_non_affected <- e$custom_redistr
+    e$custom_redistr_among_affected[!e$custom_redistr_affected] <- NA
+    e$custom_redistr_among_non_affected[e$custom_redistr_affected] <- NA
+    # e$income_exact_equal_split_dollar <- ifelse(e$variant_top_tax == "top3", 8e4, 12e4) * e$income_exact_equal_split / as.numeric(gsub("[^0-9]*", "", features[ifelse(e$variant_top_tax == "top3", "lcu_80k", "lcu_120k"), languages_country[[country]][1]]))
+    # label(e$income_exact_equal_split_dollar) <- "income_exact_equal_split_dollar: T/F Equal-split income (income_exact/(1+couple)) ($/year)."
+    
+    # e$income_exact_decile <- 1+rowSums(e$income_exact_individualized > matrix(rep(t(income_deciles[c(1,2,4:8,10,11), languages_country[[country]][1]]), nrow(e)), nrow = nrow(e), byrow = T))
+    # e$income_exact_quartile <- 1+rowSums(e$income_exact_individualized > matrix(rep(t(income_deciles[c(3,6,9), languages_country[[country]][1]]), nrow(e)), nrow = nrow(e), byrow = T))
+    # e$income_answers_spread <- e$income_decile - e$income_exact_decile # Some (positive) spread is expected because income is before taxes (even gross in DE, GB, JP, SA, US) but after taxes in income_exact
+    # label(e$income_answers_spread) <- "income_answers_spread: income_decile - income_exact_decile"
+    # e$income_answers_decile_coincide <- e$income_answers_spread == 0
+    # label(e$income_answers_decile_coincide) <- "income_answers_decile_coincide: income_answers_spread == 0"
+    # e$income_answers_quartile_coincide <- e$income_exact_quartile == e$income_quartile
+    # label(e$income_answers_quartile_coincide) <- "income_answers_quartile_coincide: income_exact_quartile == income_quartile"
     
     e <- e[, vapply(e, function(col) !all(is.na(col)), logical(1L)), drop = FALSE] # Drop variables that are entirely NA
     return(e)

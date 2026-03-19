@@ -64,6 +64,9 @@ labels_vars <- c(
   "wtp_certainty" = "WTP certainty",
   "gcs_support_info" = "Global climate scheme (with info)",
   "gcs_support_no_info" = "Global climate scheme (no info)",
+  "custom_redistr" = "Global income redistribution",
+  "custom_redistr_among_affected" = "Global income redistribution (among affected)",
+  "custom_redistr_among_non_affected" = "Global income redistribution (among non-affected)",
   # "effect_program_reduire_aide_developpement" = "Effect: reduce development aid",
   # "effect_program_taxe_millionaires_onu" = "Effect: UN tax on millionaires",
   # "effect_program_fin_dutreil" = "Effect: end Dutreil pact",
@@ -163,6 +166,7 @@ barres_defs <- list(
   "group_considered"     = list(vars = "group_considered", width = 850, height = 450),
   "gcs_comprehension"    = list(vars = "gcs_comprehension", width = 850, height = 450),
   "vote_factor"          = list(vars = "vote_factor", width = 850, height = 500),
+  "difficulty"           = list(vars = variables_difficulty, width = 900),
   "wtp_certainty"        = list(vars = "wtp_certainty", width = 850, height = 450)
 )
 
@@ -191,14 +195,25 @@ barres_defs_nolabel <- list(
   "group_considered"     = list(vars = "group_considered", width = 900),
   "gcs_comprehension"    = list(vars = "gcs_comprehension", width = 900),
   "vote_factor"          = list(vars = "vote_factor", width = 900),
+  "custom_redistr"       = list(vars = "custom_redistr", width = 900),
+  "custom_redistr_all"   = list(vars = variables_custom_redistr_all, width = 900),
+  "difficulty"           = list(vars = variables_difficulty, width = 900),
+  "custom_losers_agg"    = list(vars = "custom_losers_agg", width = 900),
+  "custom_winners_agg"   = list(vars = "custom_winners_agg", width = 900),
+  "custom_min_income_agg"= list(vars = "custom_min_income_agg", width = 900),
   "wtp_certainty"        = list(vars = "wtp_certainty", width = 900)
 )
 barres_defs_nolabel <- fill_barres(c(), barres_defs_nolabel, df = e)
+
 
 ##### Export PDFs to ../figures (not country_comparison) #####
 barres_multiple(barres_defs, df = e, format = "pdf") # method = "webshot", 
 barres_multiple(barres_defs_nolabel, df = e, nolabel = TRUE, format = "pdf") # , method = "webshot"
 
+
+barres_multiple(barres_defs_nolabel["custom_min_income_agg"], df = e, , nolabel = TRUE, format = "pdf")
+
+# parameters_custom_redistr, 
 
 ##### Budget policy acceptability table #####
 {

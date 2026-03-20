@@ -538,7 +538,7 @@ convert <- function(e) {
 }
 
 e <- prepare(fetch = T, weighting = T, remove_id = T)
-# d <- prepare(fetch = F, weighting = F, convert = F, remove_id = T)
+# a <- prepare(scope = "all", fetch = F, weighting = F, convert = T, remove_id = T)
 # for (i in c(17:37, 100,104, 110:116, 128:129, 140,141, 149:161, 165,166,168,170,177:179, 186:189, 191, 219, 252:289)) { print(names(e)[i]); print(decrit(e[[i]])) }
 
 export_quotas() # https://docs.google.com/spreadsheets/d/1EkkyVWX3LgLjyw-lm7c6r5iBXe1VZy2EMI3oR7ALgXI/edit?gid=265678696#gid=265678696

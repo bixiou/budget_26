@@ -521,6 +521,7 @@ Levels <- function(variable, data = e, miss = TRUE, numbers = FALSE, values = TR
     else if (is.character(variable)) Levs <- if (length(unique(variable)) > max_values) "[string variable]" else as.character(unique(variable))
     else if (is.logical(variable)) Levs <- if (logT) "TRUE" else {if (any(is.pnr(variable))) "TRUE / FALSE / NA" else "TRUE / FALSE"}
     else Levs <- "[unknown variable type]"
+    if (identical(Levs, c("FALSE", "TRUE"))) Levs <- c("TRUE", "FALSE")
     if (concatenate) {
       if (is.null(names(Levs))) Levs <- paste(Levs, collapse = " / ")
       else Levs <- paste(sapply(1:length(Levs), function(i) return(paste0(names(Levs)[i], ": ", Levs[i]))), collapse = " / ")
@@ -1180,7 +1181,7 @@ data1 <- function(vars, data=e, weights=T) {
  return( matrix(res, ncol=length(vars)) )
 }
 dataN <- function(var, data=e, miss=T, weights = T, return = "", fr=F, rev=FALSE, rev_legend = FALSE, levels = NULL, weight_non_na = T) {
-  missing_labels <- c("NSP", "PNR", "Non concerné·e", "Included", "Don't know", "PNR or other", "NSP ou autre", "PNR ou autre", "PNR/Non-voter", "Ne sais pas") # TODO: allow for non-standard PNR in a more straightforward way than adding the argument "fr" and putting its value below
+  missing_labels <- c("NSP", "PNR", "Non concerné·e", "Included", "Don't know", "PNR or other", "NSP ou autre", "PNR ou autre", "PNR/Non-voter", "Ne sais pas", "Non-voter, PNR or Other", "PNR or Other") # TODO: allow for non-standard PNR in a more straightforward way than adding the argument "fr" and putting its value below
   if (is.character(fr)) missing_labels <- c(missing_labels, fr)
   weight_var <- if (sum(!is.na(data$weight_country)) == nrow(data) && length(unique(data$country)) == 1) "weight_country" else "weight"
   if (weight_non_na && length(unique(data$country)) == 1 && sum(is.na(data[[var]])) > 0.1*nrow(data)) {
@@ -1198,6 +1199,7 @@ dataN <- function(var, data=e, miss=T, weights = T, return = "", fr=F, rev=FALSE
   #   levels <- levels[levels %in% as.character(v)] # new, removes empty levels
   # }
   if (missing(levels)) levels <- Levels(v, max_values = Inf, names = T) # was Levels_data(v)
+  missing_level <- levels[levels %in% missing_labels]
   levels <- levels[!(levels %in% missing_labels)]
   if (rev_legend) levels <- rev(levels) # new (05/20)
   if (weights) N <- sum(data[[weight_var]][!is.pnr(v) & (!(v %in% missing_labels))]) # c("NSP", "Non concerné·e")
@@ -1214,7 +1216,8 @@ dataN <- function(var, data=e, miss=T, weights = T, return = "", fr=F, rev=FALSE
       if (weights) mat <- c(mat, sum(data[[weight_var]][which(is.pnr(v) & !is.na(v))])/N) # was defined without " & (!(v %in% c("NSP", "Non concerné·e")))" here and line below
       else mat <- c(mat, length(which(is.pnr(v) & !is.na(v)))/N) } } # mais ça semble équivalent pck les NSP sont missing dans ces cas-là
   if (max(nchar(levels))==3 & 'Oui' %in% levels & 'Non' %in% levels) { if (which(levels=='Non') < which(levels=='Oui')) mat[2:1] <- mat[1:2]; levels[c(which(levels=='Oui'),which(levels=='Non'))] <- c('Non', 'Oui') }
-  if ((return %in% c("levels", "legend")) & miss & fr==TRUE) return(c(levels, 'NSP'))
+  if ((return %in% c("levels", "legend")) & miss & (length(missing_level) == 1) & !is.character(fr)) return(c(levels, missing_level))
+  else if ((return %in% c("levels", "legend")) & miss & fr==TRUE) return(c(levels, 'NSP'))
   else if ((return %in% c("levels", "legend")) & miss & (fr==FALSE)) return(c(levels, 'PNR'))
   else if ((return %in% c("levels", "legend")) & miss & is.character(fr)) return(c(levels, fr))
   else if ((return %in% c("levels", "legend")) & (!(miss))) return(levels)
@@ -1229,7 +1232,7 @@ dataKN <- function(vars, data=e, miss=T, weights = T, return = "", fr=F, rev=FAL
     if (length(vars) == 1) out <- dataN(vars, data = data, miss = miss, weights = weights, return = return, fr = fr, rev = rev, rev_legend = rev_legend, weight_non_na = weight_non_na)
     else if (is.logical(data[[vars[1]]])) {
       mat <- data1(vars, data, weights)
-      levels <- dataN(vars[1], data = data, return = "legend")
+      levels <- dataN(vars[1], data = data, miss = miss, return = "legend")
       out <- if (return == "legend") levels else mat }
     else {
       values <- setNames(lapply(vars, function(v) dataN(v, data = data, miss = miss, weights = weights, return = "legend", fr = fr, rev = rev, weight_non_na = weight_non_na)), vars)
@@ -1480,7 +1483,7 @@ barres <- function(data, vars, file, title="", labels, color=c(), rev_color = FA
       }
     }
     else {
-      if (is.element(hover[length(hover)],c("PNR", "PNR or other", "NSP"))) hover <- hover[1:(length(hover)-1)]
+      if (is.element(hover[length(hover)],c("PNR", "PNR or other", "NSP")) | setequal(hover, c("TRUE", "FALSE"))) hover <- hover[1:(length(hover)-1)] # new:  | is.logical(hover)
       if (is.element(legend[length(legend)],c("PNR", "PNR or other", "NSP"))) legend <- legend[1:(length(legend)-1)]
       for (i in 1:length(hover)) {
         for (j in 1:length(labels)) {
@@ -1866,7 +1869,7 @@ heatmap_multiple <- function(heatmaps = heatmaps_defs, data = e, trim = FALSE, w
   }
 }
 
-barres_multiple <- function(barres = barres_defs, df = e, folder = "../figures", print = T, export_xls = FALSE, trim = T, method = 'orca', format = 'pdf', weights = T, nolabel = F, levels = levels_default) {
+barres_multiple <- function(barres = barres_defs, df = e, folder = "../figures", print = T, export_xls = T, trim = T, method = 'orca', format = 'pdf', weights = T, nolabel = T, levels = levels_default) {
   for (def in barres) {
     if (missing(folder)) folder <- automatic_folder(along = def$along, data = df)
     # tryCatch({
@@ -1876,7 +1879,7 @@ barres_multiple <- function(barres = barres_defs, df = e, folder = "../figures",
       else plot <- barresN(vars = def$vars[vars_present], df = df, along = def$along, levels = levels, export_xls = export_xls, labels = def$labels[vars_present], share_labels = def$share_labels, margin_l = def$margin_l, add_means = def$add_means, show_legend_means = def$show_legend_means, transform_mean = def$transform_mean,
                            miss = def$miss, sort = def$sort, rev = def$rev, rev_color = def$rev_color, legend = def$legend, showLegend = def$showLegend, thin = def$thin, weights = weights, file = NULL, nolabel = nolabel)
       if (print) print(plot)
-      filename <- paste0(def$name, if (nolabel) "_nolabel")
+      filename <- paste0(def$name, if (!nolabel) "_label")
       save_plotly(plot, filename = filename, folder = folder, width = def$width, height = if (length(def$vars) == 1 & !"along" %in% names(def)) 135 else def$height, method = method, trim = trim, format = format)
     #   print(paste0(filename, ": success"))
     # }, error = function(cond) { print(paste0(filename, ": failed.")) } )

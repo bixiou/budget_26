@@ -1,11 +1,11 @@
 ##### Budget survey: render descriptive graphs #####
 # Same structure as former_3_render; barres only (no heatmaps, single country). PDFs to ../figures.
-if (file.exists(".Rprofile")) source(".Rprofile")
-source("2_prepare.R")
+# if (file.exists(".Rprofile")) source(".Rprofile")
+# source("2_prepare.R")
 
 # Load Budget data
 # e <- prepare(scope = "final", fetch = FALSE, convert = TRUE, rename = TRUE, duration_min = 360, pilot = FALSE, weighting = FALSE)
-if (!"weight" %in% names(e)) e$weight <- 1
+# if (!"weight" %in% names(e)) e$weight <- 1
 
 # Variable sets (variables_*) are set by define_var_lists() inside convert(). Optionally restrict effect_program to main items (exclude DO_).
 # variables_effect_program <- setdiff(variables_effect_program, grep("DO_", variables_effect_program, value = TRUE))
@@ -29,6 +29,8 @@ labels_vars <- c(
   "weight" = "Weight",
   "vote_original" = "Vote",
   "vote_factor" = "Vote",
+  "vote_agg" = "Vote",
+  "vote" = "Vote",
   "voted" = "Voted",
   "group_defended" = "Group defended",
   "group_defended_world" = "Group defended (world)",
@@ -67,6 +69,14 @@ labels_vars <- c(
   "custom_redistr" = "Global income redistribution",
   "custom_redistr_among_affected" = "Global income redistribution (among affected)",
   "custom_redistr_among_non_affected" = "Global income redistribution (among non-affected)",
+  "custom_losers" = "Preferred share of losers",
+  "custom_winners" = "Preferred share of winners",
+  "custom_min_income" = "Preferred minimum income",
+  "custom_losers_agg" = "Preferred share of losers",
+  "custom_winners_agg" = "Preferred share of winners",
+  "custom_min_income_agg" = "Preferred minimum income",
+  "custom_slider_losers" = "Preferred share of losers",
+  "custom_slider_winners" = "Preferred share of winners",
   # "effect_program_reduire_aide_developpement" = "Effect: reduce development aid",
   # "effect_program_taxe_millionaires_onu" = "Effect: UN tax on millionaires",
   # "effect_program_fin_dutreil" = "Effect: end Dutreil pact",
@@ -145,80 +155,70 @@ for (v in names(e)) {
 ##### barres_defs #####
 # Sets: name -> list(vars = variables_X, width, height). fill_barres will resolve variables_X from env and add labels, legend, etc.
 # Individual vars: name -> list(vars = "single_var", width, height).
-barres_defs <- list(
-  "effect_program"       = list(vars = variables_effect_program, width = 900, height = 550),
-  "intl_policy"          = list(vars = variables_intl_policy, width = 850, height = 450),
-  "group_identified"     = list(vars = variables_group_identified, width = 850, height = 400),
-  "intl_governance"      = list(vars = variables_intl_governance, width = 900, height = 500),
-  "assembly_outcome"     = list(vars = variables_assembly_outcome, width = 850, height = 400),
-  "inheritance_type"     = list(vars = variables_inheritance_type, width = 900, height = 500),
-  "budget"               = list(vars = variables_budget, width = 950, height = 1500, miss = T),
-  "sustainable_future"   = list(vars = variables_sustainable_future, width = 850, height = 450),
-  "group_defended"       = list(vars = variables_group_defended, width = 870, height = 500),
-  "wealth_tax_support"   = list(vars = variables_wealth_tax_support, width = 850, height = 450),
-  "top_tax_support"      = list(vars = variables_top_tax_support, width = 850, height = 450),
-  "gcs_support"          = list(vars = variables_gcs_support, width = 850, height = 450),
-  "tax_policy"           = list(vars = variables_tax_policy, width = 850, height = 450),
-  "inheritance_agg"      = list(vars = variables_inheritance_agg, width = 900, height = 500),
-  "inheritance_tax_agg"  = list(vars = variables_inheritance_tax_agg, width = 900, height = 500),
-  "wtp"                  = list(vars = variables_wtp, width = 850, height = 450, sort = F),
-  "climate_belief"       = list(vars = "climate_belief", width = 850, height = 450),
+barres_defs_label <- list(
+  "custom_losers_agg"    = list(vars = "custom_losers_agg", width = 850, height = 450),
+  "custom_winners_agg"   = list(vars = "custom_winners_agg", width = 850, height = 450),
+  "custom_min_income_agg"= list(vars = "custom_min_income_agg", width = 850, height = 450),
+  # "climate_belief"       = list(vars = "climate_belief", width = 850, height = 450),
   "group_considered"     = list(vars = "group_considered", width = 850, height = 450),
   "gcs_comprehension"    = list(vars = "gcs_comprehension", width = 850, height = 450),
-  "vote_factor"          = list(vars = "vote_factor", width = 850, height = 500),
-  "difficulty"           = list(vars = variables_difficulty, width = 900),
-  "wtp_certainty"        = list(vars = "wtp_certainty", width = 850, height = 450)
+  # "vote_agg"             = list(vars = "vote_agg", width = 850, height = 500),
+  # "vote"                 = list(vars = "vote", width = 850, height = 500),
+  "wtp_certainty"        = list(vars = "wtp_certainty", width = 850, height = 450),
+  "custom_redistr"       = list(vars = "custom_redistr", width = 900),
+  "custom_redistr_all"   = list(vars = variables_custom_redistr_all, width = 850, height = 450)
+  # "difficulty"           = list(vars = variables_difficulty, width = 850, height = 450),
 )
-
-vars_barres <- c()
-barres_defs <- fill_barres(vars_barres, barres_defs, df = e)
+barres_defs_label <- fill_barres(c(), barres_defs_label, df = e)
+barres_defs_label <- fill_barres(c("custom_losers_agg", "custom_winners_agg", "custom_min_income_agg","group_considered",  "wtp_certainty", "custom_redistr", "custom_redistr_all"), barres_defs_label, df = e)
 
 ##### barres_defs_nolabel #####
-barres_defs_nolabel <- list(
+barres_defs <- list(
+  "vote_agg"             = list(vars = "vote_agg", width = 850, height = 500, miss = T), 
+  "vote"                 = list(vars = "vote", width = 850, height = 500, miss = T),
+  "climate_belief"       = list(vars = "climate_belief", width = 1300),
+  "custom_losers_agg"    = list(vars = "custom_losers_agg", width = 900),
+  "custom_winners_agg"   = list(vars = "custom_winners_agg", width = 900),
+  "custom_min_income_agg"= list(vars = "custom_min_income_agg", width = 900),
   "effect_program"       = list(vars = variables_effect_program, width = 980),
   "budget"               = list(vars = variables_budget, width = 1100, height = 1500, miss = T),
   "top_tax_support"      = list(vars = variables_top_tax_support, width = 980),
   "wtp"                  = list(vars = variables_wtp, width = 900),
   "inheritance_tax_agg"  = list(vars = variables_inheritance_tax_agg, width = 980),
   "wealth_tax_support"   = list(vars = variables_wealth_tax_support, width = 980),
-  "inheritance_type"     = list(vars = variables_inheritance_type, width = 980),
+  # "inheritance_type"     = list(vars = variables_inheritance_type, width = 980),
   "intl_policy"          = list(vars = variables_intl_policy, width = 900),
   "group_identified"     = list(vars = variables_group_identified, width = 900),
-  "intl_governance"      = list(vars = variables_intl_governance, width = 980),
+  "intl_governance"      = list(vars = variables_intl_governance, width = 900, height = 500),
   "assembly_outcome"     = list(vars = variables_assembly_outcome, width = 900),
   "sustainable_future"   = list(vars = variables_sustainable_future, width = 980),
   "group_defended"       = list(vars = variables_group_defended, width = 980),
   "gcs_support"          = list(vars = variables_gcs_support, width = 980),
   "tax_policy"           = list(vars = variables_tax_policy, width = 980),
   "inheritance_agg"      = list(vars = variables_inheritance_agg, width = 980),
-  "climate_belief"       = list(vars = "climate_belief", width = 900),
   "group_considered"     = list(vars = "group_considered", width = 900),
   "gcs_comprehension"    = list(vars = "gcs_comprehension", width = 900),
-  "vote_factor"          = list(vars = "vote_factor", width = 900),
   "custom_redistr"       = list(vars = "custom_redistr", width = 900),
   "custom_redistr_all"   = list(vars = variables_custom_redistr_all, width = 900),
   "difficulty"           = list(vars = variables_difficulty, width = 900),
-  "custom_losers_agg"    = list(vars = "custom_losers_agg", width = 900),
-  "custom_winners_agg"   = list(vars = "custom_winners_agg", width = 900),
-  "custom_min_income_agg"= list(vars = "custom_min_income_agg", width = 900),
   "wtp_certainty"        = list(vars = "wtp_certainty", width = 900)
 )
-barres_defs_nolabel <- fill_barres(c(), barres_defs_nolabel, df = e)
+barres_defs <- fill_barres(c(), barres_defs, df = e)
 
 
 ##### Export PDFs to ../figures (not country_comparison) #####
-barres_multiple(barres_defs, df = e, format = "pdf") # method = "webshot", 
-barres_multiple(barres_defs_nolabel, df = e, nolabel = TRUE, format = "pdf") # , method = "webshot"
+barres_multiple(barres_defs, df = e) 
+barres_multiple(barres_defs_label, df = e, nolabel = FALSE) 
 
-barres_defs_nolabel[["budget"]]$legend[5] <- "Ne sais pas"
-# barres_defs_nolabel[["budget"]]$width <- 1100
-barres_defs_nolabel[["budget"]]$labels <- break_strings(paste0(labels_vars[variables_budget], ": ", sub(".", ",", as.character(budget_policies_amounts), fixed = T), " Mds"), 64)
-sum(grepl("<br>.*<br", barres_defs_nolabel[["budget"]]$labels))
-# barres_defs_nolabel[["budget"]]$labels[1] <- paste(barres_defs_nolabel[["budget"]]$labels[1], "Mds €")
-# barres_defs_nolabel[["budget"]]$labels[17] <- break_strings(labels_vars[variables_budget[17]], 90)
-barres_multiple(barres_defs_nolabel["budget"], df = e, weights = F, nolabel = TRUE, format = "pdf")
+barres_defs[["budget"]]$legend[5] <- "Ne sais pas"
+# barres_defs[["budget"]]$width <- 1100
+barres_defs[["budget"]]$labels <- break_strings(paste0(labels_vars[variables_budget], ": ", sub(".", ",", as.character(budget_policies_amounts), fixed = T), " Mds"), 64)
+sum(grepl("<br>.*<br", barres_defs[["budget"]]$labels))
+# barres_defs[["budget"]]$labels[1] <- paste(barres_defs[["budget"]]$labels[1], "Mds €")
+# barres_defs[["budget"]]$labels[17] <- break_strings(labels_vars[variables_budget[17]], 90)
+barres_multiple(barres_defs["budget"], df = e, weights = F, nolabel = TRUE, format = "pdf")
 
-
+barres_multiple(barres_defs["vote"], df = e) 
 
 ##### Budget policy acceptability table #####
 {
@@ -244,7 +244,7 @@ barres_multiple(barres_defs_nolabel["budget"], df = e, weights = F, nolabel = TR
   names(bp) <- c("variable", "amount", "label", "supp+conv+souh xPNR", "conv+souh xPNR", "souh xPNR", "supp+conv+souh", "conv+souh", "souhaitable", "cum conv+souh")
   num_cols <- 4:10
   bp[, num_cols] <- round(bp[, num_cols], 3)
-  write.csv(bp, "../figures/budget_policy_table.csv", row.names = FALSE)
+  write.csv(bp, "../tables/budget_policy_table.csv", row.names = FALSE)
   print(bp[, c("variable", "amount", "souhaitable", "conv+souh", "supp+conv+souh", "souh xPNR", "conv+souh xPNR", "supp+conv+souh xPNR", "cum conv+souh")])
 }
 

@@ -3051,28 +3051,29 @@ plot_along <- function(along, mean_ci = NULL, vars = outcomes, outcomes = paste0
 #' #   return(final)
 #' # }
 #'
-representativeness_table <- function(country_list, weighted = T, non_weighted = T, label_operator = union, all = FALSE, omit = c("Other", "Not 25-64", "Employment_18_64: Employed", "Employment_18_64: 65+", "PNR", "Urban: FALSE"),
+representativeness_table <- function(country_list = "FR", df = NULL, weighted = T, non_weighted = T, label_operator = union, all = FALSE, omit = c("Other", "Not 25-64", "Employment_18_64: Employed", "Employment_18_64: 65+", "PNR", "Urban: FALSE"),
                                      filename = NULL, folder = "../tables/", return_table = FALSE, threshold_skip = 0.005, weight_var = "weight", abbr = NULL, bold = .2, bold_additive = FALSE) {
   rows <- c()
   pop <- sample <- sample_weighted <- labels <- list()
   for (i in seq_along(country_list)) {
-    df <- if (exists("special_levels") & exists("all") & country_list[i] %in% names(special_levels)) d("all")[d("all")$country_name %in% special_levels[[country_list[i]]]$value,] else d(country_list[i])
+    if (!is.null(df) && length(country_list) == 1) df_i <- df
+    else if (!is.null(df) && is.list(df) && country_list[i] %in% names(df)) df_i <- df[[country_list[i]]]
+    else df_i <- if (exists("special_levels") & exists("all") & country_list[i] %in% names(special_levels)) d("all")[d("all")$country_name %in% special_levels[[country_list[i]]]$value,] else d(country_list[i])
     k <- country_list[i]
     c <- sub("[0-9p]+", "", if (exists("countries") & toupper(k) %in% countries) toupper(k) else k)
 
     labels[[k]] <- "Sample size"
     pop[[k]] <- ""
-    sample[[k]] <- sample_weighted[[k]] <- prettyNum(nrow(df), big.mark = ",")
+    sample[[k]] <- sample_weighted[[k]] <- prettyNum(nrow(df_i), big.mark = ",")
     quota_variables <- if (all & paste0(c, "_all") %in% names(quotas)) quotas[[paste0(c, "_all")]] else if (c %in% names(quotas)) quotas[[c]] else quotas$default
     for (q in quota_variables) {
       q_name <- ifelse(q %in% names(levels_quotas), q, paste0(c, "_", q))
       for (j in seq_along(levels_quotas[[q_name]])) {
-        # print(paste(c, q_name, j))
         if (pop_freq[[c]][[q_name]][j] > threshold_skip) {
           labels[[k]] <- c(labels[[k]], paste0(capitalize(q), ": ", levels_quotas[[q_name]][j]))
-          pop[[k]] <- c(pop[[k]], pop_freq[[c]][[q_name]][j]) # sprintf("%.2f", round(pop_freq[[c]][[q_name]][j], digits = 2)))
-          sample[[k]] <- c(sample[[k]], mean(as.character(df[[q]]) %in% levels_quotas[[q_name]][j], na.rm = T)) # sprintf("%.2f", round(mean(as.character(df[[q]]) %in% levels_quotas[[q_name]][j], na.rm = T), digits = 2)))
-          if (weighted) sample_weighted[[k]] <- c(sample_weighted[[k]], wtd.mean(as.character(df[[q]]) %in% levels_quotas[[q_name]][j], na.rm = T, weights = df[[weight_var]])) # sprintf("%.2f", round(wtd.mean(as.character(df[[q]]) %in% levels_quotas[[q_name]][j], na.rm = T, weights = df[[weight_var]]), digits = 2)))
+          pop[[k]] <- c(pop[[k]], pop_freq[[c]][[q_name]][j])
+          sample[[k]] <- c(sample[[k]], mean(as.character(df_i[[q]]) %in% levels_quotas[[q_name]][j], na.rm = T))
+          if (weighted) sample_weighted[[k]] <- c(sample_weighted[[k]], wtd.mean(as.character(df_i[[q]]) %in% levels_quotas[[q_name]][j], na.rm = T, weights = df_i[[weight_var]]))
         }
       }
     }
@@ -3101,7 +3102,8 @@ export_representativeness_table <- function(table, country_list, weighted = T, n
   nb_types <- 1 + weighted + non_weighted
   header <- c("", rep(nb_types, length(country_list)))
   names(header) <- c("", country_list)
-  names(header)[names(header) %in% countries] <- countries_names[names(header)[names(header) %in% countries]]
+  if (exists("countries") && exists("countries_names"))
+    names(header)[names(header) %in% countries] <- countries_names[names(header)[names(header) %in% countries]]
   print(table)
 
   if (bold > 0) { # Put in bold the cells that diverge by more than 'bold' from population frequencies

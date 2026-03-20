@@ -1,15 +1,3 @@
-##### Budget survey: render descriptive graphs #####
-# Same structure as former_3_render; barres only (no heatmaps, single country). PDFs to ../figures.
-# if (file.exists(".Rprofile")) source(".Rprofile")
-# source("2_prepare.R")
-
-# Load Budget data
-# e <- prepare(scope = "final", fetch = FALSE, convert = TRUE, rename = TRUE, duration_min = 360, pilot = FALSE, weighting = FALSE)
-# if (!"weight" %in% names(e)) e$weight <- 1
-
-# Variable sets (variables_*) are set by define_var_lists() inside convert(). Optionally restrict effect_program to main items (exclude DO_).
-# variables_effect_program <- setdiff(variables_effect_program, grep("DO_", variables_effect_program, value = TRUE))
-
 ##### labels_vars #####
 {
 labels_vars <- c(
@@ -77,6 +65,20 @@ labels_vars <- c(
   "custom_min_income_agg" = "Preferred minimum income",
   "custom_slider_losers" = "Preferred share of losers",
   "custom_slider_winners" = "Preferred share of winners",
+  "group_defended_base" = "Group defended (baseline)",
+  "inheritance_tax_400k" = "Inheritance tax rate at 400k€",
+  "inheritance_tax_1m" = "Inheritance tax rate at 1M€",
+  "inheritance_tax_10m" = "Inheritance tax rate at 10M€",
+  "inheritance_tax_1g" = "Inheritance tax rate at 1G€",
+  "inheritance_tax_100g" = "Inheritance tax rate at 100G€",
+  "inheritance_tax_agg_400k" = "Inheritance tax rate at 400k€",
+  "inheritance_tax_agg_1m" = "Inheritance tax rate at 1M€",
+  "inheritance_tax_agg_10m" = "Inheritance tax rate at 10M€",
+  "inheritance_tax_agg_1g" = "Inheritance tax rate at 1G€",
+  "inheritance_tax_agg_100g" = "Inheritance tax rate at 100G€",
+  "sum_souhaitable" = "Sum (G€) Souhaitable",
+  "sum_convenable" = "Sum (G€) Souhaitable or Convenable",
+  "sum_supportable" = "Sum (G€) Souhaitable, Convenable or Supportable",
   # "effect_program_reduire_aide_developpement" = "Effect: reduce development aid",
   # "effect_program_taxe_millionaires_onu" = "Effect: UN tax on millionaires",
   # "effect_program_fin_dutreil" = "Effect: end Dutreil pact",
@@ -122,26 +124,12 @@ labels_vars <- c(
   # "inheritance_type_etat_actionnaire" = "Heirs: state shareholder",
   # "inheritance_type_fonds_citoyens" = "Heirs: citizens' fund",
   # "inheritance_type_onu_education_sante" = "Heirs: UN education & health",
-  "group_defended_base" = "Group defended (baseline)",
   # "inheritance_agg_designees_defunt" = "Effective tax: designated by deceased",
   # "inheritance_agg_epoux_descendants" = "Effective tax: spouse and descendants",
   # "inheritance_agg_employes_societe" = "Effective tax: company employees",
   # "inheritance_agg_etat_actionnaire" = "Effective tax: state shareholder",
   # "inheritance_agg_fonds_citoyens" = "Effective tax: citizens' fund",
   # "inheritance_agg_onu_education_sante" = "Effective tax: UN education & health",
-  "inheritance_tax_400k" = "Inheritance tax rate at 400k€",
-  "inheritance_tax_1m" = "Inheritance tax rate at 1M€",
-  "inheritance_tax_10m" = "Inheritance tax rate at 10M€",
-  "inheritance_tax_1g" = "Inheritance tax rate at 1G€",
-  "inheritance_tax_100g" = "Inheritance tax rate at 100G€",
-  "inheritance_tax_agg_400k" = "Inheritance tax rate at 400k€",
-  "inheritance_tax_agg_1m" = "Inheritance tax rate at 1M€",
-  "inheritance_tax_agg_10m" = "Inheritance tax rate at 10M€",
-  "inheritance_tax_agg_1g" = "Inheritance tax rate at 1G€",
-  "inheritance_tax_agg_100g" = "Inheritance tax rate at 100G€",
-  "sum_souhaitable" = "Sum (G€) Souhaitable",
-  "sum_convenable" = "Sum (G€) Souhaitable or Convenable",
-  "sum_supportable" = "Sum (G€) Souhaitable, Convenable or Supportable",
   setNames(names(e), names(e))
 )
 for (v in names(e)) { 
@@ -153,62 +141,65 @@ for (v in names(e)) {
 }
 
 ##### barres_defs #####
-# Sets: name -> list(vars = variables_X, width, height). fill_barres will resolve variables_X from env and add labels, legend, etc.
-# Individual vars: name -> list(vars = "single_var", width, height).
 barres_defs_label <- list(
-  "custom_losers_agg"    = list(vars = "custom_losers_agg", width = 850, height = 450),
-  "custom_winners_agg"   = list(vars = "custom_winners_agg", width = 850, height = 450),
-  "custom_min_income_agg"= list(vars = "custom_min_income_agg", width = 850, height = 450),
-  # "climate_belief"       = list(vars = "climate_belief", width = 850, height = 450),
-  "group_considered"     = list(vars = "group_considered", width = 850, height = 450),
-  "gcs_comprehension"    = list(vars = "gcs_comprehension", width = 850, height = 450),
-  # "vote_agg"             = list(vars = "vote_agg", width = 850, height = 500),
-  # "vote"                 = list(vars = "vote", width = 850, height = 500),
-  "wtp_certainty"        = list(vars = "wtp_certainty", width = 850, height = 450),
-  "custom_redistr"       = list(vars = "custom_redistr", width = 900),
-  "custom_redistr_all"   = list(vars = variables_custom_redistr_all, width = 850, height = 450)
-  # "difficulty"           = list(vars = variables_difficulty, width = 850, height = 450),
+  "custom_min_income_agg"= list(vars = "custom_min_income_agg", width = 1100)
+  # "custom_losers_agg"    = list(vars = "custom_losers_agg", width = 850, height = 450),
+  # "custom_winners_agg"   = list(vars = "custom_winners_agg", width = 850, height = 450),
+  # "group_considered"     = list(vars = "group_considered", width = 850, height = 450),
+  # "gcs_comprehension"    = list(vars = "gcs_comprehension", width = 850, height = 450),
+  # "wtp_certainty"        = list(vars = "wtp_certainty", width = 850, height = 450),
+  # "custom_redistr"       = list(vars = "custom_redistr", width = 900),
+  # # "climate_belief"       = list(vars = "climate_belief", width = 850, height = 450),
+  # # "vote_agg"             = list(vars = "vote_agg", width = 850, height = 500),
+  # # "vote"                 = list(vars = "vote", width = 850, height = 500),
+  # # "custom_redistr_all"   = list(vars = variables_custom_redistr_all, width = 850, height = 450)
+  # # "difficulty"           = list(vars = variables_difficulty, width = 850, height = 450),
 )
-barres_defs_label <- fill_barres(c(), barres_defs_label, df = e)
-barres_defs_label <- fill_barres(c("custom_losers_agg", "custom_winners_agg", "custom_min_income_agg","group_considered",  "wtp_certainty", "custom_redistr", "custom_redistr_all"), barres_defs_label, df = e)
+# barres_defs_label <- fill_barres(c(), barres_defs_label, df = e)
+barres_defs_label <- fill_barres(c("custom_losers_agg", "custom_winners_agg", "custom_min_income_agg","group_considered",  "wtp_certainty", "custom_redistr"), barres_defs_label, df = e)
 
 ##### barres_defs_nolabel #####
 barres_defs <- list(
   "vote_agg"             = list(vars = "vote_agg", width = 850, height = 500, miss = T), 
   "vote"                 = list(vars = "vote", width = 850, height = 500, miss = T),
   "climate_belief"       = list(vars = "climate_belief", width = 1300),
-  "custom_losers_agg"    = list(vars = "custom_losers_agg", width = 900),
-  "custom_winners_agg"   = list(vars = "custom_winners_agg", width = 900),
-  "custom_min_income_agg"= list(vars = "custom_min_income_agg", width = 900),
-  "effect_program"       = list(vars = variables_effect_program, width = 980),
-  "budget"               = list(vars = variables_budget, width = 1100, height = 1500, miss = T),
-  "top_tax_support"      = list(vars = variables_top_tax_support, width = 980),
-  "wtp"                  = list(vars = variables_wtp, width = 900),
-  "inheritance_tax_agg"  = list(vars = variables_inheritance_tax_agg, width = 980),
-  "wealth_tax_support"   = list(vars = variables_wealth_tax_support, width = 980),
-  # "inheritance_type"     = list(vars = variables_inheritance_type, width = 980),
-  "intl_policy"          = list(vars = variables_intl_policy, width = 900),
-  "group_identified"     = list(vars = variables_group_identified, width = 900),
   "intl_governance"      = list(vars = variables_intl_governance, width = 900, height = 500),
-  "assembly_outcome"     = list(vars = variables_assembly_outcome, width = 900),
-  "sustainable_future"   = list(vars = variables_sustainable_future, width = 980),
   "group_defended"       = list(vars = variables_group_defended, width = 980),
-  "gcs_support"          = list(vars = variables_gcs_support, width = 980),
-  "tax_policy"           = list(vars = variables_tax_policy, width = 980),
-  "inheritance_agg"      = list(vars = variables_inheritance_agg, width = 980),
-  "group_considered"     = list(vars = "group_considered", width = 900),
-  "gcs_comprehension"    = list(vars = "gcs_comprehension", width = 900),
-  "custom_redistr"       = list(vars = "custom_redistr", width = 900),
-  "custom_redistr_all"   = list(vars = variables_custom_redistr_all, width = 900),
-  "difficulty"           = list(vars = variables_difficulty, width = 900),
-  "wtp_certainty"        = list(vars = "wtp_certainty", width = 900)
+  "top_tax_support"      = list(vars = variables_top_tax_support, width = 980),
+  "wtp"                  = list(vars = variables_wtp, width = 900, sort = FALSE),
+  "effect_program"       = list(vars = variables_effect_program, width = 980),
+  "budget"               = list(vars = variables_budget, width = 1100, height = 1500, miss = T)
+  # "custom_losers_agg"    = list(vars = "custom_losers_agg", width = 900),
+  # "custom_winners_agg"   = list(vars = "custom_winners_agg", width = 900),
+  # "custom_min_income_agg"= list(vars = "custom_min_income_agg", width = 900),
+  # "inheritance_tax_agg"  = list(vars = variables_inheritance_tax_agg, width = 980),
+  # "wealth_tax_support"   = list(vars = variables_wealth_tax_support, width = 980),
+  # "intl_policy"          = list(vars = variables_intl_policy, width = 900),
+  # "group_identified"     = list(vars = variables_group_identified, width = 900),
+  # "assembly_outcome"     = list(vars = variables_assembly_outcome, width = 900),
+  # "sustainable_future"   = list(vars = variables_sustainable_future, width = 980),
+  # "gcs_support"          = list(vars = variables_gcs_support, width = 980),
+  # "tax_policy"           = list(vars = variables_tax_policy, width = 980),
+  # "inheritance_agg"      = list(vars = variables_inheritance_agg, width = 980),
+  # "group_considered"     = list(vars = "group_considered", width = 900),
+  # "gcs_comprehension"    = list(vars = "gcs_comprehension", width = 900),
+  # "custom_redistr"       = list(vars = "custom_redistr", width = 900),
+  # "custom_redistr_all"   = list(vars = variables_custom_redistr_all, width = 900),
+  # "wtp_certainty"        = list(vars = "wtp_certainty", width = 900)
+  # # "inheritance_type"     = list(vars = variables_inheritance_type, width = 980),
+  # # "difficulty"           = list(vars = variables_difficulty, width = 900),
 )
-barres_defs <- fill_barres(c(), barres_defs, df = e)
+# barres_defs <- fill_barres(c(), barres_defs, df = e)
+barres_defs <- fill_barres(c("custom_losers_agg", "custom_winners_agg", "custom_min_income_agg", 
+                             "effect_program", "top_tax_support", "variables_wtp", "inheritance_tax_agg", "wealth_tax_support",
+                             "intl_policy", "group_identified", "intl_governance", "assembly_outcome", "variables_sustainable_future", "variables_group_defended",
+                             "variables_gcs_support", "tax_policy", "inheritance_agg", "group_considered", "gcs_comprehension", "custom_redistr", "custom_redistr_all", "wtp_certainty"), 
+                           barres_defs, df = e)
 
 
 ##### Export PDFs to ../figures (not country_comparison) #####
-barres_multiple(barres_defs, df = e) 
-barres_multiple(barres_defs_label, df = e, nolabel = FALSE) 
+barres_multiple(barres_defs) 
+barres_multiple(barres_defs_label, nolabel = FALSE) 
 
 barres_defs[["budget"]]$legend[5] <- "Ne sais pas"
 # barres_defs[["budget"]]$width <- 1100
@@ -216,9 +207,10 @@ barres_defs[["budget"]]$labels <- break_strings(paste0(labels_vars[variables_bud
 sum(grepl("<br>.*<br", barres_defs[["budget"]]$labels))
 # barres_defs[["budget"]]$labels[1] <- paste(barres_defs[["budget"]]$labels[1], "Mds €")
 # barres_defs[["budget"]]$labels[17] <- break_strings(labels_vars[variables_budget[17]], 90)
-barres_multiple(barres_defs["budget"], df = e, weights = F, nolabel = TRUE, format = "pdf")
+barres_multiple(barres_defs["budget"], weights = F)
 
-barres_multiple(barres_defs["vote"], df = e) 
+# barres_multiple(barres_defs["wtp"]) 
+# barres_multiple(barres_defs_label["custom_min_income_agg"], nolabel = FALSE) 
 
 ##### Budget policy acceptability table #####
 {

@@ -21,3 +21,7 @@ summary(lm((group_defended == 1) ~ variant_group_defended, data = e, weights = w
 
 ##### WTP #####
 summary(lm(wtp ~ factor(variant_wtp), data = e, weights = weight)) # 1%: .09.; 10%: -15**
+
+
+##### Representativeness #####
+representativeness_table(df = e)

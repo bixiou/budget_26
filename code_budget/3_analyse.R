@@ -24,4 +24,5 @@ summary(lm(wtp ~ factor(variant_wtp), data = e, weights = weight)) # 1%: .09.; 1
 
 
 ##### Representativeness #####
+countries <- "FR"
 representativeness_table(df = e)

@@ -18,6 +18,7 @@ for (c in unique(votes_xlsx$country)) row.names(votes[[c]]) <- votes[[c]]$party
         "employment_18_64" = c("Inactive", "Unemployed", "Employed", "65+"),
         "vote" = c("Left", "Center-right or Right", 'Far right', "Non-voter, PNR or Other"),
         "region" = 1:5, # It's OK if some values are missing in one population. (2 regions: IT, PL; 3 regions: DE, CH; 4 regions: RU, SA, US)
+        # 1: IDF, 2: Nord + Est, 3: Sud-Ouest, 4: Sud-Est, 5: Ouest
         "urban" = c(TRUE, FALSE),
         "gcs_support" = c("Yes", "No"),
         "gcs_understood" = c(TRUE, FALSE)

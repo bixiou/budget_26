@@ -1869,7 +1869,7 @@ heatmap_multiple <- function(heatmaps = heatmaps_defs, data = e, trim = FALSE, w
   }
 }
 
-barres_multiple <- function(barres = barres_defs, df = e, folder = "../figures", print = T, export_xls = T, trim = T, method = 'orca', format = 'pdf', weights = T, nolabel = T, levels = levels_default) {
+barres_multiple <- function(barres = barres_defs, df = e, folder = "../figures", print = T, export_xls = T, trim = T, method = 'orca', format = 'pdf', weights = T, nolabel = T, levels = levels_default, append_name = "") {
   for (def in barres) {
     if (missing(folder)) folder <- automatic_folder(along = def$along, data = df)
     # tryCatch({
@@ -1879,7 +1879,7 @@ barres_multiple <- function(barres = barres_defs, df = e, folder = "../figures",
       else plot <- barresN(vars = def$vars[vars_present], df = df, along = def$along, levels = levels, export_xls = export_xls, labels = def$labels[vars_present], share_labels = def$share_labels, margin_l = def$margin_l, add_means = def$add_means, show_legend_means = def$show_legend_means, transform_mean = def$transform_mean,
                            miss = def$miss, sort = def$sort, rev = def$rev, rev_color = def$rev_color, legend = def$legend, showLegend = def$showLegend, thin = def$thin, weights = weights, file = NULL, nolabel = nolabel)
       if (print) print(plot)
-      filename <- paste0(def$name, if (!nolabel) "_label")
+      filename <- paste0(def$name, append_name, if (!nolabel) "_label")
       save_plotly(plot, filename = filename, folder = folder, width = def$width, height = if (length(def$vars) == 1 & !"along" %in% names(def)) 135 else def$height, method = method, trim = trim, format = format)
     #   print(paste0(filename, ": success"))
     # }, error = function(cond) { print(paste0(filename, ": failed.")) } )
@@ -1887,13 +1887,15 @@ barres_multiple <- function(barres = barres_defs, df = e, folder = "../figures",
 }
 
 fill_barres <- function(list_var_list = NULL, plots = barres_defs, df = e, country = NULL, miss = FALSE, sort = T, thin = T, rev = FALSE, rev_color = T, along = NULL,
-                        short_labels = T, width = 850, labels_max_length = 57) { # width/height could be NULL by default as well, so plotly decides the size , height = dev.size('px')[2], width = dev.size('px')[1]
+                        short_labels = T, width = 850, labels_max_length = 57, labels = NULL) { # width/height could be NULL by default as well, so plotly decides the size , height = dev.size('px')[2], width = dev.size('px')[1]
   # list_var_list can be NULL, a named list of vectors of variables, a named list of type plots_defs, or a list of names of (existing) vectors of variables (with or without the prefix 'variables_')
   # If df$var and variables_var both exist, giving 'var' (resp. 'variables_var') will yield var (resp. variables_var)
   # /!\ Bug if an object named 'plots' exists in the environment.
-  if (!exists("labels_vars")) warning("'labels_vars' should exist but does not.")
-  labels <- labels_vars
-  if (exists("labels_vars_short_html") & short_labels) labels[names(labels_vars_short_html)] <- labels_vars_short_html
+  if (is.null(labels)) {
+    if (!exists("labels_vars")) warning("'labels_vars' should exist but does not.")
+    labels <- labels_vars
+    if (exists("labels_vars_short_html") & short_labels) labels[names(labels_vars_short_html)] <- labels_vars_short_html
+  }
   # if (grepl("us", deparse(substitute(df)))) labels[names(labels_vars_us)] <- labels_vars_us
   # c <- if (deparse(substitute(df)) != "e") gsub("[0-9p]*", "",  deparse(substitute(df))) else if (length(unique(df$country)) == 1) unique(df$country)[1] else NULL
   c <- if (length(unique(df$country)) == 1) unique(df$country)[1] else NULL

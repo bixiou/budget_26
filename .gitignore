@@ -15,6 +15,5 @@ Adrien's/*
 papers/build/*
 */build/*
 *.bib
-data_raw/*
 *.env
 .Rproj.user

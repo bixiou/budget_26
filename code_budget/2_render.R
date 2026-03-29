@@ -42,7 +42,7 @@ labels_vars <- c(
   "net_wealth_tax" = "Net wealth tax",
   "tax_millionaires" = "Tax on millionaires",
   "climate_belief" = "Climate change belief",
-  "group_considered" = "Group considered in decisions",
+  "group_considered" = "Lorsque les citoyens s'engagent en politique, quels principaux éléments devraient-ils prendre en compte ?", # "Group considered in decisions", 
   "wtp" = "Willingness to pay",
   "wtp_0.5" = "WTP at 0.5% of income",
   "wtp_1" = "WTP at 1% of income",
@@ -132,6 +132,31 @@ labels_vars <- c(
   # "inheritance_agg_onu_education_sante" = "Effective tax: UN education & health",
   setNames(names(e), names(e))
 )
+
+labels_vars_en <- c("intl_policy_mondialisation" = "Globalization, that is to say the increase in interactions and interdependence between the peoples and countries of the world, is...", 
+                    "intl_policy_frontieres_ouvertes" = "A world with increasingly open borders would be...", 
+                    "intl_policy_redistribution_richesses" = "A greater redistribution of wealth from rich countries to the poorest countries in the world would be...", 
+                    "intl_policy_citoyens_decisions" = "All the citizens of the world participating directly in decisions with global stakes would be...", 
+                    "intl_policy_intervention_pays_attaque" = "The intervention of the rest of the world when one country attacks another would be...", 
+                    "intl_policy_demilitarisation" = "The countries of the world demilitarizing by reducing their armies and arsenals would be...", 
+                    "intl_policy_impot_minimum_societes" = "The establishment of a minimum corporate tax of 35% on multinational companies to finance education and health worldwide would be...", 
+                    "group_identified_ville" = "My city", 
+                    "group_identified_region" = "My region", 
+                    "group_identified_france" = "France", 
+                    "group_identified_ue" = "The European Union", 
+                    "group_identified_monde" = "The world", 
+                    "intl_governance_elus_chefs_etat" = "Elected officials and heads of state should make the decisions", 
+                    "intl_governance_referendum_citoyens" = "Citizens should decide directly by referendum", 
+                    "intl_governance_tirage_sort" = "Citizens should be selected by lot for citizens' assemblies whose decisions would then be implemented by national parliaments", 
+                    "intl_governance_experts_scientifiques" = "Experts chosen by the scientific community should make the decisions", 
+                    "intl_governance_parlement_mondial" = "A world parliament, directly elected by the global population, should make most decisions", 
+                    "intl_governance_sondages_consultatifs" = "Regular representative polls aimed at establishing global public opinion on international issues should serve as information for policymakers", 
+                    "assembly_outcome_consultatives_recommandations" = "Consultative and serve as recommendations to countries, which would retain the final decision", 
+                    "assembly_outcome_referendum_mondial" = "Submitted to a worldwide referendum and implemented in countries where the 'Yes' vote wins", 
+                    "assembly_outcome_referendum_pays_par_pays" = "Submitted to a referendum and implemented in all countries if the 'Yes' vote wins at the global level", 
+                    "assembly_outcome_appliquees_institutions_inter" = "Implemented directly by international institutions",
+                    "group_considered" = "When citizens get involved in politics, what key factors should they consider?"
+)
 for (v in names(e)) { 
   if (grepl("-", Label(e[[v]])) & labels_vars[v] == v) labels_vars[v] <- sub("(.*)- ", "", Label(e[[v]]))
   if (grepl("_control", v) & labels_vars[v] == v) labels_vars[v] <- labels_vars[sub("_control", "", v)]
@@ -139,6 +164,8 @@ for (v in names(e)) {
   else for (l in setdiff(Levels(e[[v]]), NA)) if (!paste0(v, l) %in% names(labels_vars)) labels_vars[paste0(v, l)] <- paste0(labels_vars[v], ": ", l)
 }
 }
+
+
 
 ##### barres_defs #####
 barres_defs_label <- list(
@@ -157,6 +184,8 @@ barres_defs_label <- list(
 )
 # barres_defs_label <- fill_barres(c(), barres_defs_label, df = e)
 barres_defs_label <- fill_barres(c("custom_losers_agg", "custom_winners_agg", "custom_min_income_agg","group_considered",  "wtp_certainty", "custom_redistr"), barres_defs_label, df = e)
+
+barres_defs_en_label <- fill_barres(c("group_considered"), list(), df = e, labels = labels_vars_en)
 
 ##### barres_defs_nolabel #####
 barres_defs <- list(
@@ -195,11 +224,21 @@ barres_defs <- fill_barres(c("custom_losers_agg", "custom_winners_agg", "custom_
                              "intl_policy", "group_identified", "intl_governance", "assembly_outcome", "variables_sustainable_future", "variables_group_defended",
                              "variables_gcs_support", "tax_policy", "inheritance_agg", "group_considered", "gcs_comprehension", "custom_redistr", "custom_redistr_all", "wtp_certainty"), 
                            barres_defs, df = e)
+barres_defs_en <- fill_barres(c("intl_policy", "group_identified", "intl_governance", "assembly_outcome"), 
+                              list("intl_governance" = list(vars = variables_intl_governance, width = 900, height = 500)), df = e, labels = labels_vars_en)
+
+barres_defs_en_label[["group_considered"]]$legend <- c("Own interests", "Community/country", "All humans")
+barres_defs_en[["intl_governance"]]$legend <- c("Completely unfavorable", "Unfavorable", "Rather unfavorable", "Rather favorable", "Favorable", "Completely favorable")
+barres_defs_en[["intl_policy"]]$legend <- c("Very bad", "Bad", "Rather bad", "Rather good", "Good", "Very good")
+barres_defs_en[["group_identified"]]$legend <- c("Not at all", "Very little", "Little", "Rather", "A lot", "Completely")
+barres_defs_en[["assembly_outcome"]]$legend <- c("Completely unfavorable", "Rather unfavorable", "Undecided", "Rather favorable", "Completely favorable")
 
 
 ##### Export PDFs to ../figures (not country_comparison) #####
 barres_multiple(barres_defs) 
 barres_multiple(barres_defs_label, nolabel = FALSE) 
+barres_multiple(barres_defs_en, append_name = "en") 
+barres_multiple(barres_defs_en_label, nolabel = FALSE, append_name = "en") 
 
 barres_defs[["budget"]]$legend[5] <- "Ne sais pas"
 # barres_defs[["budget"]]$width <- 1100

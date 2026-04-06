@@ -1872,17 +1872,17 @@ heatmap_multiple <- function(heatmaps = heatmaps_defs, data = e, trim = FALSE, w
 barres_multiple <- function(barres = barres_defs, df = e, folder = "../figures", print = T, export_xls = T, trim = T, method = 'orca', format = 'pdf', weights = T, nolabel = T, levels = levels_default, append_name = "") {
   for (def in barres) {
     if (missing(folder)) folder <- automatic_folder(along = def$along, data = df)
-    # tryCatch({
+    tryCatch({
       vars_present <- def$vars %in% names(df)
-      if (!"along" %in% names(def)) plot <- barres(vars = def$vars[vars_present], df = df, export_xls = export_xls, labels = if (nolabel & length(vars_present) == 1) " " else def$labels[vars_present], share_labels = def$share_labels, margin_l = def$margin_l, add_means = def$add_means, show_legend_means = def$show_legend_means, transform_mean = def$transform_mean,
-                                                   miss = def$miss, sort = def$sort, rev = def$rev, rev_color = def$rev_color, legend = def$legend, showLegend = def$showLegend, thin = def$thin, title = def$title, weights = weights, file = NULL)
-      else plot <- barresN(vars = def$vars[vars_present], df = df, along = def$along, levels = levels, export_xls = export_xls, labels = def$labels[vars_present], share_labels = def$share_labels, margin_l = def$margin_l, add_means = def$add_means, show_legend_means = def$show_legend_means, transform_mean = def$transform_mean,
-                           miss = def$miss, sort = def$sort, rev = def$rev, rev_color = def$rev_color, legend = def$legend, showLegend = def$showLegend, thin = def$thin, weights = weights, file = NULL, nolabel = nolabel)
-      if (print) print(plot)
       filename <- paste0(def$name, append_name, if (!nolabel) "_label")
+      if (!"along" %in% names(def)) plot <- barres(vars = def$vars[vars_present], df = df, export_xls = export_xls, labels = if (nolabel & length(vars_present) == 1) " " else def$labels[vars_present], share_labels = def$share_labels, margin_l = def$margin_l, add_means = def$add_means, show_legend_means = def$show_legend_means, transform_mean = def$transform_mean,
+                                                   miss = def$miss, sort = def$sort, rev = def$rev, rev_color = def$rev_color, legend = def$legend, showLegend = def$showLegend, thin = def$thin, title = def$title, weights = weights, file = paste0(folder, "/", filename), save = F) # was file = NULL
+      else plot <- barresN(vars = def$vars[vars_present], df = df, along = def$along, levels = levels, export_xls = export_xls, labels = def$labels[vars_present], share_labels = def$share_labels, margin_l = def$margin_l, add_means = def$add_means, show_legend_means = def$show_legend_means, transform_mean = def$transform_mean,
+                           miss = def$miss, sort = def$sort, rev = def$rev, rev_color = def$rev_color, legend = def$legend, showLegend = def$showLegend, thin = def$thin, weights = weights, file = def$name, nolabel = nolabel)
+      if (print) print(plot)
       save_plotly(plot, filename = filename, folder = folder, width = def$width, height = if (length(def$vars) == 1 & !"along" %in% names(def)) 135 else def$height, method = method, trim = trim, format = format)
-    #   print(paste0(filename, ": success"))
-    # }, error = function(cond) { print(paste0(filename, ": failed.")) } )
+      print(paste0(filename, ": success"))
+    }, error = function(cond) { print(paste0(filename, ": failed.")) } )
   }
 }
 

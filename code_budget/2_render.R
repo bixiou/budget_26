@@ -237,8 +237,8 @@ barres_defs_en[["assembly_outcome"]]$legend <- c("Completely unfavorable", "Rath
 ##### Export PDFs to ../figures (not country_comparison) #####
 barres_multiple(barres_defs) 
 barres_multiple(barres_defs_label, nolabel = FALSE) 
-barres_multiple(barres_defs_en, append_name = "en") 
-barres_multiple(barres_defs_en_label, nolabel = FALSE, append_name = "en") 
+barres_multiple(barres_defs_en, append_name = "_en") 
+barres_multiple(barres_defs_en_label, nolabel = FALSE, append_name = "_en") 
 
 barres_defs[["budget"]]$legend[5] <- "Ne sais pas"
 # barres_defs[["budget"]]$width <- 1100

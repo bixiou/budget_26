@@ -538,7 +538,7 @@ convert <- function(e) {
     return(e)
 }
 
-e <- prepare(fetch = T, weighting = T, remove_id = T)
+e <- prepare(fetch = F, weighting = T, remove_id = T)
 a <- prepare(scope = "all", fetch = F, weighting = F, convert = T, remove_id = T)
 # for (i in c(17:37, 100,104, 110:116, 128:129, 140,141, 149:161, 165,166,168,170,177:179, 186:189, 191, 219, 252:289)) { print(names(e)[i]); print(decrit(e[[i]])) }
 

@@ -1,0 +1,1079 @@
+Your original .Renviron will be backed up and stored in your R HOME directory if needed.
+Your Qualtrics key and base URL have been stored in your .Renviron.  
+To use now, restart R or run `readRenviron("~/.Renviron")`
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   4.0.0     ✔ tibble    3.2.1
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ ::() masks 
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+
+Attaching package: 'openxlsx2'
+
+The following objects are masked from 'package:openxlsx':
+
+    col2int, int2col, temp_xlsx
+
+
+Attaching package: 'jsonlite'
+
+The following object is masked from 'package:purrr':
+
+    flatten
+
+Loading required package: sandwich
+Loading required package: lmtest
+Loading required package: stats
+
+Attaching package: 'stats'
+
+The following objects are masked from 'package:dplyr':
+
+    filter, lag
+
+Loading required package: zoo
+
+Attaching package: 'zoo'
+
+The following objects are masked from 'package:base':
+
+    as.Date, as.Date.numeric
+
+Loading required package: survey
+Loading required package: grid
+Loading required package: Matrix
+
+Attaching package: 'Matrix'
+
+The following objects are masked from 'package:tidyr':
+
+    expand, pack, unpack
+
+Loading required package: survival
+cjoint: AMCE Estimator for Conjoint Experiments
+Version: 2.1.0
+Authors: Soubhik Barari, Elissa Berwick, Jens Hainmueller, Daniel Hopkins, Sean Liu, Anton Strezhnev, Teppei Yamamoto
+
+
+Attaching package: 'cjoint'
+
+The following object is masked from 'package:tibble':
+
+    view
+
+Loading required package: Hmisc
+
+Attaching package: 'Hmisc'
+
+The following object is masked from 'package:survey':
+
+    deff
+
+The following objects are masked from 'package:dplyr':
+
+    src, summarize
+
+The following objects are masked from 'package:base':
+
+    format.pval, units
+
+
+Attaching package: 'plotly'
+
+The following object is masked from 'package:Hmisc':
+
+    subplot
+
+The following object is masked from 'package:stats':
+
+    filter
+
+The following object is masked from 'package:ggplot2':
+
+    last_plot
+
+Loading required package: SparseM
+
+Attaching package: 'SparseM'
+
+The following object is masked from 'package:Matrix':
+
+    det
+
+
+Attaching package: 'quantreg'
+
+The following object is masked from 'package:Hmisc':
+
+    latex
+
+The following object is masked from 'package:survival':
+
+    untangle.specials
+
+Registered S3 method overwritten by 'DescTools':
+  method         from 
+  reorder.factor gdata
+
+Attaching package: 'DescTools'
+
+The following objects are masked from 'package:Hmisc':
+
+    %nin%, Label, Mean, Quantile
+
+Registered S3 method overwritten by 'lfe':
+  method    from 
+  nobs.felm broom
+## Tutorial: https://yiqingxu.org/packages/ivDiag/
+
+Please cite as: 
+
+ Hlavac, Marek (2022). stargazer: Well-Formatted Regression and Summary Statistics Tables.
+ R package version 5.2.3. https://CRAN.R-project.org/package=stargazer 
+
+Loading required package: network
+
+'network' 1.19.0 (2024-12-08), part of the Statnet Project
+* 'news(package="network")' for changes since last version
+* 'citation("network")' for citation information
+* 'https://statnet.org' for help, support, and other information
+
+
+Attaching package: 'network'
+
+The following object is masked from 'package:DescTools':
+
+    %c%
+
+The following object is masked from 'package:Hmisc':
+
+    is.discrete
+
+Registered S3 methods overwritten by 'ergm':
+  method               from 
+  simulate.formula     lme4 
+  simulate.formula_lhs lme4 
+  summary.formula      Hmisc
+
+'ergm' 4.8.1 (2025-01-20), part of the Statnet Project
+* 'news(package="ergm")' for changes since last version
+* 'citation("ergm")' for citation information
+* 'https://statnet.org' for help, support, and other information
+
+'ergm' 4 is a major update that introduces some backwards-incompatible
+changes. Please type 'news(package="ergm")' for a list of major
+changes.
+
+corrplot 0.95 loaded
+Loading required package: rpart
+Loading required package: graphics
+
+Attaching package: 'graphics'
+
+The following object is masked from 'package:SparseM':
+
+    image
+
+The following object is masked from 'package:plotly':
+
+    layout
+
+The following object is masked from 'package:survey':
+
+    dotchart
+
+The following object is masked from 'package:Matrix':
+
+    image
+
+Loading required package: grDevices
+Package version: 4.2.0
+Unicode version: 15.1
+ICU version: 74.1
+Parallel computing: 8 of 8 threads used.
+See https://quanteda.io for tutorials and examples.
+
+Attaching package: 'quanteda'
+
+The following object is masked from 'package:zoo':
+
+    index
+
+This is dplR version 1.7.8.
+dplR is part of openDendro https://opendendro.org.
+New users can visit https://opendendro.github.io/dplR-workshop/ to get started.
+
+Attaching package: 'dplR'
+
+The following object is masked from 'package:zoo':
+
+    time<-
+
+Loading required package: NLP
+
+Attaching package: 'NLP'
+
+The following objects are masked from 'package:quanteda':
+
+    meta, meta<-
+
+The following object is masked from 'package:ggplot2':
+
+    annotate
+
+
+Attaching package: 'tm'
+
+The following object is masked from 'package:quanteda':
+
+    stopwords
+
+Loading required package: MASS
+
+Attaching package: 'MASS'
+
+The following object is masked from 'package:plotly':
+
+    select
+
+The following object is masked from 'package:dplyr':
+
+    select
+
+Loading required package: boot
+
+Attaching package: 'boot'
+
+The following object is masked from 'package:survival':
+
+    aml
+
+Loading required package: mitools
+This is the global version of package relaimpo.
+
+If you are a non-US user, a version with the interesting additional metric pmvd is available
+
+from Ulrike Groempings web site at prof.beuth-hochschule.de/groemping.
+
+Registered S3 method overwritten by 'parsnip':
+  method          from     
+  autoplot.glmnet ggfortify
+[0;34mThis is text (version 1.5).
+[0m[0;32mNewer versions may have improved functions and updated defaults to reflect current understandings of the state-of-the-art.[0m[0;35m
+
+For more information about the package see www.r-text.org.[0m
+
+Attaching package: 'kableExtra'
+
+The following object is masked from 'package:dplyr':
+
+    group_rows
+
+Loading required package: stats4
+Loading required package: lattice
+
+Attaching package: 'lattice'
+
+The following object is masked from 'package:boot':
+
+    melanoma
+
+Registered S3 method overwritten by 'vegan':
+  method          from   
+  print.nullmodel parsnip
+Registered S3 method overwritten by 'memisc':
+  method          from          
+  sort.data.frame statnet.common
+
+Attaching package: 'memisc'
+
+The following objects are masked from 'package:NLP':
+
+    annotation, content, content<-
+
+The following objects are masked from 'package:DescTools':
+
+    %nin%, Cor, Cov, Mean, Median, Range, Var
+
+The following objects are masked from 'package:plotly':
+
+    rename, style
+
+The following objects are masked from 'package:Hmisc':
+
+    %nin%, html, Mean
+
+The following object is masked from 'package:cjoint':
+
+    view
+
+The following object is masked from 'package:Matrix':
+
+    as.array
+
+The following objects are masked from 'package:stats':
+
+    contr.sum, contr.treatment, contrasts
+
+The following objects are masked from 'package:lubridate':
+
+    as.interval, is.interval
+
+The following objects are masked from 'package:dplyr':
+
+    collect, recode, rename, syms
+
+The following object is masked from 'package:purrr':
+
+    %@%
+
+The following object is masked from 'package:tibble':
+
+    view
+
+The following object is masked from 'package:ggplot2':
+
+    syms
+
+The following object is masked from 'package:base':
+
+    as.array
+
+
+Attaching package: 'httr'
+
+The following object is masked from 'package:memisc':
+
+    content
+
+The following object is masked from 'package:NLP':
+
+    content
+
+The following object is masked from 'package:plotly':
+
+    config
+
+Linking to ImageMagick 6.9.12.98
+Enabled features: cairo, freetype, fftw, ghostscript, heic, lcms, pango, raw, rsvg, webp
+Disabled features: fontconfig, x11
+
+Attaching package: 'psych'
+
+The following object is masked from 'package:boot':
+
+    logit
+
+The following objects are masked from 'package:DescTools':
+
+    AUC, ICC, SD
+
+The following object is masked from 'package:Hmisc':
+
+    describe
+
+The following objects are masked from 'package:ggplot2':
+
+    %+%, alpha
+
+Your original .Renviron will be backed up and stored in your R HOME directory if needed.
+Your Qualtrics key and base URL have been stored in your .Renviron.  
+To use now, restart R or run `readRenviron("~/.Renviron")`
+
+=== Weighted mean support (conv+souh) by vote_factor ===
+budget_eliminer_doublons_territoriaux : 0.93 0.91 0.98 0.86 
+budget_geler_depenses_etat_collectivites : 0.72 0.71 0.84 0.54 
+budget_reduire_depenses_militaires : 0.47 0.19 0.38 0.45 
+budget_diminuer_credit_impot_recherche : 0.64 0.47 0.65 0.57 
+budget_reduire_aides_apprentissage : 0.31 0.26 0.29 0.34 
+budget_reduire_remboursement_soins : 0.28 0.37 0.37 0.19 
+budget_retirer_aides_sociales_etrangers : 0.77 0.75 0.98 0.41 
+budget_supprimer_ame : 0.72 0.68 0.99 0.36 
+budget_diminuer_subventions_ecole_privee : 0.5 0.43 0.44 0.57 
+budget_reduire_depenses_educatives_demographie : 0.34 0.46 0.54 0.23 
+budget_augmenter_duree_travail_droit_chomage : 0.64 0.74 0.71 0.43 
+budget_geler_aides_sociales : 0.51 0.6 0.67 0.34 
+budget_reduire_pensions_retraite : 0.21 0.29 0.25 0.18 
+budget_supprimer_abattement_ir_retraites : 0.26 0.19 0.17 0.24 
+budget_augmenter_age_retraite_65 : 0.31 0.65 0.38 0.27 
+budget_aligner_tva_restauration : 0.34 0.42 0.37 0.34 
+budget_supprimer_exonerations_taxes_carburants : 0.47 0.41 0.52 0.55 
+budget_soumettre_livret_a_impot : 0.16 0.14 0.11 0.19 
+budget_augmenter_tva_1pt : 0.18 0.23 0.18 0.19 
+budget_augmenter_csg_1pt : 0.16 0.15 0.16 0.18 
+budget_augmenter_impot_revenu_tous : 0.21 0.33 0.31 0.24 
+budget_augmenter_cotisations_salaires_moyens : 0.19 0.24 0.14 0.23 
+budget_supprimer_avantages_fiscaux_complements_salaire : 0.24 0.35 0.3 0.28 
+budget_augmenter_impot_societes : 0.34 0.26 0.28 0.44 
+budget_restaurer_taxe_habitation_aises : 0.61 0.4 0.54 0.63 
+budget_retablir_isf : 0.83 0.64 0.74 0.78 
+budget_augmenter_impot_heritages_eleves : 0.58 0.54 0.51 0.73 
+budget_tva_luxe : 0.8 0.77 0.78 0.81 
+budget_augmenter_taxe_revenus_capital : 0.45 0.37 0.41 0.64 
+budget_augmenter_impot_revenu_aises : 0.67 0.5 0.56 0.73 
+
+=== Regressions: support ~ vote + income + age + gender + education ===
+
+--- budget_eliminer_doublons_territoriaux ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.891      0.038  23.710    0.000
+voteCenter-right or Right         0.011      0.029   0.369    0.712
+voteFar right                     0.015      0.027   0.564    0.573
+voteLeft                         -0.007      0.028  -0.243    0.808
+incomeQ2                          0.050      0.028   1.794    0.073
+incomeQ3                          0.028      0.030   0.942    0.347
+incomeQ4                          0.012      0.031   0.387    0.699
+age18-24                         -0.168      0.040  -4.206    0.000
+age25-34                         -0.027      0.032  -0.821    0.412
+age50-64                          0.002      0.028   0.060    0.952
+age65+                           -0.011      0.027  -0.396    0.692
+genderTRUE                        0.032      0.020   1.662    0.097
+educationUpper secondary         -0.009      0.032  -0.283    0.778
+educationAbove upper secondary    0.011      0.033   0.320    0.749
+
+--- budget_geler_depenses_etat_collectivites ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.747      0.058  12.960    0.000
+voteCenter-right or Right        -0.032      0.045  -0.706    0.481
+voteFar right                     0.070      0.041   1.699    0.090
+voteLeft                         -0.147      0.043  -3.418    0.001
+incomeQ2                         -0.076      0.043  -1.753    0.080
+incomeQ3                         -0.048      0.045  -1.056    0.291
+incomeQ4                         -0.029      0.047  -0.613    0.540
+age18-24                         -0.166      0.058  -2.888    0.004
+age25-34                         -0.107      0.050  -2.121    0.034
+age50-64                          0.082      0.043   1.897    0.058
+age65+                            0.130      0.043   3.028    0.003
+genderTRUE                        0.004      0.030   0.138    0.890
+educationUpper secondary          0.019      0.049   0.378    0.705
+educationAbove upper secondary   -0.027      0.051  -0.520    0.603
+
+--- budget_reduire_depenses_militaires ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.567      0.061   9.359    0.000
+voteCenter-right or Right        -0.158      0.048  -3.313    0.001
+voteFar right                    -0.059      0.043  -1.368    0.172
+voteLeft                          0.090      0.045   1.979    0.048
+incomeQ2                         -0.083      0.045  -1.836    0.067
+incomeQ3                         -0.075      0.047  -1.570    0.117
+incomeQ4                         -0.089      0.049  -1.809    0.071
+age18-24                          0.013      0.059   0.213    0.831
+age25-34                          0.038      0.053   0.718    0.473
+age50-64                         -0.100      0.046  -2.194    0.029
+age65+                           -0.153      0.045  -3.394    0.001
+genderTRUE                       -0.077      0.032  -2.391    0.017
+educationUpper secondary          0.037      0.052   0.707    0.480
+educationAbove upper secondary   -0.011      0.054  -0.200    0.841
+
+--- budget_diminuer_credit_impot_recherche ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.605      0.065   9.266    0.000
+voteCenter-right or Right        -0.081      0.050  -1.624    0.105
+voteFar right                    -0.001      0.046  -0.012    0.990
+voteLeft                          0.033      0.048   0.690    0.490
+incomeQ2                          0.004      0.048   0.090    0.928
+incomeQ3                         -0.005      0.051  -0.103    0.918
+incomeQ4                          0.009      0.052   0.177    0.859
+age18-24                          0.014      0.065   0.219    0.827
+age25-34                          0.043      0.056   0.767    0.443
+age50-64                          0.090      0.048   1.862    0.063
+age65+                           -0.017      0.048  -0.356    0.722
+genderTRUE                       -0.057      0.034  -1.689    0.092
+educationUpper secondary          0.047      0.056   0.851    0.395
+educationAbove upper secondary   -0.046      0.057  -0.809    0.419
+
+--- budget_reduire_aides_apprentissage ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.295      0.058   5.089    0.000
+voteCenter-right or Right        -0.024      0.046  -0.520    0.603
+voteFar right                    -0.051      0.042  -1.221    0.222
+voteLeft                          0.070      0.044   1.584    0.114
+incomeQ2                          0.043      0.044   0.982    0.327
+incomeQ3                         -0.020      0.047  -0.433    0.665
+incomeQ4                         -0.027      0.048  -0.563    0.574
+age18-24                         -0.099      0.059  -1.674    0.094
+age25-34                         -0.033      0.051  -0.641    0.522
+age50-64                         -0.007      0.045  -0.157    0.875
+age65+                           -0.083      0.045  -1.874    0.061
+genderTRUE                        0.073      0.031   2.321    0.021
+educationUpper secondary          0.044      0.051   0.870    0.384
+educationAbove upper secondary    0.007      0.052   0.126    0.900
+
+--- budget_reduire_remboursement_soins ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.187      0.056   3.337    0.001
+voteCenter-right or Right         0.031      0.046   0.679    0.498
+voteFar right                     0.026      0.041   0.644    0.520
+voteLeft                         -0.102      0.043  -2.393    0.017
+incomeQ2                          0.013      0.043   0.305    0.761
+incomeQ3                          0.093      0.046   2.051    0.041
+incomeQ4                          0.090      0.047   1.907    0.057
+age18-24                          0.002      0.057   0.038    0.970
+age25-34                         -0.046      0.050  -0.934    0.351
+age50-64                          0.017      0.043   0.392    0.695
+age65+                            0.010      0.043   0.229    0.819
+genderTRUE                        0.133      0.031   4.340    0.000
+educationUpper secondary          0.020      0.049   0.399    0.690
+educationAbove upper secondary    0.002      0.051   0.031    0.975
+
+--- budget_retirer_aides_sociales_etrangers ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.762      0.049  15.459    0.000
+voteCenter-right or Right         0.008      0.041   0.203    0.839
+voteFar right                     0.147      0.036   4.078    0.000
+voteLeft                         -0.304      0.039  -7.896    0.000
+incomeQ2                         -0.021      0.038  -0.556    0.578
+incomeQ3                         -0.004      0.040  -0.093    0.926
+incomeQ4                         -0.097      0.042  -2.307    0.021
+age18-24                         -0.198      0.051  -3.904    0.000
+age25-34                          0.015      0.045   0.330    0.741
+age50-64                         -0.016      0.039  -0.416    0.678
+age65+                            0.007      0.039   0.176    0.861
+genderTRUE                        0.062      0.027   2.269    0.023
+educationUpper secondary          0.050      0.043   1.151    0.250
+educationAbove upper secondary    0.004      0.045   0.087    0.931
+
+--- budget_supprimer_ame ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.742      0.051  14.569    0.000
+voteCenter-right or Right        -0.046      0.041  -1.105    0.269
+voteFar right                     0.201      0.037   5.429    0.000
+voteLeft                         -0.335      0.039  -8.561    0.000
+incomeQ2                          0.009      0.039   0.229    0.819
+incomeQ3                          0.015      0.041   0.358    0.720
+incomeQ4                         -0.089      0.043  -2.078    0.038
+age18-24                         -0.234      0.052  -4.493    0.000
+age25-34                         -0.134      0.046  -2.938    0.003
+age50-64                         -0.019      0.039  -0.484    0.629
+age65+                            0.045      0.039   1.154    0.249
+genderTRUE                        0.012      0.028   0.417    0.677
+educationUpper secondary          0.059      0.045   1.316    0.188
+educationAbove upper secondary    0.017      0.046   0.377    0.706
+
+--- budget_diminuer_subventions_ecole_privee ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.393      0.062   6.326    0.000
+voteCenter-right or Right        -0.005      0.050  -0.102    0.919
+voteFar right                    -0.070      0.046  -1.535    0.125
+voteLeft                          0.153      0.047   3.226    0.001
+incomeQ2                          0.038      0.048   0.797    0.426
+incomeQ3                         -0.005      0.050  -0.105    0.917
+incomeQ4                         -0.003      0.052  -0.067    0.947
+age18-24                          0.072      0.063   1.138    0.256
+age25-34                         -0.022      0.056  -0.399    0.690
+age50-64                          0.015      0.048   0.311    0.756
+age65+                           -0.083      0.048  -1.746    0.081
+genderTRUE                        0.011      0.034   0.318    0.751
+educationUpper secondary          0.127      0.054   2.343    0.019
+educationAbove upper secondary    0.069      0.056   1.220    0.223
+
+--- budget_reduire_depenses_educatives_demographie ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.362      0.065   5.613    0.000
+voteCenter-right or Right         0.119      0.049   2.417    0.016
+voteFar right                     0.162      0.045   3.632    0.000
+voteLeft                         -0.101      0.046  -2.177    0.030
+incomeQ2                          0.029      0.047   0.617    0.538
+incomeQ3                         -0.020      0.049  -0.406    0.685
+incomeQ4                         -0.026      0.051  -0.501    0.617
+age18-24                         -0.099      0.062  -1.591    0.112
+age25-34                         -0.048      0.054  -0.885    0.376
+age50-64                         -0.026      0.048  -0.545    0.586
+age65+                           -0.032      0.047  -0.681    0.496
+genderTRUE                        0.057      0.033   1.721    0.086
+educationUpper secondary         -0.025      0.055  -0.455    0.649
+educationAbove upper secondary    0.008      0.057   0.139    0.889
+
+--- budget_augmenter_duree_travail_droit_chomage ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.494      0.059   8.392    0.000
+voteCenter-right or Right         0.079      0.047   1.656    0.098
+voteFar right                     0.020      0.043   0.464    0.643
+voteLeft                         -0.186      0.045  -4.168    0.000
+incomeQ2                          0.087      0.044   1.955    0.051
+incomeQ3                          0.114      0.047   2.424    0.016
+incomeQ4                          0.089      0.049   1.807    0.071
+age18-24                         -0.085      0.060  -1.418    0.156
+age25-34                          0.074      0.052   1.425    0.155
+age50-64                          0.058      0.045   1.292    0.197
+age65+                            0.108      0.045   2.414    0.016
+genderTRUE                        0.029      0.032   0.925    0.355
+educationUpper secondary          0.044      0.052   0.845    0.398
+educationAbove upper secondary    0.010      0.054   0.188    0.851
+
+--- budget_geler_aides_sociales ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.399      0.060   6.596    0.000
+voteCenter-right or Right         0.019      0.049   0.401    0.689
+voteFar right                     0.096      0.044   2.188    0.029
+voteLeft                         -0.187      0.046  -4.071    0.000
+incomeQ2                          0.083      0.046   1.799    0.072
+incomeQ3                          0.036      0.049   0.746    0.456
+incomeQ4                          0.109      0.050   2.166    0.031
+age18-24                         -0.086      0.061  -1.408    0.160
+age25-34                         -0.141      0.053  -2.631    0.009
+age50-64                          0.013      0.047   0.286    0.775
+age65+                           -0.010      0.046  -0.217    0.828
+genderTRUE                        0.115      0.033   3.519    0.000
+educationUpper secondary          0.028      0.053   0.528    0.597
+educationAbove upper secondary    0.092      0.055   1.670    0.095
+
+--- budget_reduire_pensions_retraite ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.178      0.052   3.435    0.001
+voteCenter-right or Right         0.159      0.042   3.788    0.000
+voteFar right                     0.042      0.038   1.107    0.269
+voteLeft                          0.018      0.039   0.450    0.653
+incomeQ2                         -0.020      0.040  -0.496    0.620
+incomeQ3                         -0.025      0.042  -0.604    0.546
+incomeQ4                          0.010      0.043   0.223    0.824
+age18-24                          0.129      0.054   2.388    0.017
+age25-34                          0.137      0.046   2.962    0.003
+age50-64                         -0.031      0.040  -0.781    0.435
+age65+                           -0.127      0.040  -3.193    0.001
+genderTRUE                        0.063      0.028   2.243    0.025
+educationUpper secondary         -0.013      0.046  -0.287    0.774
+educationAbove upper secondary   -0.004      0.047  -0.095    0.925
+
+--- budget_supprimer_abattement_ir_retraites ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.338      0.051   6.616    0.000
+voteCenter-right or Right         0.017      0.040   0.416    0.677
+voteFar right                    -0.095      0.036  -2.610    0.009
+voteLeft                          0.031      0.038   0.834    0.405
+incomeQ2                         -0.023      0.038  -0.597    0.551
+incomeQ3                         -0.060      0.040  -1.495    0.135
+incomeQ4                         -0.015      0.042  -0.353    0.724
+age18-24                          0.107      0.052   2.038    0.042
+age25-34                         -0.025      0.045  -0.564    0.573
+age50-64                         -0.120      0.038  -3.134    0.002
+age65+                           -0.249      0.038  -6.589    0.000
+genderTRUE                        0.110      0.027   4.097    0.000
+educationUpper secondary         -0.039      0.044  -0.875    0.382
+educationAbove upper secondary   -0.055      0.046  -1.207    0.228
+
+--- budget_augmenter_age_retraite_65 ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.205      0.056   3.681    0.000
+voteCenter-right or Right         0.251      0.046   5.498    0.000
+voteFar right                     0.025      0.041   0.619    0.536
+voteLeft                         -0.077      0.043  -1.793    0.073
+incomeQ2                          0.015      0.043   0.344    0.731
+incomeQ3                         -0.001      0.046  -0.016    0.987
+incomeQ4                          0.066      0.047   1.399    0.162
+age18-24                          0.065      0.058   1.133    0.257
+age25-34                         -0.011      0.050  -0.218    0.827
+age50-64                         -0.048      0.044  -1.093    0.275
+age65+                            0.173      0.044   3.971    0.000
+genderTRUE                        0.118      0.031   3.846    0.000
+educationUpper secondary         -0.016      0.050  -0.325    0.745
+educationAbove upper secondary    0.058      0.051   1.128    0.260
+
+--- budget_aligner_tva_restauration ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.342      0.062   5.551    0.000
+voteCenter-right or Right         0.083      0.048   1.712    0.087
+voteFar right                     0.018      0.044   0.403    0.687
+voteLeft                          0.035      0.046   0.754    0.451
+incomeQ2                         -0.159      0.046  -3.433    0.001
+incomeQ3                         -0.150      0.049  -3.059    0.002
+incomeQ4                          0.021      0.051   0.415    0.678
+age18-24                          0.171      0.061   2.787    0.005
+age25-34                         -0.023      0.054  -0.428    0.669
+age50-64                         -0.030      0.046  -0.650    0.516
+age65+                            0.044      0.046   0.951    0.342
+genderTRUE                        0.022      0.033   0.671    0.502
+educationUpper secondary          0.069      0.053   1.298    0.195
+educationAbove upper secondary    0.020      0.055   0.355    0.723
+
+--- budget_supprimer_exonerations_taxes_carburants ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.610      0.063   9.714    0.000
+voteCenter-right or Right         0.038      0.050   0.751    0.453
+voteFar right                     0.046      0.046   1.015    0.310
+voteLeft                          0.174      0.048   3.651    0.000
+incomeQ2                         -0.111      0.048  -2.323    0.020
+incomeQ3                         -0.115      0.051  -2.278    0.023
+incomeQ4                         -0.142      0.052  -2.700    0.007
+age18-24                         -0.101      0.063  -1.586    0.113
+age25-34                         -0.004      0.056  -0.066    0.947
+age50-64                         -0.126      0.048  -2.611    0.009
+age65+                           -0.120      0.048  -2.494    0.013
+genderTRUE                       -0.003      0.034  -0.077    0.939
+educationUpper secondary          0.010      0.055   0.181    0.856
+educationAbove upper secondary   -0.033      0.057  -0.582    0.561
+
+--- budget_soumettre_livret_a_impot ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.197      0.044   4.457    0.000
+voteCenter-right or Right         0.049      0.035   1.399    0.162
+voteFar right                    -0.033      0.032  -1.021    0.307
+voteLeft                          0.081      0.033   2.423    0.016
+incomeQ2                         -0.020      0.034  -0.609    0.543
+incomeQ3                         -0.036      0.036  -1.008    0.314
+incomeQ4                         -0.051      0.037  -1.404    0.161
+age18-24                          0.011      0.045   0.237    0.813
+age25-34                         -0.025      0.039  -0.629    0.529
+age50-64                         -0.096      0.034  -2.841    0.005
+age65+                           -0.138      0.034  -4.116    0.000
+genderTRUE                        0.007      0.024   0.289    0.773
+educationUpper secondary          0.042      0.039   1.082    0.279
+educationAbove upper secondary    0.008      0.040   0.206    0.837
+
+--- budget_augmenter_tva_1pt ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.121      0.050   2.393    0.017
+voteCenter-right or Right         0.066      0.040   1.654    0.099
+voteFar right                    -0.009      0.036  -0.238    0.812
+voteLeft                          0.032      0.038   0.855    0.393
+incomeQ2                          0.004      0.038   0.113    0.910
+incomeQ3                          0.018      0.040   0.437    0.662
+incomeQ4                          0.082      0.041   1.988    0.047
+age18-24                          0.118      0.051   2.311    0.021
+age25-34                         -0.011      0.044  -0.253    0.801
+age50-64                         -0.018      0.038  -0.474    0.635
+age65+                           -0.069      0.038  -1.811    0.070
+genderTRUE                        0.051      0.027   1.884    0.060
+educationUpper secondary          0.023      0.044   0.531    0.596
+educationAbove upper secondary    0.017      0.046   0.364    0.716
+
+--- budget_augmenter_csg_1pt ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.172      0.047   3.694    0.000
+voteCenter-right or Right         0.027      0.037   0.722    0.471
+voteFar right                    -0.009      0.034  -0.281    0.779
+voteLeft                          0.047      0.035   1.324    0.186
+incomeQ2                         -0.029      0.035  -0.823    0.411
+incomeQ3                         -0.049      0.037  -1.311    0.190
+incomeQ4                         -0.029      0.039  -0.744    0.457
+age18-24                          0.083      0.048   1.742    0.082
+age25-34                         -0.010      0.041  -0.242    0.808
+age50-64                         -0.043      0.035  -1.225    0.221
+age65+                           -0.092      0.035  -2.607    0.009
+genderTRUE                        0.079      0.025   3.151    0.002
+educationUpper secondary         -0.011      0.041  -0.269    0.788
+educationAbove upper secondary    0.000      0.042  -0.008    0.994
+
+--- budget_augmenter_impot_revenu_tous ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.138      0.056   2.444    0.015
+voteCenter-right or Right         0.092      0.045   2.049    0.041
+voteFar right                     0.070      0.040   1.726    0.085
+voteLeft                          0.024      0.042   0.563    0.573
+incomeQ2                          0.008      0.043   0.185    0.853
+incomeQ3                          0.018      0.045   0.395    0.693
+incomeQ4                          0.078      0.047   1.656    0.098
+age18-24                          0.110      0.058   1.908    0.057
+age25-34                          0.028      0.049   0.565    0.573
+age50-64                          0.008      0.043   0.195    0.845
+age65+                            0.028      0.042   0.650    0.516
+genderTRUE                        0.082      0.030   2.732    0.006
+educationUpper secondary         -0.046      0.049  -0.937    0.349
+educationAbove upper secondary    0.030      0.051   0.583    0.560
+
+--- budget_augmenter_cotisations_salaires_moyens ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.179      0.051   3.503    0.000
+voteCenter-right or Right         0.096      0.041   2.358    0.019
+voteFar right                    -0.034      0.037  -0.923    0.356
+voteLeft                          0.078      0.039   2.005    0.045
+incomeQ2                          0.059      0.039   1.505    0.133
+incomeQ3                         -0.065      0.041  -1.569    0.117
+incomeQ4                         -0.016      0.043  -0.385    0.701
+age18-24                          0.067      0.052   1.277    0.202
+age25-34                          0.033      0.045   0.716    0.474
+age50-64                         -0.063      0.039  -1.628    0.104
+age65+                           -0.042      0.039  -1.099    0.272
+genderTRUE                        0.018      0.027   0.654    0.513
+educationUpper secondary         -0.019      0.045  -0.421    0.674
+educationAbove upper secondary    0.021      0.047   0.441    0.659
+
+--- budget_supprimer_avantages_fiscaux_complements_salaire ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.164      0.056   2.907    0.004
+voteCenter-right or Right         0.057      0.046   1.238    0.216
+voteFar right                     0.018      0.041   0.432    0.666
+voteLeft                          0.030      0.043   0.698    0.485
+incomeQ2                         -0.035      0.043  -0.814    0.416
+incomeQ3                          0.015      0.046   0.337    0.736
+incomeQ4                          0.066      0.047   1.399    0.162
+age18-24                         -0.003      0.057  -0.050    0.960
+age25-34                         -0.033      0.050  -0.653    0.514
+age50-64                          0.000      0.044   0.003    0.997
+age65+                            0.057      0.043   1.319    0.188
+genderTRUE                        0.063      0.031   2.046    0.041
+educationUpper secondary          0.075      0.050   1.502    0.133
+educationAbove upper secondary    0.038      0.052   0.729    0.466
+
+--- budget_augmenter_impot_societes ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.292      0.060   4.909    0.000
+voteCenter-right or Right        -0.027      0.048  -0.564    0.573
+voteFar right                    -0.062      0.043  -1.423    0.155
+voteLeft                          0.159      0.045   3.521    0.000
+incomeQ2                         -0.002      0.045  -0.040    0.968
+incomeQ3                         -0.074      0.048  -1.550    0.121
+incomeQ4                         -0.065      0.049  -1.328    0.184
+age18-24                         -0.035      0.061  -0.576    0.565
+age25-34                         -0.016      0.052  -0.312    0.755
+age50-64                         -0.019      0.046  -0.408    0.683
+age65+                           -0.057      0.045  -1.254    0.210
+genderTRUE                       -0.003      0.032  -0.105    0.916
+educationUpper secondary          0.131      0.053   2.499    0.013
+educationAbove upper secondary    0.088      0.054   1.609    0.108
+
+--- budget_restaurer_taxe_habitation_aises ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.654      0.059  11.095    0.000
+voteCenter-right or Right        -0.105      0.048  -2.197    0.028
+voteFar right                    -0.062      0.043  -1.429    0.153
+voteLeft                          0.117      0.045   2.572    0.010
+incomeQ2                          0.053      0.045   1.163    0.245
+incomeQ3                         -0.128      0.048  -2.677    0.008
+incomeQ4                         -0.177      0.050  -3.545    0.000
+age18-24                          0.110      0.061   1.794    0.073
+age25-34                         -0.032      0.053  -0.610    0.542
+age50-64                          0.034      0.046   0.743    0.458
+age65+                           -0.076      0.046  -1.660    0.097
+genderTRUE                       -0.005      0.032  -0.151    0.880
+educationUpper secondary         -0.047      0.052  -0.901    0.368
+educationAbove upper secondary    0.008      0.054   0.149    0.881
+
+--- budget_retablir_isf ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.900      0.053  17.111    0.000
+voteCenter-right or Right        -0.093      0.042  -2.232    0.026
+voteFar right                    -0.090      0.038  -2.376    0.018
+voteLeft                          0.056      0.040   1.402    0.161
+incomeQ2                         -0.035      0.040  -0.881    0.379
+incomeQ3                         -0.119      0.042  -2.808    0.005
+incomeQ4                         -0.177      0.044  -4.071    0.000
+age18-24                         -0.087      0.054  -1.627    0.104
+age25-34                         -0.072      0.047  -1.543    0.123
+age50-64                          0.005      0.040   0.126    0.900
+age65+                           -0.048      0.040  -1.210    0.227
+genderTRUE                       -0.094      0.028  -3.322    0.001
+educationUpper secondary          0.044      0.046   0.963    0.336
+educationAbove upper secondary    0.069      0.048   1.457    0.145
+
+--- budget_augmenter_impot_heritages_eleves ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.544      0.061   8.987    0.000
+voteCenter-right or Right        -0.030      0.048  -0.615    0.539
+voteFar right                    -0.089      0.044  -2.045    0.041
+voteLeft                          0.202      0.045   4.458    0.000
+incomeQ2                         -0.027      0.046  -0.597    0.551
+incomeQ3                         -0.050      0.048  -1.038    0.300
+incomeQ4                         -0.081      0.050  -1.622    0.105
+age18-24                         -0.089      0.062  -1.445    0.149
+age25-34                         -0.159      0.054  -2.971    0.003
+age50-64                          0.006      0.046   0.121    0.904
+age65+                           -0.038      0.046  -0.839    0.402
+genderTRUE                        0.007      0.032   0.221    0.825
+educationUpper secondary          0.095      0.053   1.801    0.072
+educationAbove upper secondary    0.148      0.055   2.704    0.007
+
+--- budget_tva_luxe ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.825      0.050  16.535    0.000
+voteCenter-right or Right         0.019      0.040   0.474    0.636
+voteFar right                    -0.039      0.036  -1.064    0.288
+voteLeft                          0.090      0.038   2.381    0.017
+incomeQ2                         -0.027      0.038  -0.718    0.473
+incomeQ3                         -0.075      0.040  -1.861    0.063
+incomeQ4                         -0.083      0.042  -1.968    0.049
+age18-24                         -0.030      0.051  -0.579    0.563
+age25-34                         -0.003      0.045  -0.059    0.953
+age50-64                          0.043      0.038   1.118    0.264
+age65+                            0.016      0.038   0.417    0.677
+genderTRUE                       -0.038      0.027  -1.410    0.159
+educationUpper secondary         -0.030      0.044  -0.678    0.498
+educationAbove upper secondary    0.046      0.046   0.998    0.319
+
+--- budget_augmenter_taxe_revenus_capital ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.433      0.063   6.828    0.000
+voteCenter-right or Right        -0.071      0.050  -1.416    0.157
+voteFar right                    -0.069      0.045  -1.515    0.130
+voteLeft                          0.240      0.047   5.071    0.000
+incomeQ2                         -0.163      0.047  -3.460    0.001
+incomeQ3                         -0.186      0.050  -3.712    0.000
+incomeQ4                         -0.237      0.052  -4.575    0.000
+age18-24                         -0.047      0.064  -0.732    0.464
+age25-34                          0.033      0.055   0.599    0.549
+age50-64                          0.143      0.048   2.989    0.003
+age65+                            0.148      0.047   3.140    0.002
+genderTRUE                        0.008      0.033   0.254    0.799
+educationUpper secondary          0.097      0.055   1.765    0.078
+educationAbove upper secondary    0.094      0.057   1.652    0.099
+
+--- budget_augmenter_impot_revenu_aises ---
+                               Estimate Std. Error t value Pr(>|t|)
+(Intercept)                       0.752      0.060  12.562    0.000
+voteCenter-right or Right        -0.089      0.047  -1.890    0.059
+voteFar right                    -0.109      0.043  -2.542    0.011
+voteLeft                          0.155      0.045   3.458    0.001
+incomeQ2                         -0.071      0.045  -1.568    0.117
+incomeQ3                         -0.233      0.048  -4.884    0.000
+incomeQ4                         -0.224      0.050  -4.517    0.000
+age18-24                         -0.042      0.061  -0.690    0.490
+age25-34                         -0.001      0.053  -0.026    0.979
+age50-64                         -0.004      0.046  -0.080    0.936
+age65+                            0.039      0.045   0.866    0.387
+genderTRUE                       -0.054      0.032  -1.700    0.089
+educationUpper secondary          0.039      0.053   0.737    0.461
+educationAbove upper secondary    0.053      0.055   0.968    0.333
+
+=== Correlation matrix of budget policy support ===
+
+Top 20 positive correlations:
+  retirer_aides_sociales_etrangers <-> supprimer_ame: 0.716
+  augmenter_tva_1pt <-> augmenter_csg_1pt: 0.534
+  augmenter_taxe_revenus_capital <-> augmenter_impot_revenu_aises: 0.521
+  reduire_pensions_retraite <-> supprimer_abattement_ir_retraites: 0.480
+  retablir_isf <-> augmenter_impot_heritages_eleves: 0.441
+  soumettre_livret_a_impot <-> augmenter_csg_1pt: 0.433
+  augmenter_impot_heritages_eleves <-> augmenter_impot_revenu_aises: 0.429
+  augmenter_duree_travail_droit_chomage <-> geler_aides_sociales: 0.418
+  restaurer_taxe_habitation_aises <-> augmenter_impot_revenu_aises: 0.400
+  retablir_isf <-> augmenter_impot_revenu_aises: 0.389
+  restaurer_taxe_habitation_aises <-> retablir_isf: 0.386
+  augmenter_impot_revenu_tous <-> augmenter_cotisations_salaires_moyens: 0.377
+  soumettre_livret_a_impot <-> augmenter_tva_1pt: 0.367
+  retablir_isf <-> tva_luxe: 0.362
+  augmenter_csg_1pt <-> augmenter_impot_revenu_tous: 0.362
+  augmenter_impot_heritages_eleves <-> augmenter_taxe_revenus_capital: 0.357
+  supprimer_abattement_ir_retraites <-> augmenter_csg_1pt: 0.350
+  soumettre_livret_a_impot <-> augmenter_cotisations_salaires_moyens: 0.347
+  restaurer_taxe_habitation_aises <-> augmenter_impot_heritages_eleves: 0.345
+  tva_luxe <-> augmenter_impot_revenu_aises: 0.341
+
+=== K-means clustering of respondents (k=4) ===
+Cluster sizes: 166 96 131 209 
+
+Vote profile by cluster:
+Cluster 1 (n=166): 21.7% Non-voter, PNR or Other, 39.8% Center-right or Right, 31.9% Far right, 6.6% Left 
+Cluster 2 (n=96): 24% Non-voter, PNR or Other, 29.2% Center-right or Right, 18.8% Far right, 28.1% Left 
+Cluster 3 (n=131): 22.1% Non-voter, PNR or Other, 16.8% Center-right or Right, 4.6% Far right, 56.5% Left 
+Cluster 4 (n=209): 27.3% Non-voter, PNR or Other, 21.5% Center-right or Right, 34.9% Far right, 16.3% Left 
+
+Mean support by cluster:
+  cluster budget_eliminer_doublons_territoriaux
+1       1                                  0.92
+2       2                                  0.92
+3       3                                  0.92
+4       4                                  0.93
+  budget_geler_depenses_etat_collectivites budget_reduire_depenses_militaires
+1                                     0.78                               0.23
+2                                     0.81                               0.56
+3                                     0.47                               0.44
+4                                     0.74                               0.28
+  budget_diminuer_credit_impot_recherche budget_reduire_aides_apprentissage
+1                                   0.41                               0.15
+2                                   0.80                               0.68
+3                                   0.56                               0.26
+4                                   0.58                               0.31
+  budget_reduire_remboursement_soins budget_retirer_aides_sociales_etrangers
+1                               0.39                                    0.83
+2                               0.72                                    0.88
+3                               0.05                                    0.21
+4                               0.29                                    0.95
+  budget_supprimer_ame budget_diminuer_subventions_ecole_privee
+1                 0.82                                     0.34
+2                 0.85                                     0.81
+3                 0.11                                     0.51
+4                 0.92                                     0.46
+  budget_reduire_depenses_educatives_demographie
+1                                           0.46
+2                                           0.80
+3                                           0.11
+4                                           0.41
+  budget_augmenter_duree_travail_droit_chomage budget_geler_aides_sociales
+1                                         0.70                        0.67
+2                                         0.82                        0.80
+3                                         0.22                        0.13
+4                                         0.81                        0.62
+  budget_reduire_pensions_retraite budget_supprimer_abattement_ir_retraites
+1                             0.32                                     0.20
+2                             0.66                                     0.67
+3                             0.10                                     0.19
+4                             0.13                                     0.10
+  budget_augmenter_age_retraite_65 budget_aligner_tva_restauration
+1                             0.50                            0.31
+2                             0.72                            0.83
+3                             0.15                            0.28
+4                             0.47                            0.33
+  budget_supprimer_exonerations_taxes_carburants
+1                                           0.28
+2                                           0.74
+3                                           0.54
+4                                           0.49
+  budget_soumettre_livret_a_impot budget_augmenter_tva_1pt
+1                            0.06                     0.18
+2                            0.59                     0.74
+3                            0.08                     0.09
+4                            0.06                     0.11
+  budget_augmenter_csg_1pt budget_augmenter_impot_revenu_tous
+1                     0.13                               0.22
+2                     0.71                               0.79
+3                     0.07                               0.17
+4                     0.04                               0.25
+  budget_augmenter_cotisations_salaires_moyens
+1                                         0.14
+2                                         0.62
+3                                         0.17
+4                                         0.15
+  budget_supprimer_avantages_fiscaux_complements_salaire
+1                                                   0.22
+2                                                   0.71
+3                                                   0.22
+4                                                   0.28
+  budget_augmenter_impot_societes budget_restaurer_taxe_habitation_aises
+1                            0.07                                   0.13
+2                            0.69                                   0.78
+3                            0.42                                   0.67
+4                            0.37                                   0.67
+  budget_retablir_isf budget_augmenter_impot_heritages_eleves budget_tva_luxe
+1                0.32                                    0.13            0.58
+2                0.82                                    0.81            0.92
+3                0.93                                    0.82            0.94
+4                0.94                                    0.76            0.87
+  budget_augmenter_taxe_revenus_capital budget_augmenter_impot_revenu_aises
+1                                  0.08                                0.10
+2                                  0.85                                0.84
+3                                  0.66                                0.85
+4                                  0.49                                0.80
+
+=== Effect program: mean favorability by vote_factor ===
+effect_program_reduire_aide_developpement : overall = 0.139  by vote: 0.19 0.05 0.55 -0.28 
+effect_program_taxe_millionaires_onu : overall = 0.484  by vote: 0.45 0.35 0.17 0.99 
+effect_program_fin_dutreil : overall = 0.621  by vote: 0.63 0.48 0.38 1 
+effect_program_education_sante : overall = 1.011  by vote: 0.97 0.9 0.97 1.22 
+effect_program_augmenter_allocs_familiales : overall = -0.312  by vote: -0.28 -0.48 -0.79 0.3 
+effect_program_reduire_deficit : overall = 0.873  by vote: 0.73 1.13 0.94 0.75 
+effect_program_reduire_depenses_fonctionnement : overall = 1.188  by vote: 1.17 1.19 1.6 0.78 
+effect_program_restreindre_aides_etrangers : overall = 0.561  by vote: 0.53 0.53 1.5 -0.35 
+effect_program_appliquer_oqtf : overall = 1.11  by vote: 0.92 1.28 1.83 0.44 
+effect_program_regulariser_sans_papiers : overall = 0.032  by vote: 0.04 0.14 -0.73 0.7 
+effect_program_peines_planchers_recidive : overall = 1.12  by vote: 1 1.23 1.65 0.62 
+effect_program_retraite_65_ans : overall = -0.497  by vote: -0.9 0.46 -0.69 -0.66 
+effect_program_retraite_62_ans : overall = 0.426  by vote: 0.69 -0.39 0.66 0.6 
+effect_program_augmenter_smic : overall = 0.6  by vote: 0.7 0.2 0.59 0.86 
+effect_program_ric : overall = 0.623  by vote: 0.58 0.29 0.83 0.78 
+effect_program_proportionnelle : overall = 0.502  by vote: 0.42 0.4 0.7 0.51 
+effect_program_maintenir_green_deal : overall = 0.079  by vote: 0.07 0.19 -0.45 0.54 
+
+=== Majority packages summary ===
+Majority souhaitable ( 5 measures):
+budget_eliminer_doublons_territoriaux
+budget_tva_luxe
+budget_retablir_isf
+budget_retirer_aides_sociales_etrangers
+budget_supprimer_ame 
+Total budget savings souhaitable: 31.5 Mds€
+Total budget savings convenable: 97.9 Mds€
+
+Analyses complete.

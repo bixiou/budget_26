@@ -1,0 +1,427 @@
+\documentclass[12pt,english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tgpagella}
+\usepackage{mathpazo}
+\usepackage{microtype}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{babel}
+\usepackage{csquotes}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{lineno}
+\usepackage{bibunits}
+\usepackage[round,authoryear,sort&compress]{natbib}
+\defaultbibliographystyle{plainnaturl_clean}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black,backref=true]{hyperref}
+
+\title{Préférences budgétaires des Français :\\
+résultats d'une enquête représentative}
+\author{Adrien Fabre\thanks{CNRS. Données et figures disponibles sur
+\url{https://github.com/bixiou/budget_26}.}}
+\date{Avril 2026}
+
+\begin{document}
+\maketitle
+
+% \linenumbers
+
+\begin{abstract}
+Face à la contrainte de consolidation des finances publiques françaises, quelles
+mesures les citoyens sont-ils prêts à accepter ? Nous analysons les résultats d'une
+enquête menée en 2026 auprès de 1\,000 Français représentatifs, portant sur
+30~mesures budgétaires. Pour chaque mesure, les répondants indiquent si elle leur
+paraît souhaitable, convenable, supportable ou inacceptable. Cinq mesures recueillent
+une majorité absolue de soutien~: l'élimination des doublons administratifs (92\,\%),
+la TVA sur les produits de luxe (81\,\%), le rétablissement de l'impôt sur la fortune
+(77\,\%), le retrait des aides sociales aux étrangers non-européens (72\,\%) et la
+suppression de l'aide médicale de l'État (68\,\%). Nous identifions des paquets de
+mesures atteignant une majorité conjointe supérieure à 50\,\%. En définissant le
+soutien comme « convenable ou souhaitable » (xPNR), la taille maximale d'un paquet
+faisable est de 3~mesures~; le paquet au plus fort soutien (58,8\,\%) est très
+droitier (doublons + aides aux étrangers + AME). En élargissant le soutien à
+« supportable, convenable ou souhaitable », la taille maximale atteint 6~mesures~;
+le paquet optimal (54,8\,\%, 52,9~Mds€) réunit doublons + gel des dépenses +
+aides aux étrangers + AME + ISF + TVA luxe, avec un profil modérément droitier
+mais plus transpartisan (gauche : 17,9\,\% vs 23,0\,\% dans l'ensemble). Aucun
+paquet de sept mesures ou plus n'atteint 50\,\% de soutien conjoint.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\label{sec:intro}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+La France fait face à un déficit public structurel significatif. Selon le
+\citet{CAE2025}, ramener la dette publique sur une trajectoire stable nécessiterait
+un effort d'environ 112~milliards d'euros à l'horizon 2030, soit un mix de hausses
+de recettes et de baisses de dépenses. La question n'est pas seulement économique~:
+elle est profondément politique. Quelles mesures les citoyens français sont-ils
+disposés à accepter, et lesquelles rejettent-ils ?
+
+Plusieurs initiatives ont cherché à répondre à cette question. Le Conseil d'Analyse
+Économique a publié en octobre 2025 une note et développé un outil interactif
+permettant à chacun de composer son propre programme de stabilisation de la
+dette~\citep{CAE2025}. La plateforme Les Progressistes a organisé fin 2025 une
+conférence de consensus en ligne réunissant plusieurs milliers de participants pour
+définir un programme budgétaire~\citep{Progressistes2025}. Le site
+\texttt{budget-citoyen.fr} propose un exercice similaire de simulation grand public.
+Ces démarches partagent l'ambition de dépasser la rhétorique partisane pour
+identifier ce qu'une majorité de citoyens pourrait accepter.
+
+Notre enquête adopte une approche complémentaire~: plutôt que de demander aux
+répondants de composer eux-mêmes un budget équilibré, nous leur soumettons une liste
+de mesures concrètes et mesurons le niveau d'acceptabilité de chacune. Cela permet
+d'analyser les déterminants du soutien, les corrélations entre mesures, et —
+surtout — d'identifier des \emph{paquets majoritaires}~: des ensembles de mesures
+pour lesquels une même majorité des citoyens soutient simultanément chacune des
+mesures du paquet.
+
+La note est organisée comme suit. La section~\ref{sec:methode} décrit la méthode
+(questionnaire, échantillon, pondération). La section~\ref{sec:resultats} présente
+les résultats descriptifs sur les questions \texttt{budget} et \texttt{effect\_program}.
+La section~\ref{sec:analyses} présente les analyses complémentaires~: déterminants
+sociodémographiques, corrélations, clustering et paquets majoritaires.
+La section~\ref{sec:conclusion} conclut.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Méthode}
+\label{sec:methode}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Questionnaire}
+
+L'enquête comprend deux questions principales analysées dans cette note~:
+
+\begin{enumerate}
+  \item \textbf{Question \texttt{budget}}~: Pour chacune de 30~mesures de
+  consolidation budgétaire, le répondant indique si la mesure lui paraît
+  \emph{souhaitable}, \emph{convenable}, \emph{supportable} ou \emph{inacceptable}
+  (avec option \emph{ne sait pas}). Les mesures couvrent des hausses d'impôts, des
+  baisses de dépenses, des réformes structurelles et des mesures de contrôle de
+  l'immigration.
+
+  \item \textbf{Question \texttt{effect\_program}}~: Pour chacune de 20~mesures
+  susceptibles de figurer dans le programme d'un candidat présidentiel, le répondant
+  indique si la mesure le rendrait \emph{beaucoup plus favorable} (+2),
+  \emph{légèrement plus favorable} (+1), \emph{sans effet} (0), \emph{légèrement
+  moins favorable} (-1) ou \emph{beaucoup moins favorable} (-2).
+\end{enumerate}
+
+L'enquête comprenait également des questions expérimentales sur d'autres sujets
+(taxe carbone globale, impôt sur la fortune, avenir durable, groupe défendu, etc.)
+qui ne sont pas analysées dans cette note.
+
+\subsection{Échantillon et pondération}
+
+L'enquête a été conduite en 2026 via Bilendi/Qualtrics auprès de 1\,000~résidents
+français adultes. L'échantillon a été pondéré par raking (calage) sur le genre,
+l'âge, le revenu, le niveau de diplôme, l'urbanité et la région, de façon à
+correspondre aux distributions de la population française.
+
+Le tableau~\ref{tab:representativite} présente les statistiques de représentativité.
+L'échantillon brut présente une légère sur-représentation des revenus faibles (Q1~:
+31\,\% vs 25\,\%) et des diplômés du supérieur (33\,\% vs 26\,\%) ainsi qu'une
+sous-représentation des bacheliers (20\,\% vs 26\,\%). La pondération corrige ces
+déséquilibres.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Représentativité de l'échantillon}
+  \label{tab:representativite}
+  \input{../tables/FR_bold.tex}
+  \par\smallskip
+  {\footnotesize Note~: Les valeurs en gras indiquent un écart supérieur à 5 points
+  de pourcentage entre l'échantillon brut et la population. La pondération ramène
+  toutes les proportions à celles de la population.}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Résultats descriptifs}
+\label{sec:resultats}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Question \texttt{budget}}
+
+La figure~\ref{fig:budget} présente le soutien à chaque mesure budgétaire (somme des
+réponses « souhaitable » et « convenable », hors ne sait pas).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{../figures/budget.pdf}
+  \caption{Soutien aux mesures budgétaires (convenable + souhaitable, hors NSP)}
+  \label{fig:budget}
+\end{figure}
+
+Cinq mesures recueillent plus de 50\,\% de réponses favorables (souhaitable ou
+convenable, incluant les NSP au dénominateur)~: l'élimination des doublons entre
+niveaux territoriaux (76,6\,\%, économie estimée~: 9~Mds€), la TVA à taux élevé sur
+les biens de luxe (74,5\,\%, 3,5~Mds€), le rétablissement de l'ISF (70,4\,\%,
+11~Mds€), le retrait des aides sociales aux étrangers non-UE (69,5\,\%, 6,7~Mds€)
+et la suppression de l'AME (65,8\,\%, 1,3~Mds€). Le gel des dépenses de
+fonctionnement de l'État atteint 63,0\,\% (21,4~Mds€).
+
+En excluant les NSP du dénominateur (taux \emph{xPNR}), les soutiens sont plus
+élevés~: élimination des doublons~92\,\%, TVA luxe~81\,\%, ISF~77\,\%, retrait des
+aides étrangers~72\,\%, suppression AME~68\,\%.
+
+À l'inverse, les mesures les plus rejetées sont le report de l'âge de départ à la
+retraite à 65~ans (rejeté par une large majorité sauf chez les électeurs de
+centre-droite), les hausses de TVA et de CSG d'un point (rejetées par environ
+80\,\% des répondants) et l'augmentation des allocations familiales (36\,\% de
+soutien seulement).
+
+\textbf{Lien avec le rendement budgétaire.} La corrélation entre le niveau de soutien
+à une mesure et son rendement budgétaire est faible~: certaines mesures très populaires
+(élimination des doublons, ISF) ont un rendement modéré, tandis que d'autres mesures
+potentiellement importantes (taxe sur les billets d'avion, réforme des retraites)
+sont impopulaires.
+
+\subsection{Question \texttt{effect\_program}}
+
+La figure~\ref{fig:effect_program} présente le score moyen d'impact sur l'évaluation
+d'un candidat présidentiel pour chaque mesure.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{../figures/effect_program.pdf}
+  \caption{Effet des mesures sur l'évaluation d'un candidat présidentiel (score moyen, échelle $-2$ à $+2$)}
+  \label{fig:effect_program}
+\end{figure}
+
+Les mesures les plus valorisantes pour un candidat sont la réduction des dépenses de
+fonctionnement de l'État (+1,19), l'instauration de peines planchers (+1,12),
+l'application systématique des OQTF (+1,11) et l'augmentation du budget éducation
+et santé (+1,01). Cette dernière mesure est la seule à obtenir un score positif
+élevé dans \emph{tous} les groupes électoraux (non-votants~: +0,97~; centre-droit~:
++0,90~; extrême droite~: +0,97~; gauche~: +1,22).
+
+La seule mesure à score négatif est le report de la retraite à 65~ans ($-0,50$),
+plébiscité uniquement par les électeurs de centre-droite (+0,46). Le retour du
+déficit sous les 3\,\% est modérément valorisant (+0,87).
+
+L'application des OQTF et les peines planchers sont fortement clivantes~: très
+populaires à l'extrême droite (respectivement +1,83 et +1,67), elles sont nettement
+moins valorisées à gauche (+0,44 et +0,56).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Analyses complémentaires}
+\label{sec:analyses}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Déterminants du soutien}
+
+Nous estimons pour chaque mesure \texttt{budget} une régression OLS du soutien
+(variable binaire : convenable ou souhaitable~= 1) en fonction du vote déclaré, du
+revenu, de l'âge, du genre et du niveau de diplôme (estimations pondérées).
+
+\textbf{Vote.} C'est le déterminant le plus fort. Les électeurs de gauche soutiennent
+davantage les hausses d'impôts sur le patrimoine et s'opposent fortement aux mesures
+anti-immigration ($-36$~pp sur la suppression de l'AME, $-57$~pp sur le retrait des
+aides aux étrangers). Les électeurs de centre-droite soutiennent davantage le report
+de la retraite à 65~ans (+34~pp) et moins la réduction des dépenses militaires
+($-16$~pp). Les électeurs de gauche s'opposent aussi davantage au gel des dépenses
+($-15$~pp).
+
+\textbf{Âge.} Les jeunes (18--24 ans) soutiennent moins l'élimination des doublons
+($-17$~pp), la suppression de l'AME ($-16$~pp) et le gel des dépenses ($-17$~pp).
+
+\textbf{Revenu.} Le revenu est en grande partie non significatif, ce qui suggère que
+le clivage principal n'est pas économique mais culturel (vote comme proxy
+d'orientation idéologique).
+
+\subsection{Corrélations entre mesures}
+
+La matrice de corrélation entre soutiens aux mesures révèle plusieurs blocs~:
+
+\begin{itemize}
+  \item \textbf{Bloc anti-immigration}~: le retrait des aides aux étrangers et la
+  suppression de l'AME sont très fortement corrélés ($r = 0,716$).
+  \item \textbf{Bloc taxe sur le patrimoine}~: le rétablissement de l'ISF et
+  l'augmentation des droits de succession sont corrélés ($r = 0,441$), ainsi que
+  les taxes sur les revenus du capital et l'impôt sur les hauts revenus
+  ($r = 0,521$).
+  \item \textbf{Bloc fiscal large}~: les hausses de TVA et de CSG d'un point sont
+  corrélées ($r = 0,534$).
+  \item \textbf{Bloc réforme des retraites}~: la réduction des pensions et la
+  suppression de l'abattement IR pour les retraités ($r = 0,480$).
+\end{itemize}
+
+\subsection{Clustering des répondants}
+
+Un clustering $k$-means ($k = 4$) appliqué à la matrice binaire de soutien identifie
+quatre profils~:
+
+\begin{enumerate}
+  \item \textbf{Libéral conservateur} ($n = 166$~; 40\,\% centre-droit, 32\,\%
+  extrême droite)~: fort soutien aux mesures anti-immigration et aux coupes de
+  dépenses~; faible soutien aux impôts sur le patrimoine.
+
+  \item \textbf{Pragmatique} ($n = 96$~; 29\,\% centre-droit, 28\,\% gauche)~:
+  accepte quasiment toutes les mesures, y compris les hausses fiscales larges
+  (TVA~74\,\%, CSG~71\,\%).
+
+  \item \textbf{Progressiste} ($n = 131$~; 57\,\% gauche)~: fort soutien aux
+  impôts sur la fortune (ISF~93\,\%), très faible soutien aux mesures
+  anti-immigration (AME~11\,\%).
+
+  \item \textbf{Populiste fiscalisateur} ($n = 209$~; 35\,\% extrême droite,
+  27\,\% non-votants)~: profil hybride~: soutien à la fois aux mesures
+  anti-immigration (AME~92\,\%) \emph{et} aux impôts sur la fortune (ISF~94\,\%,
+  TVA luxe~87\,\%). Ce cluster n'est incarné par aucun parti existant.
+\end{enumerate}
+
+\subsection{Paquets de mesures à majorité conjointe}
+\label{sec:paquets}
+
+Nous cherchons des ensembles de mesures tels qu'une même majorité de citoyens soutient
+simultanément chacune des mesures de l'ensemble. Formellement, un paquet $S$ est
+\emph{faisable} si la proportion pondérée de répondants qui soutiennent \emph{chaque}
+mesure de $S$ dépasse 50\,\% (avec les NSP exclus du dénominateur — convention
+\emph{xPNR}). Nous examinons deux définitions du soutien à une mesure.
+
+\textbf{Algorithme.} Nous utilisons l'algorithme Apriori niveau par niveau~: en
+exploitant la propriété d'anti-monotonicité (tout sur-ensemble d'un paquet infaisable
+est infaisable), les candidats de taille $k$ sont générés uniquement à partir des
+paquets faisables de taille $k-1$, ce qui évite d'évaluer les sur-ensembles de
+paquets déjà infaisables.
+
+\subsubsection*{Définition stricte : convenable ou souhaitable (xPNR)}
+
+Avec cette définition, 12~mesures ont un soutien individuel supérieur à 50\,\%.
+La recherche exhaustive sur leurs $2^{12} = 4\,096$ sous-ensembles montre qu'aucun
+paquet de 4~mesures ou plus n'atteint 50\,\% de soutien conjoint. Nous trouvons six
+paquets optimaux de 3~mesures (tableau~\ref{tab:paquets_strict}).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Paquets de 3 mesures à majorité conjointe — définition stricte (conv+souh, xPNR)}
+  \label{tab:paquets_strict}
+  \begin{tabular}{lcc}
+    \toprule
+    Mesures & Soutien conjoint & Économies (Mds€) \\
+    \midrule
+    Doublons + aides étrangers + AME & 58,8\,\% & 17,0 \\
+    Doublons + ISF + TVA luxe & 57,9\,\% & 23,5 \\
+    Doublons + aides étrangers + TVA luxe & 51,0\,\% & 19,2 \\
+    Doublons + gel dépenses + aides étrangers & 51,7\,\% & 37,1 \\
+    Gel dépenses + aides étrangers + AME & 50,6\,\% & 29,4 \\
+    Aides étrangers + AME + TVA luxe & 50,1\,\% & 11,5 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Le paquet au soutien conjoint le plus élevé (doublons + aides aux étrangers + AME,
+58,8\,\%) est porté par une majorité très à droite~: extrême droite 34,9\,\% (vs
+23,9\,\% dans l'ensemble), gauche 12,7\,\% (vs 23,0\,\%). Le paquet (doublons + ISF
++ TVA luxe, 57,9\,\%) a au contraire un profil plutôt gauche/centre. Ces deux
+majorités sont largement non superposables.
+
+\subsubsection*{Définition élargie : supportable, convenable ou souhaitable (xPNR)}
+
+En incluant les réponses « supportable » comme soutien, 23~mesures passent le seuil
+de 50\,\%. L'algorithme Apriori n'évalue que 2\,912~sous-ensembles (sur les
+$2^{23} = 8\,388\,608$ possibles). La taille maximale d'un paquet faisable passe
+à 6~mesures~; 15~paquets de cette taille dépassent 50\,\% de soutien conjoint
+(tableau~\ref{tab:paquets_large}).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Paquets de 6 mesures à majorité conjointe — définition élargie (supp+conv+souh, xPNR)}
+  \label{tab:paquets_large}
+  \small
+  \begin{tabular}{lcc}
+    \toprule
+    Mesures & Soutien conjoint & Économies (Mds€) \\
+    \midrule
+    Doublons + gel dép. + aides étr. + AME + ISF + TVA luxe & \textbf{54,8\,\%} & 52,9 \\
+    Doublons + gel dép. + aides étr. + AME + durée trav. + ISF & 52,6\,\% & 51,3 \\
+    Doublons + gel dép. + aides étr. + AME + durée trav. + TVA luxe & 53,8\,\% & 43,8 \\
+    Doublons + gel dép. + aides étr. + durée trav. + ISF + TVA luxe & 52,8\,\% & 53,5 \\
+    Doublons + gel dép. + aides étr. + ISF + TVA luxe + IR aisés & 50,4\,\% & 56,3 \\
+    Doublons + gel dép. + aides étr. + AME + durée trav. + gel aides & 51,9\,\% & 43,7 \\
+    Doublons + gel dép. + AME + durée trav. + ISF + TVA luxe & 50,7\,\% & 48,1 \\
+    Doublons + gel dép. + CIR + aides étr. + AME + durée trav. & 51,1\,\% & 41,8 \\
+    Doublons + gel dép. + CIR + aides étr. + AME + ISF & 50,7\,\% & 50,9 \\
+    Doublons + gel dép. + CIR + aides étr. + AME + TVA luxe & 50,1\,\% & 43,4 \\
+    Doublons + gel dép. + CIR + aides étr. + ISF + TVA luxe & 50,0\,\% & 53,1 \\
+    Doublons + CIR + aides étr. + AME + ISF + TVA luxe & 50,8\,\% & 33,0 \\
+    Doublons + aides étr. + AME + durée trav. + ISF + TVA luxe & 53,3\,\% & 33,4 \\
+    Doublons + aides étr. + AME + ISF + TVA luxe + IR aisés & 51,8\,\% & 36,2 \\
+    Gel dép. + aides étr. + AME + durée trav. + ISF + TVA luxe & 51,8\,\% & 45,8 \\
+    \bottomrule
+  \end{tabular}
+  \par\smallskip
+  {\footnotesize Abréviations~: gel dép. = gel des dépenses État/collectivités~; aides étr. = retrait des
+  aides aux étrangers non-UE~; durée trav. = allongement durée du travail/chômage~;
+  gel aides = gel des aides sociales~; CIR = réduction du crédit impôt recherche~;
+  IR aisés = hausse IR sur les ménages aisés.}
+\end{table}
+
+Le paquet optimal (doublons + gel des dépenses + aides aux étrangers + AME + ISF +
+TVA luxe, 54,8\,\%, 52,9~Mds€) est moderément droitier~: extrême droite 28,4\,\%
+(+4,5~pp vs ensemble), centre-droite 26,3\,\% (+4,2~pp), gauche 17,9\,\% ($-5,1$~pp).
+Ce profil est nettement plus transpartisan que celui des paquets de la définition
+stricte. Notons que ce paquet inclut à la fois des mesures anti-immigration (aides aux
+étrangers, AME) et des mesures de gauche (ISF, TVA luxe), ce qui correspond au profil
+du cluster « populiste fiscalisateur » identifié en section~\ref{sec:analyses}.
+
+\textbf{Résultat clé.} Quel que soit la définition du soutien, il n'existe pas de
+programme de sept mesures ou plus soutenu conjointement par une majorité. Avec la
+définition stricte (conv+souh), les paquets majoritaires sont polarisés politiquement
+— deux familles de paquets aux profils opposés (anti-immigration vs impôts sur la
+fortune). Avec la définition élargie (supp+conv+souh), un paquet de 6~mesures
+réunissant les deux familles atteint 54,8\,\%, mais ne constitue pas encore un
+consensus politique~: il reste modérément surreprésenté à droite.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+\label{sec:conclusion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Cette enquête apporte trois enseignements principaux.
+
+\textbf{Premièrement}, les Français sont favorables à certaines mesures de
+consolidation budgétaire, notamment l'élimination des doublons administratifs,
+les impôts sur le patrimoine (ISF, TVA luxe, droits de succession) et les mesures
+migratoires. En revanche, ils rejettent les hausses d'impôts touchant l'ensemble de
+la population (TVA, CSG) et le report de la retraite.
+
+\textbf{Deuxièmement}, la question \texttt{effect\_program} révèle un paradoxe~: les
+citoyens valorisent davantage un candidat qui réduit les dépenses de fonctionnement
+et améliore simultanément les services publics (éducation, santé), deux objectifs
+dont la conciliation est difficile. Le retour du déficit sous les 3\,\% du PIB est
+modérément valorisant.
+
+\textbf{Troisièmement}, les résultats sur les paquets majoritaires dépendent de la
+définition du soutien. Avec une définition stricte (convenable ou souhaitable), les
+paquets majoritaires sont fracturés politiquement~: deux familles aux profils opposés
+(anti-immigration vs impôts sur la fortune), taille maximale 3~mesures. Avec une
+définition élargie (supportable, convenable ou souhaitable), un paquet de 6~mesures
+réunissant les deux familles atteint 54,8\,\% de soutien conjoint, mais aucun
+programme de 7~mesures ou plus ne passe le seuil majoritaire. Ce paquet de 6~mesures
+est modérément surreprésenté à droite~: il reflète le profil « populiste fiscalisateur »
+identifié en clustering, sans correspondre à aucune offre partisane existante.
+
+\textbf{Limites.} L'enquête mesure des préférences déclarées sur des mesures
+individuelles présentées sans contexte de contrainte budgétaire globale~; les citoyens
+n'ont pas à arbitrer entre mesures ni à équilibrer un budget. Les taux de soutien
+pourraient différer si les mesures étaient présentées dans un cadre de choix
+contraint. Par ailleurs, le questionnaire a été conçu dans le cadre d'une enquête
+plus large dont certains éléments (questions expérimentales sur la taxe carbone,
+l'impôt sur la fortune, etc.) ne sont pas analysés ici.
+
+\bigskip
+
+\bibliographystyle{plainnaturl_clean}
+\bibliography{budget}
+
+\end{document}

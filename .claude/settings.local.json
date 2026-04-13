@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Rscript --vanilla -e \"library\\(openxlsx\\); bp <- read.xlsx\\('data_ext/budget_policies.xlsx'\\); cat\\(paste\\(names\\(bp\\), collapse=', '\\), '\\\\n'\\)\")",
+      "Bash(Rscript --vanilla -e ':*)",
+      "Bash(Rscript --vanilla -e \"library\\(openxlsx\\); bp <- read.xlsx\\('data_ext/budget_policies.xlsx'\\); write.csv\\(bp, '/tmp/bp.csv', row.names=FALSE\\)\")",
+      "Bash(Rscript --vanilla -e \"cat\\('tempdir:', tempdir\\(\\), '\\\\n'\\); cat\\('libPaths:', paste\\(.libPaths\\(\\), collapse='\\\\n'\\), '\\\\n'\\); cat\\('R_HOME:', R.home\\(\\), '\\\\n'\\)\")"
+    ]
+  }
+}

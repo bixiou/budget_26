@@ -18,7 +18,7 @@ if (!exists("variables_budget_policies")) variables_budget_policies <- variables
 
 ## ── Constantes ──────────────────────────────────────────────────────────────
 THRESHOLD     <- 0.5   # seuil majorité
-THRESHOLD_LOW <- 0.1  # seuil bas pour partie (2)
+THRESHOLD_LOW <- 0.249  # seuil bas pour partie (2)
 AMOUNT_TARGET <- 90    # Mds€
 
 ## ── Variables et montants ───────────────────────────────────────────────────
@@ -135,6 +135,7 @@ report_best_economy(r_S,   mat_S,   label = "S ≥50%")
 
 ## ═══════════════════════════════════════════════════════════════════════════
 ## (2) Proportion max P pour un paquet ≥ 90 Mds€ (supp+conv+souh)
+## /!\ ~30h to run
 ## ═══════════════════════════════════════════════════════════════════════════
 cat("\n\n══════════════════════════════════════════════════════════\n")
 cat("(2) Proportion max P pour paquet ≥ 90 Mds€ (supp+conv+souh)\n")
@@ -156,6 +157,16 @@ if (length(feas_90) > 0) {
   cat(sprintf("\nAucun paquet faisable (supp+conv+souh > %.0f%%) avec économie ≥ %d Mds€.\n",
     THRESHOLD_LOW * 100, AMOUNT_TARGET))
 }
+
+# P = 25.0% | 90.1 Mds€ | 10 mesures
+# eliminer_doublons_territoriaux + geler_depenses_etat_collectivites + retirer_aides_sociales_etrangers + supprimer_ame + supprimer_exonerations_taxes_carburants + restaurer_taxe_habitation_aises + retablir_isf + augmenter_impot_heritages_eleves + tva_luxe + augmenter_impot_revenu_aises
+# 
+# Top 5 paquets ≥ 90 Mds€ (soutien décroissant) :
+#   25.0% | 90.1 Mds€ | eliminer_doublons_territoriaux + geler_depenses_etat_collectivites + retirer_aides_sociales_etrangers + supprimer_ame + supprimer_exonerations_taxes_carburants + restaurer_taxe_habitation_aises + retablir_isf + augmenter_impot_heritages_eleves + tva_luxe + augmenter_impot_revenu_aises
+# 24.5% | 90.7 Mds€ | eliminer_doublons_territoriaux + geler_depenses_etat_collectivites + retirer_aides_sociales_etrangers + augmenter_duree_travail_droit_chomage + supprimer_exonerations_taxes_carburants + restaurer_taxe_habitation_aises + retablir_isf + augmenter_impot_heritages_eleves + tva_luxe + augmenter_impot_revenu_aises
+# 24.2% | 90.8 Mds€ | eliminer_doublons_territoriaux + geler_depenses_etat_collectivites + supprimer_exonerations_taxes_carburants + supprimer_avantages_fiscaux_complements_salaire + retablir_isf + augmenter_impot_heritages_eleves + tva_luxe + augmenter_impot_revenu_aises
+# 24.2% | 90.0 Mds€ | eliminer_doublons_territoriaux + geler_depenses_etat_collectivites + retirer_aides_sociales_etrangers + supprimer_exonerations_taxes_carburants + restaurer_taxe_habitation_aises + retablir_isf + augmenter_impot_heritages_eleves + tva_luxe + augmenter_taxe_revenus_capital + augmenter_impot_revenu_aises
+# 23.8% | 91.7 Mds€ | eliminer_doublons_territoriaux + geler_depenses_etat_collectivites + retirer_aides_sociales_etrangers + augmenter_duree_travail_droit_chomage + augmenter_age_retraite_65 + supprimer_exonerations_taxes_carburants + retablir_isf + augmenter_impot_heritages_eleves + tva_luxe
 
 ## ═══════════════════════════════════════════════════════════════════════════
 ## (3) Paquets majoritaires par groupe de votants (supp+conv+souh)

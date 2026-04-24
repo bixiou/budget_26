@@ -754,13 +754,13 @@ plot_dist_heatmap <- function(mat, title, outfile) {
     theme_minimal(base_size = 8) +
     theme(
       plot.title         = element_text(size = 9, hjust = 0,
-                                         margin = margin(t = 0, b = 20, l = -25)),
+                                         margin = margin(t = -32, b = 22, l = -55)),
       axis.text.x.bottom = element_text(angle = 45, hjust = 1, vjust = 1, size = 6.5),
       axis.text.y        = element_text(size = 6.5),
       panel.grid         = element_blank(),
       legend.position    = "right",
       legend.key.height  = grid::unit(0.8, "cm"),
-      plot.margin        = margin(t = 2, r = 5, b = 5, l = 5)
+      plot.margin        = margin(t = 0, r = 5, b = 5, l = 5)
     ) +
     annotate("text",
              x = seq_len(nc),
@@ -782,12 +782,12 @@ dist_mat_indiv_norm <- (dist_mat_indiv / ref_dist - 1) * 100
 
 plot_dist_heatmap(
   dist_mat_norm,
-  "Distance entre groupes (∑ |Δ moyennes|) : écart % vs intra-Ensemble",
+  "Distance entre groupes (∑ |Δ moyennes|) : écart vs. intra-Ensemble (en %)",
   "../figures/distance_matrix_means.pdf"
 )
 plot_dist_heatmap(
   dist_mat_indiv_norm,
-  "Distance inter-individuelle moyenne entre (et au sein des) groupes : écart % vs intra-Ensemble",
+  "Distance inter-individuelle moyenne entre (et au sein des) groupes : écart vs. intra-Ensemble (en %)",
   "../figures/distance_matrix_pairwise.pdf"
 )
 

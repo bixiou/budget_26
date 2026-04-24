@@ -44,12 +44,12 @@ Je suis Adrien Fabre, chercheur en économie au CNRS. J'ai mené une enquête su
 - [x] **Corrélations entre mesures** : matrice de corrélation du soutien aux différentes mesures `budget` à l'aide de corrplot
 - [x] **Paquets majoritaires** : identifier des paquets de mesures pour lesquels une majorité conjointe existe (i.e. une majorité soutient *chacune* des mesures du paquet) ; noter le profil de vote de cette majorité
 - [x] Documenter les résultats de ces analyses sous forme de commentaires dans `3_analyse.R`
-- [] Créer un vecteur de labels pour les variables `effect_program` et `budget` qui reprend simplement le nom de la variable mais le transcrit en Français (e.g. espace au lieu de _), les utiliser dans les figures notes_groupes_...
-- [] Modifier les figures notes_groupes_... en décalant verticlalement (légèrement) les barres afin qu'elles ne se chevauchent pas; mettre les lignes horizontales grises entre les items plutôt qu'au milieu; changer les couleurs de Overall (noir) et Left (la couleur actuelle d'Overall); améliorer les titres des axes et traduire en Français les groupes
-- [] Définir de nouvelles variables binaires désignant des "coalitions" à partir de vote_original: LFI+EELV+PCF, PS+Renaissance, EELV+PS+Renaissance, PS+Renaissance+LR, EELV+PS+Renaissance+LR, LR+RN+Reconquête (former les noms de variables en remplaçant + par _ et Renaissance par centre)
-- [] Trouver les programmes les plus soutenus par coalition en termes SCS (répliquant ce qui est déjà par vote_agg)
-- [] Trouver les programmes les plus soutenus par blocs (Left, Center-Right, Far right), paire de blocs, et "coalition" en termes CS (répliquant ce qui est déjà fait pour SCS)
-- [] Ajouter les coalitions à la matrice de distance
+- [x] Créer un vecteur de labels pour les variables `effect_program` et `budget` qui reprend simplement le nom de la variable mais le transcrit en Français (e.g. espace au lieu de _), les utiliser dans les figures notes_groupes_...
+- [x] Modifier les figures notes_groupes_... en décalant verticlalement (légèrement) les barres afin qu'elles ne se chevauchent pas; mettre les lignes horizontales grises entre les items plutôt qu'au milieu; changer les couleurs de Overall (noir) et Left (la couleur actuelle d'Overall); améliorer les titres des axes et traduire en Français les groupes
+- [x] Définir de nouvelles variables binaires désignant des "coalitions" à partir de vote_original: LFI+EELV+PCF, PS+Renaissance, EELV+PS+Renaissance, PS+Renaissance+LR, EELV+PS+Renaissance+LR, LR+RN+Reconquête (former les noms de variables en remplaçant + par _ et Renaissance par centre)
+- [x] Trouver les programmes les plus soutenus par coalition en termes SCS (répliquant ce qui est déjà par vote_agg)
+- [x] Trouver les programmes les plus soutenus par blocs (Left, Center-Right, Far right), paire de blocs, et "coalition" en termes CS (répliquant ce qui est déjà fait pour SCS)
+- [x] Ajouter les coalitions à la matrice de distance
 
 ---
 

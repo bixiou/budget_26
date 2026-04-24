@@ -14,21 +14,20 @@ library(dplyr)
 library(ggplot2)
 library(ggrepel)
 
-if (!exists("variables_budget_policies")) variables_budget_policies <- variables_budget
-
+start <- Sys.time()
 ## ── Constantes ──────────────────────────────────────────────────────────────
 THRESHOLD     <- 0.5   # seuil majorité
-THRESHOLD_LOW <- 0.249  # seuil bas pour partie (2)
+THRESHOLD_LOW <- 0.336  # seuil bas pour partie (2) (0.249 si NSP exclus)
 AMOUNT_TARGET <- 90    # Mds€
 
 ## ── Variables et montants ───────────────────────────────────────────────────
-vars    <- variables_budget_policies
+vars    <- variables_budget
 short   <- sub("budget_", "", vars)
 m       <- length(vars)
 amounts <- budget_policies$amount[match(vars, budget_policies$variable_name)]
 pkg_amount <- function(cols) sum(amounts[cols], na.rm = TRUE)
 
-## ── Fonctions de support binaire (1=soutien, 0=rejet, NA=NSP exclus) ────────
+## ── Fonctions de support binaire (1=soutien, 0=rejet, NA=NSP comptés comme soutien) ──
 to_bin <- function(x, sup_cats, rej_cats) {
   ifelse(x %in% sup_cats, 1L, ifelse(x %in% rej_cats, 0L, NA_integer_))
 }
@@ -42,11 +41,13 @@ mat_CS   <- make_mat(support_CS)
 mat_S    <- make_mat(support_S)
 
 ## ── Joint support ────────────────────────────────────────────────────────────
+## Convention : un NSP compte comme un soutien. Un répondant soutient le paquet
+## ssi aucune des mesures n'est marquée « rejet » (0). Les NSP (NA) sont donc
+## assimilés à un 1 pour la détermination du soutien conjoint.
 joint_support <- function(cols, mat, wgt = e$weight) {
   sub   <- mat[, cols, drop = FALSE]
   zeros <- rowSums(sub == 0L, na.rm = TRUE)
-  nas   <- rowSums(is.na(sub))
-  joint <- ifelse(zeros > 0, 0L, ifelse(nas > 0, NA_integer_, 1L))
+  joint <- as.integer(zeros == 0L)
   weighted.mean(joint, wgt, na.rm = TRUE)
 }
 
@@ -212,10 +213,10 @@ cat("\n\n═══════════════════════�
 cat("(4) Paquet maximisant l'utilité totale sous contrainte ≥ 90 Mds€\n")
 
 util_val <- function(x) case_when(
-  x == "Souhaitable"  ~  2,
+  x == "Souhaitable"  ~  3,
   x == "Convenable"   ~  1,
-  x == "Supportable"  ~  0,
-  x == "Inacceptable" ~ -1,
+  x == "Supportable"  ~ -1,
+  x == "Inacceptable" ~ -3,
   TRUE ~ NA_real_
 )
 u_mean <- sapply(vars, function(v) weighted.mean(util_val(e[[v]]), e$weight, na.rm = TRUE))
@@ -276,7 +277,7 @@ pos_x <- sapply(seq_len(m), function(i) {
   weighted.mean(e$vote_agg[mask] - 1, e$weight[mask])
 })
 
-# y = taux de soutien conv+souh (tous répondants, pondéré, xPNR)
+# y = taux de soutien conv+souh (tous répondants, pondéré, NSP = soutien)
 cs_rate <- sapply(seq_len(m), function(i) joint_support(i, mat_CS))
 
 df5 <- data.frame(measure = short, x = pos_x, y = cs_rate, stringsAsFactors = FALSE)
@@ -293,7 +294,7 @@ p5 <- ggplot(df5, aes(x = x, y = y, label = measure)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
   labs(
     x     = "Positionnement idéologique des partisans (conv+souh) — moyenne(vote_agg − 1)",
-    y     = "Taux de soutien conv+souh (%, pondéré, xPNR)",
+    y     = "Taux de soutien conv+souh (%, pondéré, NSP = soutien)",
     title = "Positionnement politique des partisans vs taux de soutien"
   ) +
   theme_bw(base_size = 11)
@@ -352,7 +353,7 @@ compute_stats <- function(variables, score_fn) {
 }
 
 df_ep  <- compute_stats(variables_effect_program,  ep_score)
-df_bud <- compute_stats(variables_budget_policies, bud_score)
+df_bud <- compute_stats(variables_budget, bud_score)
 
 plot_lines <- function(df, title, xlab, xlim_range) {
   df$group <- factor(df$group, levels = c("Overall","Left","Center-right","Far right"))
@@ -403,7 +404,7 @@ group_mean_vec <- function(variables, score_fn) {
 }
 
 means_ep  <- group_mean_vec(variables_effect_program,  ep_score)   # (n_ep)  × 4
-means_bud <- group_mean_vec(variables_budget_policies, bud_score)  # (n_bud) × 4
+means_bud <- group_mean_vec(variables_budget, bud_score)  # (n_bud) × 4
 means_all <- rbind(means_ep, means_bud)                            # all measures × 4
 
 gnames  <- names(dist_groups)
@@ -417,3 +418,25 @@ cat("\nMatrice de distances (∑|Δ note| sur toutes les mesures effect_program 
 print(round(dist_mat, 3))
 
 cat("\nTerminé.\n")
+Sys.time() - start # 15h
+
+# [SCS ≥50%] Plus grande économie : 6 mesures | 68.1 Mds€ | soutien 50.5% | 
+#   eliminer_doublons_territoriaux + geler_depenses_etat_collectivites + supprimer_exonerations_taxes_carburants + retablir_isf + augmenter_impot_heritages_eleves + tva_luxe
+#   also feasible among: CR+L (52.5%), L+FR (50.2%), L (?)
+# [Left] Plus grande économie : 9 mesures | 83.3 Mds€ | soutien 50.3%
+#   eliminer_doublons_territoriaux + geler_depenses_etat_collectivites + supprimer_exonerations_taxes_carburants + restaurer_taxe_habitation_aises + retablir_isf + augmenter_impot_heritages_eleves + tva_luxe + augmenter_taxe_revenus_capital + augmenter_impot_revenu_aises
+# [Center-right] Plus grande économie : 8 mesures | 71.9 Mds€ | soutien 50.0%
+#   eliminer_doublons_territoriaux + geler_depenses_etat_collectivites + retirer_aides_sociales_etrangers + augmenter_duree_travail_droit_chomage + geler_aides_sociales + augmenter_age_retraite_65 + retablir_isf + tva_luxe
+# [Far right] Plus grande économie : 7 mesures | 68.3 Mds€ | soutien 50.6%
+#   eliminer_doublons_territoriaux + geler_depenses_etat_collectivites + retirer_aides_sociales_etrangers + supprimer_ame + supprimer_exonerations_taxes_carburants + retablir_isf + augmenter_impot_revenu_aises
+# [Left + Far right] Plus grande économie : 6 mesures | 68.1 Mds€ | soutien 50.2%
+#   same as full sample
+# [Center-right + Far right] Plus grande économie : 7 mesures | 67.1 Mds€ | soutien 51.4%
+#   eliminer_doublons_territoriaux + geler_depenses_etat_collectivites + retirer_aides_sociales_etrangers + supprimer_ame + supprimer_exonerations_taxes_carburants + retablir_isf + tva_luxe
+# [Center-right + Left] Plus grande économie : 6 mesures | 68.4 Mds€ | soutien 50.6%
+#   eliminer_doublons_territoriaux + geler_depenses_etat_collectivites + supprimer_exonerations_taxes_carburants + restaurer_taxe_habitation_aises + retablir_isf + tva_luxe
+# [CS ≥50%] Plus grande économie : 3 mesures | 41.4 Mds€ | soutien 52.7% | liminer_doublons_territoriaux + geler_depenses_etat_collectivites + retablir_isf
+# Top 5 paquets ≥ 90 Mds€ 
+# 1st: 33.7% | 90.1 Mds€ | eliminer_doublons_territoriaux + geler_depenses_etat_collectivites + retirer_aides_sociales_etrangers + supprimer_ame + supprimer_exonerations_taxes_carburants + restaurer_taxe_habitation_aises + retablir_isf + augmenter_impot_heritages_eleves + tva_luxe + augmenter_impot_revenu_aises
+# 5th: 31.9% | 90.8 Mds€ | eliminer_doublons_territoriaux + geler_depenses_etat_collectivites + supprimer_exonerations_taxes_carburants + supprimer_avantages_fiscaux_complements_salaire + retablir_isf + augmenter_impot_heritages_eleves + tva_luxe + augmenter_impot_revenu_aises
+# Utilité totale : 10.895 | 96.9 Mds€ | 13 mesures

@@ -38,11 +38,18 @@ Je suis Adrien Fabre, chercheur en économie au CNRS. J'ai mené une enquête su
 
 > Effectue ces analyses si tu as les droits d'exécution R ; sinon passe à l'étape 3.
 
-- [x] **Déterminants socio-démographiques** : régressions du soutien aux mesures `budget` et `effect_program` en fonction du vote, du revenu, de l'âge, du genre, du diplôme
-- [x] **Corrélations entre mesures** : matrice de corrélation du soutien aux différentes mesures `budget` ; identifier des groupes de mesures positivement corrélées
-- [x] **Corrélations entre répondants** : clustering des répondants selon leurs préférences ; comparer le profil de vote de chaque cluster
+- [x] **Déterminants socio-démographiques** : régressions du soutien aux mesures `budget` et `effect_program` ainsi que sum_convenable et sum_souhaitable en fonction du vote, du revenu, de l'âge, du genre, du diplôme, urbanity : enregistre le nombre de coefficients significatifs pour chaque variable, et calcule la part de la variance expliquée par chaque variable (inspire-toi de lmg_... dans former_3_render)
+- [x] **Cluster de répondants** : clustering des répondants selon leurs préférences ; comparer le profil de vote de chaque cluster
+- [x] **Cluster de mesures** : reproduit le même type d'analyse en cluster sur les mesures plutôt que sur les répondants; compare le taux de soutien moyen aux mesures de chaque cluster par type de répondants (par vote et par cluster de répondants)
+- [x] **Corrélations entre mesures** : matrice de corrélation du soutien aux différentes mesures `budget` à l'aide de corrplot
 - [x] **Paquets majoritaires** : identifier des paquets de mesures pour lesquels une majorité conjointe existe (i.e. une majorité soutient *chacune* des mesures du paquet) ; noter le profil de vote de cette majorité
 - [x] Documenter les résultats de ces analyses sous forme de commentaires dans `3_analyse.R`
+- [] Créer un vecteur de labels pour les variables `effect_program` et `budget` qui reprend simplement le nom de la variable mais le transcrit en Français (e.g. espace au lieu de _), les utiliser dans les figures notes_groupes_...
+- [] Modifier les figures notes_groupes_... en décalant verticlalement (légèrement) les barres afin qu'elles ne se chevauchent pas; mettre les lignes horizontales grises entre les items plutôt qu'au milieu; changer les couleurs de Overall (noir) et Left (la couleur actuelle d'Overall); améliorer les titres des axes et traduire en Français les groupes
+- [] Définir de nouvelles variables binaires désignant des "coalitions" à partir de vote_original: LFI+EELV+PCF, PS+Renaissance, EELV+PS+Renaissance, PS+Renaissance+LR, EELV+PS+Renaissance+LR, LR+RN+Reconquête (former les noms de variables en remplaçant + par _ et Renaissance par centre)
+- [] Trouver les programmes les plus soutenus par coalition en termes SCS (répliquant ce qui est déjà par vote_agg)
+- [] Trouver les programmes les plus soutenus par blocs (Left, Center-Right, Far right), paire de blocs, et "coalition" en termes CS (répliquant ce qui est déjà fait pour SCS)
+- [] Ajouter les coalitions à la matrice de distance
 
 ---
 

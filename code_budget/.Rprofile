@@ -159,6 +159,7 @@ package("ergm") # wtd.median
 #' # package("seriation")
 package("RColorBrewer") # used in barres
 package("corrplot") # heatmap #, github = 'taiyun')#, version = "0.88") # 0.92 installed: is that an issue?
+package("cluster") # kmeans, daisy, Gower, etc.
 #' package("psy")
 #' package("lavaan")
 #' package("StatMatch")

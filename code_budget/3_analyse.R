@@ -104,3 +104,379 @@ summary(lm(wtp ~ factor(variant_wtp), data = e, weights = weight)) # 1%: .09.; 1
 ##### Representativeness #####
 countries <- "FR"
 representativeness_table(df = e)
+
+
+##### Budget; Claude Code #####
+# Create numeric matrix of budget support
+budget_mat <- as.data.frame(sapply(variables_budget, function(v) e[[v]]))
+budget_mat[budget_mat == -.1] <- NA
+
+
+# Also create binary: accept = Souhaitable or Convenable
+budget_accept <- sapply(variables_budget, function(v) {
+  ifelse(e[[v]] %in% c("Souhaitable", "Convenable"), 1,
+         ifelse(e[[v]] %in% c("Supportable", "Inacceptable"), 0, NA))
+})
+budget_accept <- as.data.frame(budget_accept)
+
+##### 1. Weighted means of budget support by sociodem #####
+cat("\n=== Weighted mean support (conv+souh) by vote_factor ===\n")
+for (v in variables_budget) {
+  means <- tapply(budget_accept[[v]] * e$weight, e$vote_factor, function(x) sum(x, na.rm=TRUE)) /
+    tapply(!is.na(budget_accept[[v]]) * e$weight, e$vote_factor, function(x) sum(x, na.rm=TRUE))
+  cat(v, ":", round(means, 2), "\n")
+}
+
+cat("\n=== Regressions: support ~ vote + income + age + gender + education ===\n")
+results <- list()
+for (v in variables_budget) {
+  df_reg <- data.frame(
+    y = budget_accept[[v]],
+    vote = e$vote_factor,
+    income = e$income_quartile,
+    age = e$age_factor,
+    gender = e$man,
+    education = e$education,
+    weight = e$weight
+  )
+  df_reg <- df_reg[!is.na(df_reg$y), ]
+  tryCatch({
+    mod <- lm(y ~ vote + income + age + gender + education, data = df_reg, weights = weight)
+    s <- summary(mod)$coefficients
+    results[[v]] <- s
+    cat("\n---", v, "---\n")
+    print(round(s, 3))
+  }, error = function(err) cat("Error for", v, ":", err$message, "\n"))
+}
+
+##### 2. Correlation matrix of budget support #####
+cat("\n=== Correlation matrix of budget policy support ===\n")
+cor_mat <- cor(budget_accept, use = "pairwise.complete.obs")
+# Show only top correlated pairs
+cor_pairs <- which(upper.tri(cor_mat), arr.ind = TRUE)
+cor_vals <- cor_mat[cor_pairs]
+top_pos <- order(cor_vals, decreasing = TRUE)[1:20]
+cat("\nTop 20 positive correlations:\n")
+for (i in top_pos) {
+  r <- cor_pairs[i, 1]; c <- cor_pairs[i, 2]
+  cat(sprintf("  %s <-> %s: %.3f\n",
+              sub("budget_", "", rownames(cor_mat)[r]),
+              sub("budget_", "", colnames(cor_mat)[c]),
+              cor_vals[i]))
+}
+# Visualize with corrplot (reordered by hierarchical clustering of correlations)
+pdf("../figures/budget_correlations.pdf", width = 14, height = 14)
+corrplot(cor_mat, method = "color", type = "upper", order = "hclust",
+         tl.cex = 0.55, tl.col = "black", addCoef.col = "black", number.cex = 0.45,
+         diag = FALSE, col = colorRampPalette(c("#c0392b", "white", "#2c3e50"))(200))
+dev.off()
+cat("→ ../figures/budget_correlations.pdf\n")
+
+##### 2b. Sociodemographic determinants: significant coefs and variance decomposition (lmg) #####
+cat("\n=== Sociodemographic determinants: signif. coefs + lmg variance shares ===\n")
+ep_score <- function(x) {
+  case_when(
+    x == "Beaucoup plus favorable" ~ 2,
+    x == "Plus favorable" ~ 1,
+    x == "Ne changerait rien" ~ 0,
+    x == "Moins favorable" ~ -1,
+    x == "Beaucoup moins favorable" ~ -2,
+    TRUE ~ NA_real_
+  )
+}
+
+determinants <- c("vote_factor", "income_quartile", "age_factor", "man", "education", "urbanity")
+determinants <- determinants[determinants %in% names(e)]
+
+fit_decomp <- function(y, df = e, det = determinants) {
+  dd <- data.frame(y = y, df[, det, drop = FALSE], weight = df$weight)
+  dd <- dd[complete.cases(dd) & !is.na(dd$y), ]
+  if (nrow(dd) < 50) return(NULL)
+  f <- as.formula(paste("y ~", paste(det, collapse = " + ")))
+  mod <- tryCatch(lm(f, data = dd, weights = weight), error = function(e) NULL)
+  if (is.null(mod)) return(NULL)
+  s <- summary(mod)$coefficients
+  sig <- sapply(det, function(v) sum(grepl(paste0("^", v), rownames(s)) & s[, 4] < 0.05))
+  lmg <- tryCatch(calc.relimp(mod, type = "lmg", rela = FALSE, rank = FALSE)@lmg,
+                  error = function(e) setNames(rep(NA_real_, length(det)), det))
+  list(sig = sig, lmg = lmg, R2 = summary(mod)$r.squared)
+}
+
+total_sig <- setNames(integer(length(determinants)), determinants)
+total_lmg <- setNames(numeric(length(determinants)), determinants)
+n_models <- 0
+
+for (v in variables_budget) {
+  res <- fit_decomp(budget_accept[[v]])
+  if (!is.null(res)) {
+    total_sig <- total_sig + (res$sig > 0)
+    total_lmg <- total_lmg + res$lmg
+    n_models <- n_models + 1
+  }
+}
+for (v in variables_effect_program) {
+  res <- fit_decomp(ep_score(e[[v]]))
+  if (!is.null(res)) {
+    total_sig <- total_sig + (res$sig > 0)
+    total_lmg <- total_lmg + res$lmg
+    n_models <- n_models + 1
+  }
+}
+for (yv in c("sum_convenable", "sum_souhaitable")) {
+  res <- fit_decomp(e[[yv]])
+  if (!is.null(res)) {
+    total_sig <- total_sig + (res$sig > 0)
+    total_lmg <- total_lmg + res$lmg
+    n_models <- n_models + 1
+  }
+}
+
+cat(sprintf("Models fitted: %d\n", n_models))
+cat("Total significant coefs (alpha = 0.05) per covariate:\n")
+print(total_sig)
+cat("Mean variance share (lmg, as % of R²) per covariate:\n")
+print(round(100 * total_lmg / n_models, 2))
+
+##### 3. Clustering of respondents #####
+# Cluster 1: frugaux (20%), 2: nationalistes (49%), 3: progressistes (31%)
+cat("\n=== K-means clustering of respondents (k selected by silhouette) ===\n")
+# Cluster on the Likert scores (Inacceptable=-1, Supportable=0, Convenable=1, Souhaitable=2).
+# Impute NAs (Ne sais pas) with the column mean so all respondents are kept.
+budget_mat_imputed <- budget_mat
+for (v in names(budget_mat_imputed)) {
+  col_mean <- mean(budget_mat_imputed[[v]], na.rm = TRUE)
+  budget_mat_imputed[[v]][is.na(budget_mat_imputed[[v]])] <- col_mean
+}
+
+# Pick k by maximizing mean silhouette width over k = 2..10.
+d_eucl <- dist(budget_mat_imputed)
+k_range <- 2:10
+sil_width <- sapply(k_range, function(k) {
+  set.seed(42)
+  km_k <- kmeans(budget_mat_imputed, centers = k, nstart = 20)
+  mean(silhouette(km_k$cluster, d_eucl)[, 3])
+})
+names(sil_width) <- k_range
+cat("Mean silhouette width by k:\n")
+print(round(sil_width, 3))
+k_opt <- as.integer(names(sil_width)[which.max(sil_width)])
+cat(sprintf("Optimal k = %d (silhouette = %.3f)\n", k_opt, max(sil_width)))
+
+set.seed(42)
+km <- kmeans(budget_mat_imputed, centers = k_opt, nstart = 20)
+e$cluster <- factor(km$cluster)
+label(e$cluster) <- "cluster: k-means cluster on budget Likert scores (NAs imputed by column mean; k by silhouette)."
+cat("Cluster sizes:", table(km$cluster), "\n")
+
+# Vote profile by cluster (within a cluster, share of each vote group)
+cat("\nVote profile by cluster:\n")
+for (cl in seq_len(k_opt)) {
+  cat(sprintf("Cluster %d (n=%d): ", cl, sum(km$cluster == cl, na.rm=TRUE)))
+  vote_tbl <- prop.table(table(e$vote_factor[km$cluster == cl]))
+  cat(paste(round(vote_tbl*100, 1), names(vote_tbl), sep="% ", collapse=", "), "\n")
+}
+
+# Cluster profile by vote (within a vote group, share in each cluster)
+cat("\nCluster profile by vote:\n")
+cluster_by_vote <- prop.table(table(e$vote_factor, km$cluster), margin = 1)
+print(round(cluster_by_vote * 100, 1))
+
+# Mean support (binary conv+souh) by cluster, on observed values only
+cat("\nMean support by cluster:\n")
+cluster_means <- aggregate(budget_accept, by = list(cluster = km$cluster), FUN = mean, na.rm = TRUE)
+print(round(cluster_means, 2))
+
+cat("\nMean sum_convenable (G€) by cluster:\n")
+print(round(tapply(e$sum_convenable, km$cluster, mean, na.rm = TRUE), 2))
+
+##### 3b. Alternative clustering: Ward hierarchical on an ordinal+NSP distance #####
+# Cluster (n=40) of PNR, cluster of right (74%, incl. 7% très frugaux) and left (22%)
+# Custom Gower-like distance per variable:
+#   - both Likert (-1,0,1,2): |x - y| / 3 (normalized rank distance, uses ordering)
+#   - exactly one NSP: 1 (NSP is maximally different from any opinion)
+#   - both NSP: 0
+# Averaged across variables.
+cat("\n=== Hierarchical Ward clustering (ordinal+NSP distance, k by silhouette) ===\n")
+ord_nsp_dist <- function(mat) {
+  n <- nrow(mat)
+  p <- ncol(mat)
+  d <- matrix(0, n, n)
+  for (v in seq_len(p)) {
+    x <- mat[, v]
+    nsp <- is.na(x)
+    x0 <- x; x0[nsp] <- 0
+    d_ord <- abs(outer(x0, x0, "-")) / 3
+    nsp_xor <- outer(nsp, nsp, FUN = function(a, b) xor(a, b))
+    nsp_both <- outer(nsp, nsp, FUN = "&")
+    dv <- d_ord
+    dv[nsp_xor] <- 1
+    dv[nsp_both] <- 0
+    d <- d + dv
+  }
+  d / p
+}
+d_ord <- as.dist(ord_nsp_dist(as.matrix(budget_mat)))
+
+# Optimize k by silhouette width over k = 2..10
+k_range_h <- 2:10
+sil_width_h <- sapply(k_range_h, function(k) {
+  hc_k <- hclust(d_ord, method = "ward.D2")
+  cl_k <- cutree(hc_k, k = k)
+  mean(silhouette(cl_k, d_ord)[, 3])
+})
+names(sil_width_h) <- k_range_h
+cat("Mean silhouette width by k:\n")
+print(round(sil_width_h, 3))
+k_opt_h <- as.integer(names(sil_width_h)[which.max(sil_width_h)])
+cat(sprintf("Optimal k = %d (silhouette = %.3f)\n", k_opt_h, max(sil_width_h)))
+
+k_opt_h <- 4
+hc <- hclust(d_ord, method = "ward.D2")
+cluster_h_int <- cutree(hc, k = k_opt_h)
+e$cluster_h <- factor(cluster_h_int)
+label(e$cluster_h) <- "cluster_h: Ward hierarchical cluster on ordinal+NSP distance (|rank diff|/3 Likert; NSP vs opinion = 1)."
+cat("Cluster sizes:", table(cluster_h_int), "\n")
+
+cat("\nVote profile by hierarchical cluster:\n")
+for (cl in seq_len(k_opt_h)) {
+  cat(sprintf("Cluster %d (n=%d): ", cl, sum(cluster_h_int == cl)))
+  vote_tbl <- prop.table(table(e$vote_factor[cluster_h_int == cl]))
+  cat(paste(round(vote_tbl*100, 1), names(vote_tbl), sep="% ", collapse=", "), "\n")
+}
+
+cat("\nHierarchical cluster profile by vote:\n")
+cluster_by_vote_h <- prop.table(table(e$vote_factor, cluster_h_int), margin = 1)
+print(round(cluster_by_vote_h * 100, 1))
+
+cat("\nNSP share by hierarchical cluster (per measure):\n")
+nsp_mat <- as.data.frame(lapply(budget_mat, function(x) as.integer(is.na(x))))
+nsp_share <- aggregate(nsp_mat, by = list(cluster = cluster_h_int), FUN = mean)
+print(round(nsp_share, 2))
+
+cat("\nMean support (conv+souh, observed only) by hierarchical cluster:\n")
+cluster_means_h <- aggregate(budget_accept, by = list(cluster = cluster_h_int), FUN = mean, na.rm = TRUE)
+print(round(cluster_means_h, 2))
+
+cat("\nMean sum_convenable (G€) by hierarchical cluster:\n")
+print(round(tapply(e$sum_convenable, cluster_h_int, mean, na.rm = TRUE), 2))
+
+##### 3c. Clustering of measures (policy clustering) #####
+# Cluster 1: right-wing, 64G€, 2: unpopular, 121G€, 3: left-wing, 39G€
+# Cluster the budget measures themselves, using 1 - pairwise correlation of support as distance.
+# k is chosen by maximizing mean silhouette width over k = 2..8 on Ward hierarchical clustering.
+cat("\n=== Clustering of budget measures (Ward on 1 - cor) ===\n")
+d_meas <- as.dist(1 - cor_mat)
+hc_meas <- hclust(d_meas, method = "ward.D2")
+k_range_m <- 2:8
+sil_meas <- sapply(k_range_m, function(k) {
+  cl <- cutree(hc_meas, k = k)
+  mean(silhouette(cl, d_meas)[, 3])
+})
+names(sil_meas) <- k_range_m
+cat("Mean silhouette width by k (measures):\n")
+print(round(sil_meas, 3))
+k_opt_m <- as.integer(names(sil_meas)[which.max(sil_meas)])
+cat(sprintf("Optimal k for measures = %d (silhouette = %.3f)\n", k_opt_m, max(sil_meas)))
+
+k_opt_m <- 3
+meas_cluster <- cutree(hc_meas, k = k_opt_m)
+cat("\nMeasure membership per cluster:\n")
+for (cl in seq_len(k_opt_m)) {
+  members <- names(meas_cluster)[meas_cluster == cl]
+  cat(sprintf("Cluster %d (%d measures): %s\n", cl, length(members),
+              paste(sub("budget_", "", members), collapse = ", ")))
+}
+
+# Total budget savings (Mds€) per measure cluster, from budget_policies$amount.
+cat("\nTotal budget savings (Mds€) per measure cluster:\n")
+savings_by_cluster <- sapply(seq_len(k_opt_m), function(cl) {
+  members <- names(meas_cluster)[meas_cluster == cl]
+  sum(budget_policies$amount[budget_policies$variable_name %in% members], na.rm = TRUE)
+})
+names(savings_by_cluster) <- paste0("meas_cl", seq_len(k_opt_m))
+print(round(savings_by_cluster, 1))
+cat(sprintf("Grand total across clusters: %.1f Mds€\n", sum(savings_by_cluster)))
+
+# Per-respondent mean support on each measure cluster (using binary accept).
+cluster_support <- sapply(seq_len(k_opt_m), function(cl) {
+  members <- names(meas_cluster)[meas_cluster == cl]
+  rowMeans(budget_accept[, members, drop = FALSE], na.rm = TRUE)
+})
+colnames(cluster_support) <- paste0("meas_cl", seq_len(k_opt_m))
+
+# Mean support per measure cluster, by vote_factor (weighted).
+cat("\nMean support on measure clusters, by vote_factor:\n")
+supp_by_vote <- sapply(seq_len(k_opt_m), function(cl) {
+  s <- cluster_support[, cl]
+  tapply(s * e$weight, e$vote_factor, function(x) sum(x, na.rm = TRUE)) /
+    tapply(!is.na(s) * e$weight, e$vote_factor, function(x) sum(x, na.rm = TRUE))
+})
+colnames(supp_by_vote) <- paste0("meas_cl", seq_len(k_opt_m))
+print(round(supp_by_vote, 2))
+
+# Mean support per measure cluster, by respondent k-means cluster (section 3).
+cat("\nMean support on measure clusters, by respondent k-means cluster:\n")
+supp_by_rcl <- sapply(seq_len(k_opt_m), function(cl) {
+  tapply(cluster_support[, cl], e$cluster, mean, na.rm = TRUE)
+})
+colnames(supp_by_rcl) <- paste0("meas_cl", seq_len(k_opt_m))
+print(round(supp_by_rcl, 2))
+
+# Mean support per measure cluster, by respondent hierarchical cluster (section 3b).
+cat("\nMean support on measure clusters, by respondent hierarchical cluster:\n")
+supp_by_rcl_h <- sapply(seq_len(k_opt_m), function(cl) {
+  tapply(cluster_support[, cl], e$cluster_h, mean, na.rm = TRUE)
+})
+colnames(supp_by_rcl_h) <- paste0("meas_cl", seq_len(k_opt_m))
+print(round(supp_by_rcl_h, 2))
+
+# Joint majority per measure cluster: share of respondents supporting ALL members.
+# NSP counts as support: a respondent is "supporting the whole cluster" iff no member
+# is marked Inacceptable/Supportable (budget_accept == 0). Weighted.
+cat("\nJoint majority per measure cluster (share supporting ALL members; NSP = support, weighted):\n")
+joint_overall <- numeric(k_opt_m)
+joint_by_vote <- matrix(NA_real_, nlevels(e$vote_factor), k_opt_m,
+                        dimnames = list(levels(e$vote_factor), paste0("meas_cl", seq_len(k_opt_m))))
+for (cl in seq_len(k_opt_m)) {
+  members <- names(meas_cluster)[meas_cluster == cl]
+  sub <- budget_accept[, members, drop = FALSE]
+  supp_all <- as.integer(rowSums(sub == 0L, na.rm = TRUE) == 0L)
+  w <- e$weight
+  joint_overall[cl] <- sum(supp_all * w) / sum(w)
+  num <- tapply(supp_all * w, e$vote_factor, sum)
+  den <- tapply(w, e$vote_factor, sum)
+  joint_by_vote[names(num), cl] <- num / den
+}
+names(joint_overall) <- paste0("meas_cl", seq_len(k_opt_m))
+cat("Overall:\n")
+print(round(joint_overall, 3))
+cat("By vote_factor:\n")
+print(round(joint_by_vote, 3))
+
+##### 4. Effect_program analyses #####
+cat("\n=== Effect program: mean favorability by vote_factor ===\n")
+# ep_score() is defined in section 2b.
+for (v in variables_effect_program) {
+  score <- ep_score(e[[v]])
+  overall <- weighted.mean(score, e$weight, na.rm = TRUE)
+  cat(v, ": overall =", round(overall, 3))
+  means <- tapply(score * e$weight, e$vote_factor, function(x) sum(x, na.rm=TRUE)) /
+    tapply(!is.na(score) * e$weight, e$vote_factor, function(x) sum(x, na.rm=TRUE))
+  cat("  by vote:", round(means, 2), "\n")
+}
+
+##### 5. Majority packages summary #####
+cat("\n=== Majority packages summary ===\n")
+cat("Majority souhaitable (", length(budget_majorite_souhaitable), "measures):\n")
+cat(paste(budget_majorite_souhaitable, collapse="\n"), "\n")
+
+# Budget amounts for majority packages
+bp <- budget_policies
+if(!is.null(bp) && "variable_name" %in% names(bp)) {
+  total_souhaitable <- sum(bp$amount[bp$variable_name %in% budget_majorite_souhaitable], na.rm=TRUE)
+  total_convenable <- sum(bp$amount[bp$variable_name %in% budget_majorite_convenable], na.md=TRUE)
+  cat("Total budget savings souhaitable:", total_souhaitable, "Mds€\n")
+  cat("Total budget savings convenable:", total_convenable, "Mds€\n")
+}
+
+cat("\nAnalyses complete.\n")

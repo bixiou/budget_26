@@ -479,4 +479,126 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
   cat("Total budget savings convenable:", total_convenable, "Mds€\n")
 }
 
+##### 6. Coalition packages matrix figure #####
+# Requires paquets_majoritaires.R to have been run first (provides mat_SCS, THRESHOLD,
+# amounts, vars, short, m, run_apriori, labels_budget_fr, coalition_defs,
+# group_labels_fr, group_labels_short).
+{
+  # Coalition masks — keys match group_labels_fr; exclude pairs and two party coalitions
+  vote_bloc_masks <- list(
+    "Overall"      = rep(TRUE, nrow(e)),
+    "Left"         = !is.na(e$vote_agg) & e$vote_agg == 0,
+    "Center-right" = !is.na(e$vote_agg) & e$vote_agg == 1,
+    "Far right"    = !is.na(e$vote_agg) & e$vote_agg == 2
+  )
+  party_coal_keys <- setdiff(names(coalition_defs), c("LFI_EELV_PCF", "PS_centre_LR"))
+  coal_masks <- c(
+    vote_bloc_masks,
+    setNames(lapply(party_coal_keys, function(cn)
+               !is.na(e$vote_original) & e$vote_original %in% coalition_defs[[cn]]),
+             party_coal_keys)
+  )
+
+  # Best package per coalition: max savings among SCS ≥50% feasible packages
+  best_by_savings <- function(mask) {
+    wgt_g <- ifelse(mask, e$weight, 0)
+    capture.output(feas <- run_apriori(mat_SCS, THRESHOLD, wgt = wgt_g, label = "")$all_feasible)
+    if (!length(feas)) return(integer(0))
+    feas[[which.max(sapply(feas, function(p) sum(amounts[p], na.rm = TRUE)))]]
+  }
+
+  cat("\n=== Coalition packages (SCS ≥50%, max savings) ===\n")
+  pkg_res <- setNames(lapply(names(coal_masks), function(cn) {
+    bp  <- best_by_savings(coal_masks[[cn]])
+    amt <- sum(amounts[bp], na.rm = TRUE)
+    cat(sprintf("  %-22s: %d mesures | %.1f Mds€\n", cn, length(bp), amt))
+    list(vnames = vars[bp], savings = amt)
+  }), names(coal_masks))
+
+  # Filter to policies appearing in at least one package
+  vars_f  <- intersect(vars, unique(unlist(lapply(pkg_res, `[[`, "vnames"))))
+  short_f <- sub("budget_", "", vars_f)
+  pol_amt <- amounts[match(vars_f, vars)]
+
+  # Row ordering: ascending package count (most frequent at top)
+  pkg_count <- sapply(vars_f, function(v) sum(sapply(pkg_res, function(p) v %in% p$vnames)))
+  pol_lbl <- setNames(
+    paste0(labels_budget_fr[short_f], " (",
+           gsub("\\.", ",", sprintf("%.1f", pol_amt)), " Mds€)"),
+    vars_f
+  )
+  pol_levs <- c(pol_lbl[vars_f[order(pkg_count)]], "Économies (Mds€)")
+
+  # Column display labels and savings values
+  col_levs    <- names(coal_masks)
+  col_display <- group_labels_fr[col_levs]
+  savings_vec <- sapply(pkg_res, `[[`, "savings")
+
+  # Savings gradient colors (red–orange–green) computed per coalition
+  sav_rng  <- range(savings_vec)
+  sav_pal  <- colorRampPalette(c("#c0392b", "#e67e22", "#27ae60"))
+  sav_idx  <- round((savings_vec - sav_rng[1]) / diff(sav_rng) * 99) + 1
+  sav_hex  <- sav_pal(100)[sav_idx]
+  sav_keys <- paste0("sav_", seq_along(savings_vec))
+
+  # Build data frames
+  df_tile6 <- expand.grid(policy = vars_f, coalition = col_levs, stringsAsFactors = FALSE)
+  df_tile6$in_pkg   <- mapply(function(p, c) p %in% pkg_res[[c]]$vnames,
+                               df_tile6$policy, df_tile6$coalition)
+  df_tile6$pol_lbl  <- factor(pol_lbl[df_tile6$policy], levels = pol_levs)
+  df_tile6$col_disp <- factor(col_display[df_tile6$coalition], levels = col_display)
+  df_tile6$fill_cat <- ifelse(df_tile6$in_pkg, "in_pkg", "out_pkg")
+
+  df_sav6 <- data.frame(
+    col_disp = factor(col_display, levels = col_display),
+    pol_lbl  = factor("Économies (Mds€)", levels = pol_levs),
+    lbl_txt  = sprintf("%.1f", savings_vec),
+    fill_cat = sav_keys,
+    stringsAsFactors = FALSE
+  )
+
+  fill_vals <- c(
+    in_pkg  = "#2c6fad",
+    out_pkg = "grey92",
+    setNames(sav_hex, sav_keys)
+  )
+
+  p_coal_matrix <- ggplot() +
+    geom_tile(data = rbind(df_tile6[, c("col_disp","pol_lbl","fill_cat")],
+                            df_sav6[,  c("col_disp","pol_lbl","fill_cat")]),
+              aes(x = col_disp, y = pol_lbl, fill = fill_cat),
+              color = "white", linewidth = 0.35, width = 0.4) +
+    geom_text(data = df_sav6,
+              aes(x = col_disp, y = pol_lbl, label = lbl_txt),
+              size = 2.3, fontface = "bold", color = "white") +
+    geom_hline(yintercept = length(pol_levs) - 0.5, color = "grey45", linewidth = 0.5) +
+    geom_vline(xintercept = length(vote_bloc_masks) + 0.5, color = "grey45", linewidth = 0.5) +
+    scale_fill_manual(
+      values = fill_vals,
+      breaks = c("in_pkg", "out_pkg"),
+      labels = c(in_pkg = "Dans le paquet", out_pkg = "Hors du paquet"),
+      name   = NULL
+    ) +
+    scale_x_discrete(position = "top") +
+    labs(x = NULL, y = NULL,
+         title = "Mesures dans le paquet majoritaire à plus grande économie, par coalition",
+         subtitle = "Soutien conjoint ≥50% (supp+conv+souh, NSP=soutien), économies maximisées (Mds€)",
+         caption = "Première ligne : économies en Mds€ (gradient rouge–orange–vert). Ligne verticale : blocs de vote | coalitions partisanes.") +
+    theme_bw(base_size = 8.5) +
+    theme(
+      axis.text.x     = element_text(angle = 35, hjust = 0, size = 7.5),
+      axis.text.y     = element_text(size = 7.5),
+      legend.position = "bottom",
+      legend.text     = element_text(size = 8),
+      panel.grid      = element_blank(),
+      plot.title      = element_text(size = 9.5, face = "bold"),
+      plot.subtitle   = element_text(size = 7.5, color = "grey40"),
+      plot.caption    = element_text(size = 6.5, color = "grey50"),
+      plot.margin     = margin(t = 5, r = 5, b = 5, l = 5)
+    )
+
+  ggsave("../figures/coalition_packages_matrix.pdf", p_coal_matrix, width = 9, height = 9)
+  cat("→ ../figures/coalition_packages_matrix.pdf\n")
+}
+
 cat("\nAnalyses complete.\n")

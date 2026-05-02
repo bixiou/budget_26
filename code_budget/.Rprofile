@@ -1,12 +1,12 @@
-library(utils)
+# library(utils) # causes a bug with new RStudio
 chooseCRANmirror(ind = 1)
 .libPaths(c("C:/Users/fabre/AppData/Local/R/win-library/4.4", "C:/Program Files/R/R-4.4.3/library", "C:/Users/fabre/AppData/Local/R/win-library/4.3", "C:/Program Files/R/R-4.3.1/library"))
-if (interactive() && requireNamespace("rstudioapi", quietly = TRUE)) {
-  tryCatch({
-    ctx <- rstudioapi::getActiveDocumentContext()
-    if (!is.null(ctx) && length(ctx$path) > 0L && nzchar(ctx$path)) setwd(dirname(ctx$path))
-  }, error = function(e) NULL)
-}
+# if (interactive() && requireNamespace("rstudioapi", quietly = TRUE)) {
+#   tryCatch({
+#     ctx <- rstudioapi::getActiveDocumentContext()
+#     if (!is.null(ctx) && length(ctx$path) > 0L && nzchar(ctx$path)) setwd(dirname(ctx$path))
+#   }, error = function(e) NULL)
+# }
 
 # options(download.file.method = "wget"); # For Ubuntu 14.04
 package <- function(p, version = NULL, remove = FALSE, github = '') {
@@ -100,7 +100,6 @@ package("plotly") # used in barres; in case of bug due to kaleido: "pip install 
 #' # package("plotly", version = "4.9.4.1") # If bug, do instead: install.packages("https://github.com/plotly/plotly.R/archive/refs/tags/v4.9.4.1.tar.gz", repos=NULL) The last version of Plotly changes the place of Legend and makes it over several lines unless one increases width. If the install bugs as admin, try as simple user. If it still bugs, make sure Rtools is installed and found by R. If already installed (to check: package("installr"); install.Rtools()), try: write('PATH="${RTOOLS40_HOME}\\usr\\bin;${PATH}"', file = "~/.Renviron", append = TRUE) then check that Sys.which("make") returns "C:\\rtools40\\usr\\bin\\make.exe". (cf. https://cran.r-project.org/bin/windows/Rtools/rtools40.html)
 #' # On ARM Mac, if this doesn't work (runs infinitely). Download the archive and from the Terminal run `R CMD INSTALL plotly.R-4.9.4.1.tar.gz'
 package("webshot")
-#' # package("reticulate")
 #' if (!is.element("gdata", installed.packages()[,1])) package("memisc")
 #' package('gdata')
 # package("descr") # CrossTable
@@ -203,8 +202,8 @@ package("ellmer")
 #' package("modi")
 #' package("descr")
 package("knitr") # plot_crop, representativeness_table
-package("reticulate") # use_python, used for NLP
-package("text") # text_classifier, NLP. /!\ Requires the last version of "topics"
+# package("reticulate") # use_python, used for NLP
+# package("text") # text_classifier, NLP. /!\ Requires the last version of "topics"
 # options(knitr.kable.NA = '')
 package("kableExtra") # add_header_above in representativeness_table
 package("WDI") # World Development Indicators, WDI()

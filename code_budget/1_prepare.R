@@ -17,6 +17,8 @@ for (c in unique(votes_xlsx$country)) row.names(votes[[c]]) <- votes[[c]]$party
         "education_quota" = c("Below upper secondary", "Upper secondary", "Post secondary", "Not 25-64"), # "Not 25-64"
         "employment_18_64" = c("Inactive", "Unemployed", "Employed", "65+"),
         "vote" = c("Left", "Center-right or Right", 'Far right', "Non-voter, PNR or Other"),
+        "vote_factor" = c("Left", "Center-right or Right", 'Far right', "Non-voter, PNR or Other"),
+        "vote_original" = row.names(votes[["FR"]])[row.names(votes[["FR"]]) != "Abstention"],
         "region" = 1:5, # It's OK if some values are missing in one population. (2 regions: IT, PL; 3 regions: DE, CH; 4 regions: RU, SA, US)
         # 1: IDF, 2: Nord + Est, 3: Sud-Ouest, 4: Sud-Est, 5: Ouest
         "urban" = c(TRUE, FALSE),
@@ -49,7 +51,9 @@ for (c in unique(votes_xlsx$country)) row.names(votes[[c]]) <- votes[[c]]$party
         pop_freq[[c]]$region <- unlist(qs[c, paste0("Region.", 1:5)]/1000)
         pop_freq[[c]]$employment_18_64 <- unlist(c(c("Inactive" = qs[c, "Inactivity"], "Unemployed" = qs[c, "Unemployment"]*(1000-qs[c, "Inactivity"])/1000, "Employed" =  1000-qs[c, "Inactivity"]-qs[c, "Unemployment"]*(1000-qs[c, "Inactivity"])/1000)*(1000-qs[c, c("65+")])/1000, "65+" = qs[c, c("65+")])/1000)
         # pop_freq[[c]]$vote <- unlist(c(c("Left" = qs[c, "Left"], "Center-right or Right" = qs[c, "Center-right.or.Right"], "Far right" = qs[c, "Far.right"])*(1000-qs[c, "Abstention"])/sum(qs[c, c("Left", "Center-right.or.Right", "Far.right")], na.rm = T), "Abstention" = qs[c, "Abstention"])/1000) # We exclude Other in this variant
-        pop_freq[[c]]$vote <- unlist(c("Left" = qs[c, "Left"], "Center-right or Right" = qs[c, "Center-right.or.Right"], "Far right" = qs[c, "Far.right"], "Non-voter, PNR or Other" = sum(qs[c, "Abstention"], qs[c, "Vote_other"]))/1000) # We exclude Other in this variant
+        pop_freq[[c]]$vote <- pop_freq[[c]]$vote_factor <- unlist(c("Left" = qs[c, "Left"], "Center-right or Right" = qs[c, "Center-right.or.Right"], "Far right" = qs[c, "Far.right"], "Non-voter, PNR or Other" = sum(qs[c, "Abstention"], qs[c, "Vote_other"]))/1000) # We exclude Other in this variant
+        abstention_rate <- votes[[c]]["Abstention", "share"] / 100
+        pop_freq[[c]]$vote_original <- setNames(votes[[c]]$share / 100 * (1 - abstention_rate), row.names(votes[[c]]))[row.names(votes[[c]]) != "Abstention"]
     }
 }
 

@@ -247,6 +247,7 @@ sum(grepl("<br>.*<br", barres_defs[["budget"]]$labels))
 # barres_defs[["budget"]]$labels[1] <- paste(barres_defs[["budget"]]$labels[1], "Mds €")
 # barres_defs[["budget"]]$labels[17] <- break_strings(labels_vars[variables_budget[17]], 90)
 barres_multiple(barres_defs["budget"], weights = F)
+barres_multiple(barres_defs["effect_program"], weights = F)
 
 # barres_multiple(barres_defs["wtp"]) 
 # barres_multiple(barres_defs_label["custom_min_income_agg"], nolabel = FALSE) 

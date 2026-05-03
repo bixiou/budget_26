@@ -1,4 +1,4 @@
-##### Budget 26 analyses #####
+﻿##### Budget 26 analyses #####
 # Results documented below from analyse_budget.R (run April 2026)
 
 # Key findings:
@@ -76,6 +76,8 @@
 #    Its vote profile is more balanced than definition A's 3-measure packages.
 
 
+e$no_weight <- 1
+
 ##### GCS #####
 summary(lm(gcs_support == "Yes" ~ variant_gcs, data = e, weights = weight)) # -.10**
 summary(lm(gcs_support == "Yes" ~ gcs_understood, data = e, weights = weight)) # -.02
@@ -123,8 +125,8 @@ budget_accept <- as.data.frame(budget_accept)
 ##### 1. Weighted means of budget support by sociodem #####
 cat("\n=== Weighted mean support (conv+souh) by vote_factor ===\n")
 for (v in variables_budget) {
-  means <- tapply(budget_accept[[v]] * e$weight, e$vote_factor, function(x) sum(x, na.rm=TRUE)) /
-    tapply(!is.na(budget_accept[[v]]) * e$weight, e$vote_factor, function(x) sum(x, na.rm=TRUE))
+  means <- tapply(budget_accept[[v]] * e$no_weight, e$vote_factor, function(x) sum(x, na.rm=TRUE)) /
+    tapply(!is.na(budget_accept[[v]]) * e$no_weight, e$vote_factor, function(x) sum(x, na.rm=TRUE))
   cat(v, ":", round(means, 2), "\n")
 }
 
@@ -138,11 +140,11 @@ for (v in variables_budget) {
     age = e$age_factor,
     gender = e$man,
     education = e$education,
-    weight = e$weight
+    no_weight = e$no_weight
   )
   df_reg <- df_reg[!is.na(df_reg$y), ]
   tryCatch({
-    mod <- lm(y ~ vote + income + age + gender + education, data = df_reg, weights = weight)
+    mod <- lm(y ~ vote + income + age + gender + education, data = df_reg, weights = no_weight)
     s <- summary(mod)$coefficients
     results[[v]] <- s
     cat("\n---", v, "---\n")
@@ -191,11 +193,11 @@ determinants <- c("vote_factor")
 determinants <- determinants[determinants %in% names(e)]
 
 fit_decomp <- function(y, df = e, det = determinants) {
-  dd <- data.frame(y = y, df[, det, drop = FALSE], weight = df$weight)
+  dd <- data.frame(y = y, df[, det, drop = FALSE], no_weight = df$no_weight)
   dd <- dd[complete.cases(dd) & !is.na(dd$y), ]
   if (nrow(dd) < 50) return(NULL)
   f <- as.formula(paste("y ~", paste(det, collapse = " + ")))
-  mod <- tryCatch(lm(f, data = dd, weights = weight), error = function(e) NULL)
+  mod <- tryCatch(lm(f, data = dd, weights = no_weight), error = function(e) NULL)
   if (is.null(mod)) return(NULL)
   s <- summary(mod)$coefficients
   sig <- sapply(det, function(v) sum(grepl(paste0("^", v), rownames(s)) & s[, 4] < 0.05))
@@ -415,8 +417,8 @@ colnames(cluster_support) <- paste0("meas_cl", seq_len(k_opt_m))
 cat("\nMean support on measure clusters, by vote_factor:\n")
 supp_by_vote <- sapply(seq_len(k_opt_m), function(cl) {
   s <- cluster_support[, cl]
-  tapply(s * e$weight, e$vote_factor, function(x) sum(x, na.rm = TRUE)) /
-    tapply(!is.na(s) * e$weight, e$vote_factor, function(x) sum(x, na.rm = TRUE))
+  tapply(s * e$no_weight, e$vote_factor, function(x) sum(x, na.rm = TRUE)) /
+    tapply(!is.na(s) * e$no_weight, e$vote_factor, function(x) sum(x, na.rm = TRUE))
 })
 colnames(supp_by_vote) <- paste0("meas_cl", seq_len(k_opt_m))
 print(round(supp_by_vote, 2))
@@ -448,7 +450,7 @@ for (cl in seq_len(k_opt_m)) {
   members <- names(meas_cluster)[meas_cluster == cl]
   sub <- budget_accept[, members, drop = FALSE]
   supp_all <- as.integer(rowSums(sub == 0L, na.rm = TRUE) == 0L)
-  w <- e$weight
+  w <- e$no_weight
   joint_overall[cl] <- sum(supp_all * w) / sum(w)
   num <- tapply(supp_all * w, e$vote_factor, sum)
   den <- tapply(w, e$vote_factor, sum)
@@ -465,10 +467,10 @@ cat("\n=== Effect program: mean favorability by vote_factor ===\n")
 # ep_score() is defined in section 2b.
 for (v in variables_effect_program) {
   score <- ep_score(e[[v]])
-  overall <- weighted.mean(score, e$weight, na.rm = TRUE)
+  overall <- weighted.mean(score, e$no_weight, na.rm = TRUE)
   cat(v, ": overall =", round(overall, 3))
-  means <- tapply(score * e$weight, e$vote_factor, function(x) sum(x, na.rm=TRUE)) /
-    tapply(!is.na(score) * e$weight, e$vote_factor, function(x) sum(x, na.rm=TRUE))
+  means <- tapply(score * e$no_weight, e$vote_factor, function(x) sum(x, na.rm=TRUE)) /
+    tapply(!is.na(score) * e$no_weight, e$vote_factor, function(x) sum(x, na.rm=TRUE))
   cat("  by vote:", round(means, 2), "\n")
 }
 
@@ -498,8 +500,8 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
     "Center-right" = !is.na(e$vote_agg) & e$vote_agg == 1,
     "Far right"    = !is.na(e$vote_agg) & e$vote_agg == 2
   )
-  party_coal_keys <- c("EELV_PS_centre", "PS_centre", "EELV_PS_centre_LR",
-                        "LR_RN_Reconquete", "LFI", "EELV", "centre", "PS", "LR")
+  party_coal_keys <- c("EELV_PS_centre", "PS_centre", "PS_centre_LR", "EELV_PS_centre_LR",
+                        "LR_RN_Reconquete", "LFI", "EELV", "PS", "centre", "LR")
   coal_masks <- c(
     vote_bloc_masks,
     setNames(lapply(party_coal_keys, function(cn)
@@ -509,7 +511,7 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
 
   # Best package per coalition: max savings among SCS ≥50% feasible packages
   best_by_savings <- function(mask) {
-    wgt_g <- ifelse(mask, e$weight, 0)
+    wgt_g <- ifelse(mask, e$no_weight, 0)
     capture.output(feas <- run_apriori(mat_SCS, THRESHOLD, wgt = wgt_g, label = "")$all_feasible)
     if (!length(feas)) return(integer(0))
     feas[[which.max(sapply(feas, function(p) sum(amounts[p], na.rm = TRUE)))]]
@@ -548,7 +550,7 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
   overall_pkg_idx <- match(pkg_res$Overall$vnames, vars)
   support_ens_pct <- sapply(names(coal_masks), function(cn) {
     mask  <- coal_masks[[cn]]
-    wgt_g <- ifelse(mask, e$weight, 0)
+    wgt_g <- ifelse(mask, e$no_weight, 0)
     joint_support(overall_pkg_idx, mat_SCS, wgt_g) * 100
   })
 
@@ -619,8 +621,9 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
     ) +
     scale_x_discrete(position = "top") +
     labs(x = NULL, y = NULL,
-         title = "Mesures dans le paquet majoritaire à plus grande économie, par coalition",
-         subtitle = "Soutien conjoint ≥50% (supp+conv+souh, NSP=soutien), économies maximisées (Mds€)") +
+         # title = "Mesures dans le paquet majoritaire à plus grande économie, par coalition",
+         # subtitle = "Soutien conjoint ≥50% (supp+conv+souh, NSP=soutien), économies maximisées (Mds€)"
+         ) +
     theme_bw(base_size = 8.5) +
     theme(
       axis.text.x          = element_text(angle = 35, hjust = 0, size = 7.5, face = face_x),
@@ -648,29 +651,30 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
     "Left"              = NULL,
     "Center-right"      = NULL,
     "Far right"         = NULL,
-    "EELV_PS_centre"    = c("Les Écologistes – EÉLV", "Parti Socaliste & Place publique", "Renaissance, MoDem & Horizons"),
-    "PS_centre"         = c("Parti Socaliste & Place publique", "Renaissance, MoDem & Horizons"),
-    "EELV_PS_centre_LR" = c("Les Écologistes – EÉLV", "Parti Socaliste & Place publique", "Renaissance, MoDem & Horizons", "Les Républicains"),
-    "LR_RN_Reconquete"  = c("Les Républicains", "Rassemblement National", "Reconquête"),
-    "LFI"               = "La France insoumise",
-    "EELV"              = "Les Écologistes – EÉLV",
-    "centre"            = "Renaissance, MoDem & Horizons",
-    "PS"                = "Parti Socaliste & Place publique",
-    "LR"                = "Les Républicains"
+    "EELV_PS_centre"    = NULL,
+    "PS_centre"         = NULL,
+    "PS_centre_LR"      = NULL,
+    "EELV_PS_centre_LR" = NULL,
+    "LR_RN_Reconquete"  = NULL,
+    "LFI"               = NULL,
+    "EELV"              = NULL,
+    "PS"                = NULL,
+    "centre"            = NULL,
+    "LR"                = NULL
   )
   h_lbl <- c(
-    "Overall" = "Ensemble", "Left" = "Gauche", "Center-right" = "Centre + LR",
-    "Far right" = "Extrême-droite", "EELV_PS_centre" = "LÉ + PS + C",
-    "PS_centre" = "PS + C", "EELV_PS_centre_LR" = "LÉ + PS + C + LR",
-    "LR_RN_Reconquete" = "LR + Extr.-droite",
-    "LFI" = "LFI", "EELV" = "LÉ", "centre" = "Centre", "PS" = "PS", "LR" = "LR"
+    "Overall" = "Ensemble", "Left" = "Gauche", "Center-right" = "Centre + LR",
+    "Far right" = "Extrême-droite", "EELV_PS_centre" = "LÉ + PS + C",
+    "PS_centre" = "PS + C", "PS_centre_LR" = "PS + C + LR", "EELV_PS_centre_LR" = "LÉ + PS + C + LR",
+    "LR_RN_Reconquete" = "LR + Extr.-droite",
+    "LFI" = "LFI", "EELV" = "LÉ", "PS" = "PS", "centre" = "Centre", "LR" = "LR"
   )
   h_masks <- lapply(names(h_defs), function(cn) {
-    if (cn == "Overall")       rep(TRUE, nrow(e))
-    else if (cn == "Left")     !is.na(e$vote_agg) & e$vote_agg == 0
+    if (cn == "Overall")           rep(TRUE, nrow(e))
+    else if (cn == "Left")         !is.na(e$vote_agg) & e$vote_agg == 0
     else if (cn == "Center-right") !is.na(e$vote_agg) & e$vote_agg == 1
-    else if (cn == "Far right") !is.na(e$vote_agg) & e$vote_agg == 2
-    else !is.na(e$vote_original) & e$vote_original %in% h_defs[[cn]]
+    else if (cn == "Far right")    !is.na(e$vote_agg) & e$vote_agg == 2
+    else e[[cn]] == 1L & !is.na(e[[cn]])
   })
   names(h_masks) <- names(h_defs)
 
@@ -717,7 +721,7 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
 
   # Rate matrix: measures × coalitions (weighted, NSP excluded)
   cs_mat <- sapply(names(h_masks), function(cn) {
-    wg <- ifelse(h_masks[[cn]], e$weight, 0)
+    wg <- ifelse(h_masks[[cn]], e$no_weight, 0)
     sapply(variables_budget, function(v) {
       y <- ba_h[[v]]; ok <- !is.na(y) & wg > 0
       if (!any(ok)) return(NA_real_)
@@ -748,8 +752,9 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
                         labels = function(x) paste0(round(x * 100), "%")) +
     scale_x_discrete(position = "top") +
     labs(x = NULL, y = NULL,
-         title = "Taux de soutien (conv+souh) par mesure et par coalition",
-         subtitle = "Moyenne pondérée, NSP exclus du dénominateur") +
+         # title = "Taux de soutien (conv+souh) par mesure et par coalition",
+         # subtitle = "Moyenne pondérée, NSP exclus du dénominateur"
+         ) +
     theme_bw(base_size = 8.5) +
     theme(
       axis.text.x         = element_text(angle = 35, hjust = 0, size = 7.5, face = face_x_h),

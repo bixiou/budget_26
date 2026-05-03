@@ -11,6 +11,7 @@
 
 source('.Rprofile')
 load('.RData')
+e$no_weight <- 1
 
 library(dplyr)
 library(ggplot2)
@@ -113,7 +114,7 @@ for (cn in names(coalition_defs)) {
 cat("\nCoalitions créées (part des répondants) :\n")
 for (cn in names(coalition_defs))
   cat(sprintf("  %-22s %.1f%% (n=%d)\n", cn,
-              100 * weighted.mean(e[[cn]], e$weight, na.rm = TRUE),
+              100 * weighted.mean(e[[cn]], e$no_weight, na.rm = TRUE),
               sum(e[[cn]] == 1, na.rm = TRUE)))
 
 ## ── Fonctions de support binaire (1=soutien, 0=rejet, NA=NSP comptés comme soutien) ──
@@ -133,7 +134,7 @@ mat_S    <- make_mat(support_S)
 ## Convention : un NSP compte comme un soutien. Un répondant soutient le paquet
 ## ssi aucune des mesures n'est marquée « rejet » (0). Les NSP (NA) sont donc
 ## assimilés à un 1 pour la détermination du soutien conjoint.
-joint_support <- function(cols, mat, wgt = e$weight) {
+joint_support <- function(cols, mat, wgt = e$no_weight) {
   sub   <- mat[, cols, drop = FALSE]
   zeros <- rowSums(sub == 0L, na.rm = TRUE)
   joint <- as.integer(zeros == 0L)
@@ -142,7 +143,7 @@ joint_support <- function(cols, mat, wgt = e$weight) {
 
 ## ── Apriori générique ─────────────────────────────────────────────────────────
 # Retourne $all_feasible : liste de vecteurs d'indices dans vars (1:m)
-run_apriori <- function(mat, threshold = THRESHOLD, wgt = e$weight, label = "") {
+run_apriori <- function(mat, threshold = THRESHOLD, wgt = e$no_weight, label = "") {
   js       <- function(cols) joint_support(cols, mat, wgt)
   ind_supp <- sapply(seq_len(m), js)
   frequent <- which(ind_supp > threshold)
@@ -182,7 +183,7 @@ run_apriori <- function(mat, threshold = THRESHOLD, wgt = e$weight, label = "") 
 }
 
 ## ── Rapport d'un paquet (plus grande économie parmi les faisables) ───────────
-report_best_economy <- function(res, mat, wgt = e$weight, label = "") {
+report_best_economy <- function(res, mat, wgt = e$no_weight, label = "") {
   feas <- res$all_feasible
   if (length(feas) == 0) { cat(sprintf("[%s] Aucun paquet faisable.\n", label)); return(invisible(NULL)) }
   amts <- sapply(feas, pkg_amount)
@@ -270,7 +271,7 @@ voter_groups <- list(
 )
 for (gname in names(voter_groups)) {
   mask  <- voter_groups[[gname]]
-  wgt_g <- ifelse(mask, e$weight, 0)
+  wgt_g <- ifelse(mask, e$no_weight, 0)
   cat(sprintf("\n── Groupe : %s (n=%d) ──\n", gname, sum(mask)))
   rg <- run_apriori(mat_SCS, THRESHOLD, wgt = wgt_g, label = gname)
   report_best_economy(rg, mat_SCS, wgt = wgt_g, label = gname)
@@ -288,7 +289,7 @@ pair_groups <- list(
 )
 for (gname in names(pair_groups)) {
   mask  <- pair_groups[[gname]]
-  wgt_g <- ifelse(mask, e$weight, 0)
+  wgt_g <- ifelse(mask, e$no_weight, 0)
   cat(sprintf("\n── Paire : %s (n=%d) ──\n", gname, sum(mask)))
   rg <- run_apriori(mat_SCS, THRESHOLD, wgt = wgt_g, label = gname)
   report_best_economy(rg, mat_SCS, wgt = wgt_g, label = gname)
@@ -301,7 +302,7 @@ cat("\n\n═══════════════════════�
 cat("(3ter) Paquets majoritaires au sein de chaque coalition (SCS)\n")
 for (cn in names(coalition_defs)) {
   mask  <- e[[cn]] == 1 & !is.na(e[[cn]])
-  wgt_g <- ifelse(mask, e$weight, 0)
+  wgt_g <- ifelse(mask, e$no_weight, 0)
   cat(sprintf("\n── Coalition : %s (n=%d) ──\n", cn, sum(mask)))
   rg <- run_apriori(mat_SCS, THRESHOLD, wgt = wgt_g, label = cn)
   report_best_economy(rg, mat_SCS, wgt = wgt_g, label = cn)
@@ -314,7 +315,7 @@ cat("\n\n═══════════════════════�
 cat("(3quater-a) Paquets majoritaires CS — par bloc de votants\n")
 for (gname in names(voter_groups)) {
   mask  <- voter_groups[[gname]]
-  wgt_g <- ifelse(mask, e$weight, 0)
+  wgt_g <- ifelse(mask, e$no_weight, 0)
   cat(sprintf("\n── Bloc : %s (n=%d) ──\n", gname, sum(mask)))
   rg <- run_apriori(mat_CS, THRESHOLD, wgt = wgt_g, label = paste0("CS_", gname))
   report_best_economy(rg, mat_CS, wgt = wgt_g, label = paste0("CS ", gname))
@@ -324,7 +325,7 @@ cat("\n════════════════════════�
 cat("(3quater-b) Paquets majoritaires CS — par paire de blocs\n")
 for (gname in names(pair_groups)) {
   mask  <- pair_groups[[gname]]
-  wgt_g <- ifelse(mask, e$weight, 0)
+  wgt_g <- ifelse(mask, e$no_weight, 0)
   cat(sprintf("\n── Paire : %s (n=%d) ──\n", gname, sum(mask)))
   rg <- run_apriori(mat_CS, THRESHOLD, wgt = wgt_g, label = paste0("CS_", gname))
   report_best_economy(rg, mat_CS, wgt = wgt_g, label = paste0("CS ", gname))
@@ -334,7 +335,7 @@ cat("\n════════════════════════�
 cat("(3quater-c) Paquets majoritaires CS — par coalition\n")
 for (cn in names(coalition_defs)) {
   mask  <- e[[cn]] == 1 & !is.na(e[[cn]])
-  wgt_g <- ifelse(mask, e$weight, 0)
+  wgt_g <- ifelse(mask, e$no_weight, 0)
   cat(sprintf("\n── Coalition : %s (n=%d) ──\n", cn, sum(mask)))
   rg <- run_apriori(mat_CS, THRESHOLD, wgt = wgt_g, label = paste0("CS_", cn))
   report_best_economy(rg, mat_CS, wgt = wgt_g, label = paste0("CS ", cn))
@@ -354,7 +355,7 @@ util_val <- function(x) case_when(
   x == "Inacceptable" ~ -3,
   TRUE ~ NA_real_
 )
-u_mean <- sapply(vars, function(v) weighted.mean(util_val(e[[v]]), e$weight, na.rm = TRUE))
+u_mean <- sapply(vars, function(v) weighted.mean(util_val(e[[v]]), e$no_weight, na.rm = TRUE))
 names(u_mean) <- short
 
 # 0/1 knapsack DP : maximiser ∑ u_mean[i] pour i ∈ S sous ∑ amounts[i] ≥ 90
@@ -409,7 +410,7 @@ pos_x <- sapply(seq_len(m), function(i) {
   cs   <- mat_CS[, i]
   mask <- !is.na(e$vote_agg) & e$vote_agg != -1 & !is.na(cs) & cs == 1L
   if (sum(mask) == 0) return(NA_real_)
-  weighted.mean(e$vote_agg[mask] - 1, e$weight[mask])
+  weighted.mean(e$vote_agg[mask] - 1, e$no_weight[mask])
 })
 
 # y = taux de soutien conv+souh (tous répondants, pondéré, NSP = soutien)
@@ -482,7 +483,7 @@ compute_stats <- function(variables, score_fn, label_map) {
     key   <- sub("^budget_|^effect_program_", "", v)
     vname <- if (key %in% names(label_map)) unname(label_map[key]) else gsub("_", " ", key)
     lapply(names(group_defs), function(gname) {
-      w_g <- e$weight * ifelse(group_defs[[gname]], 1, 0)
+      w_g <- e$no_weight * ifelse(group_defs[[gname]], 1, 0)
       ms  <- wt_mean_mad_asym(sc, w_g)
       data.frame(measure = vname, group = gname,
                  mean = ms["mean"], mad_lo = ms["mad_lo"], mad_hi = ms["mad_hi"],
@@ -536,7 +537,8 @@ plot_lines <- function(df, title, xlab, show_vline = TRUE) {
     geom_point(size = 2.1, position = dodge) +
     scale_color_manual(values = colors_groups, drop = FALSE) +
     coord_cartesian(xlim = xlim_range) +
-    labs(y = NULL, x = xlab, title = title,
+    labs(y = NULL, x = xlab,
+         # title = title,
          color = "Groupe",
          caption = "Point = moyenne pondérée ; barres = écart moyen à la moyenne (asymétrique : en-dessous / au-dessus de μ)") +
     theme_bw(base_size = 10) +
@@ -638,7 +640,7 @@ group_labels_short <- c(
 group_mean_vec <- function(variables, score_fn) {
   # Retourne matrice : mesures × groupes
   sapply(names(dist_groups), function(gname) {
-    w_g <- e$weight * ifelse(dist_groups[[gname]], 1, 0)
+    w_g <- e$no_weight * ifelse(dist_groups[[gname]], 1, 0)
     sapply(variables, function(v) weighted.mean(score_fn(e[[v]]), w_g, na.rm = TRUE))
   })
 }
@@ -663,8 +665,8 @@ print(round(dist_mat, 3))
 avg_indiv_dist <- function(variables, score_fn) {
   sum(sapply(variables, function(v) {
     x  <- score_fn(e[[v]])
-    ok <- !is.na(x) & e$weight > 0
-    xv <- x[ok]; wv <- e$weight[ok]
+    ok <- !is.na(x) & e$no_weight > 0
+    xv <- x[ok]; wv <- e$no_weight[ok]
     if (length(xv) < 2) return(0)
     tab <- tapply(wv, xv, sum)
     p   <- as.numeric(tab) / sum(tab)
@@ -693,9 +695,9 @@ score_list <- c(
 # Pré-calcul : pour chaque groupe × mesure, distribution pondérée (v, p)
 group_dist <- lapply(dist_groups, function(mask) {
   lapply(score_list, function(x) {
-    ok <- mask & !is.na(x) & e$weight > 0
+    ok <- mask & !is.na(x) & e$no_weight > 0
     if (!any(ok)) return(list(v = numeric(0), p = numeric(0)))
-    xv <- x[ok]; wv <- e$weight[ok]
+    xv <- x[ok]; wv <- e$no_weight[ok]
     tab <- tapply(wv, xv, sum)
     list(v = as.numeric(names(tab)), p = as.numeric(tab) / sum(tab))
   })
@@ -760,9 +762,9 @@ plot_dist_heatmap <- function(mat, title, outfile) {
       panel.grid         = element_blank(),
       legend.position    = "right",
       legend.key.height  = grid::unit(0.8, "cm"),
-      plot.margin        = margin(t = 0, r = 5, b = 5, l = 5)
+      plot.margin        = margin(t = 25, r = 5, b = 5, l = 5)
     ) +
-    annotate("text",
+    ggplot2::annotate("text",
              x = seq_len(nc),
              y = nr + 0.85,
              label = levels(df$B),
@@ -787,7 +789,8 @@ plot_dist_heatmap(
 )
 plot_dist_heatmap(
   dist_mat_indiv_norm,
-  "Distance inter-individuelle moyenne entre (et au sein des) groupes : écart vs. intra-Ensemble (en %)",
+  # "Distance inter-individuelle moyenne entre (et au sein des) groupes : écart vs. intra-Ensemble (en %)",
+  NULL,
   "../figures/distance_matrix_pairwise.pdf"
 )
 

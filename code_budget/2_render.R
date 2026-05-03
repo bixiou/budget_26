@@ -40,7 +40,7 @@ labels_vars <- c(
   "tax_business_bequest" = "Tax on business bequests",
   "inter_vivo_gifts" = "Tax on inter-vivos gifts",
   "net_wealth_tax" = "Net wealth tax",
-  "tax_millionaires" = "Tax on millionaires",
+  "tax_millionaires" = "Êtes-vous favorable à taxer les millionnaires si cela conduit une partie d'entre eux à s'expatrier et ainsi réduit le PIB et les recettes fiscales à long terme ?",
   "climate_belief" = "Climate change belief",
   "group_considered" = "Lorsque les citoyens s'engagent en politique, quels principaux éléments devraient-ils prendre en compte ?", # "Group considered in decisions", 
   "wtp" = "Willingness to pay",
@@ -183,7 +183,7 @@ barres_defs_label <- list(
   # # "difficulty"           = list(vars = variables_difficulty, width = 850, height = 450),
 )
 # barres_defs_label <- fill_barres(c(), barres_defs_label, df = e)
-barres_defs_label <- fill_barres(c("custom_losers_agg", "custom_winners_agg", "custom_min_income_agg","group_considered",  "wtp_certainty", "custom_redistr"), barres_defs_label, df = e)
+barres_defs_label <- fill_barres(c("custom_losers_agg", "custom_winners_agg", "custom_min_income_agg","group_considered", "tax_millionaires", "wtp_certainty", "custom_redistr"), barres_defs_label, df = e)
 
 barres_defs_en_label <- fill_barres(c("group_considered"), list(), df = e, labels = labels_vars_en)
 
@@ -247,7 +247,7 @@ sum(grepl("<br>.*<br", barres_defs[["budget"]]$labels))
 # barres_defs[["budget"]]$labels[1] <- paste(barres_defs[["budget"]]$labels[1], "Mds €")
 # barres_defs[["budget"]]$labels[17] <- break_strings(labels_vars[variables_budget[17]], 90)
 barres_multiple(barres_defs["budget"], weights = F)
-barres_multiple(barres_defs["effect_program"], weights = F)
+barres_multiple(barres_defs["budget"], weights = F)
 
 # barres_multiple(barres_defs["wtp"]) 
 # barres_multiple(barres_defs_label["custom_min_income_agg"], nolabel = FALSE) 

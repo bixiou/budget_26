@@ -48,6 +48,7 @@ L'insatisfaction envers l'ensemble des partis politiques se matérialise par une
 \newpage
 
 % TODO: weight
+% TODO: representativity by party
 % TODO: open questions
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -72,13 +73,13 @@ La note est organisée comme suit. La section~\ref{sec:methode} détaille la mé
 
 \subsection{Questionnaire}
 
-Après avoir renseigné leurs caractéristiques sociodémographiques et leur vote aux élections européennes de 2024, deux questions sont posées aux répondants~:
+Après avoir renseigné leurs caractéristiques sociodémographiques et leur vote aux élections européennes de 2024, deux questions sont posées aux répondants, formulées ainsi~:
 
 \begin{itemize}
-  \item \textbf{Question \texttt{programme}}~: \textit{Pour chacune des mesures ci-dessous, sa présence dans le programme d'un candidat à l'élection présidentielle de 2027 vous rendrait-elle plus ou moins favorable à ce candidat~?} \\ Les répondants doivent choisir une valeur parmi 5 (de \textit{Beaucoup moins} à \textit{Beaucoup plus favorable}) pour 17 mesures, présentées dans un ordre aléatoire. 
-  \item \textbf{Question \texttt{budget}}~:\textit{Le déficit public français s'est établi à 5~\% du PIB en 2025. \textbf{Le Conseil d'Analyse Économique recommande de} le ramener à 2,7~\% du PIB afin de stabiliser la dette et se prémunir contre une prochaine crise économique. Cela implique de \textbf{prendre des mesures d'économie pour un total de 90 milliards d'euros} dans les cinq prochaines années.\\
+  \item \textbf{Question \texttt{programme}}~: \textit{Pour chacune des mesures ci-dessous, sa présence dans le programme d'un candidat à l'élection présidentielle de 2027 vous rendrait-elle plus ou moins favorable à ce candidat~?} \\ Les répondants doivent choisir une valeur parmi cinq (de \textit{Beaucoup moins} à \textit{Beaucoup plus favorable}) pour 17 mesures, présentées dans un ordre aléatoire. 
+  \item \textbf{Question \texttt{budget}}~: \textit{Le déficit public français s'est établi à 5~\% du PIB en 2025. \textbf{Le Conseil d'Analyse Économique recommande de} le ramener à 2,7~\% du PIB afin de stabiliser la dette et se prémunir contre une prochaine crise économique. Cela implique de \textbf{prendre des mesures d'économie pour un total de 90 milliards d'euros} dans les cinq prochaines années.}
 
-Voici une liste de mesures de réduction des dépenses ou de hausse des recettes, avec le montant que chacune permettrait d'économiser.
+\textit{Voici une liste de mesures de réduction des dépenses ou de hausse des recettes, avec le montant que chacune permettrait d'économiser.
 \textbf{Veuillez indiquer votre évaluation pour chaque mesure}~: \textit{souhaitable} quel que soit l'objectif de réduction du déficit, \textit{convenable} dans l'optique de réduction du déficit, \textit{supportable} dans cette optique, ou au contraire \textit{inacceptable}.\\
 Le total des économies réalisées par les mesures \textit{convenables} ou \textit{souhaitables} est affiché à gauche.} \\ Les répondants doivent choisir une valeur parmi les quatre décrites ou \textit{Ne sais pas} pour 30 mesures, avec l'économie budgétaire qu'elles représentent entre parenthèses.
 \end{itemize}
@@ -90,7 +91,7 @@ Le total des économies réalisées par les mesures \textit{convenables} ou \tex
 L'enquête a été conduite en ligne auprès de 1\,000~résidents français adultes entre les 6 et 20 mars 2026 via Bilendi. 
 L'échantillon a été pondéré par raking (calage) sur le genre, l'âge, le revenu, le niveau de diplôme, l'urbanité et la région, de façon à correspondre aux distributions de la population française.
 
-Le tableau~\ref{tab:representativite} présente les statistiques de représentativité. L'échantillon brut présente une légère sur-représentation des revenus faibles (Q1~: 31\,\% vs 25\,\%) et des diplômés du supérieur (33\,\% vs 26\,\%) ainsi qu'une sous-représentation des abstentionnistes (31\,\% vs. 51\,\%). La pondération corrige ces déséquilibres sauf pour le vote, exclu de la pondération car les gens ont tendance à sous-déclarer leur abstentionnisme \citep{sciarini_turnout_2016}.
+Le tableau~\ref{tab:representativite} présente les statistiques de représentativité. L'échantillon brut présente une légère sur-représentation des revenus faibles (Q1~: 31\,\% vs 25\,\%) et des diplômés du supérieur (33\,\% vs 26\,\%) ainsi qu'une sous-représentation des abstentionnistes (31\,\% vs. 51\,\%). La pondération corrige ces déséquilibres sauf pour le vote, exclu de la pondération car les gens ont tendance à sous-déclarer leur abstentionnisme \citep{sciarini_turnout_2016}. % TODO
 
 \begin{table}[htbp]
   \centering
@@ -109,20 +110,22 @@ Le tableau~\ref{tab:representativite} présente les statistiques de représentat
 
 \subsection{Question \texttt{programme}}
 
-La figure~\ref{fig:effect_program} présente le score moyen d'impact sur l'évaluation d'un candidat présidentiel pour chaque mesure.
+La figure~\ref{fig:effect_program} présente l'effet de différentes mesures sur l'évaluation d'un programme présidentiel.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{../figures/effect_program.pdf}
-  \caption{Effet des mesures sur l'évaluation d'un candidat présidentiel (score moyen, échelle $-2$ à $+2$)}
+  \caption{Effet de mesures sur l'évaluation d'un programme présidentiel}
   \label{fig:effect_program}
 \end{figure}
 
-Les mesures les plus valorisantes pour un candidat sont la réduction des dépenses de fonctionnement de l'État (+1,19), l'instauration de peines planchers (+1,12), l'application systématique des OQTF (+1,11) et l'augmentation du budget éducation et santé (+1,01). Cette dernière mesure est la seule à obtenir un score positif élevé dans \emph{tous} les groupes électoraux (non-votants~: +0,97~; centre-droit~: +0,90~; extrême droite~: +0,97~; gauche~: +1,22). Les Français souhaitent donc à la fois réduire le déficit, améliorer les services publics, augmenter le SMIC et une plus grande fermeté judiciaire.
+Les mesures les plus valorisantes pour un candidat sont des mesures de discipline budgétaire (réduction des dépenses de fonctionnement de l'État, stabilisation de l'endettement), de durcissement pénal (instauration de peines planchers et majorité pénale à 16 ans, application systématique des OQTF) et l'augmentation des dépenses de santé et d'éducation. La hausse du SMIC et la taxation des plus riches sont aussi largement soutenues, même si elles sont légèrement moins consensuelles. 
+% Cette dernière mesure est la seule à obtenir un score positif élevé dans \emph{tous} les groupes électoraux (non-votants~: +0,97~; centre-droit~: +0,90~; extrême droite~: +0,97~; gauche~: +1,22).  TODO
 
-La seule mesure à score négatif est le report de la retraite à 65~ans ($-0,50$), plébiscité uniquement par les électeurs de centre-droite (+0,46). Le retour du déficit sous les 3\,\% est modérément valorisant (+0,87).
+À l'autre bout du spectre, la hausse de l'âge de départ à la retraite est rejetée par 53\% des Français (et soutenue par seulement 26\%). 
+% La seule mesure à score négatif est le report de la retraite à 65~ans ($-0,50$), plébiscité uniquement par les électeurs de centre-droite (+0,46). Le retour du déficit sous les 3\,\% est modérément valorisant (+0,87).
 
-L'application des OQTF et les peines planchers sont fortement clivantes~: très populaires à l'extrême droite (respectivement +1,83 et +1,67), elles sont nettement moins valorisées à gauche (+0,44 et +0,56).
+% L'application des OQTF et les peines planchers sont fortement clivantes~: très populaires à l'extrême droite (respectivement +1,83 et +1,67), elles sont nettement moins valorisées à gauche (+0,44 et +0,56). TODO
 \subsection{Question \texttt{budget}}
 
 La figure~\ref{fig:budget} présente le soutien aux mesures budgétaires, classées par la proportion d'évaluations \textit{Convenable} ou \textit{Souhaitable}, hors \textit{Ne sais pas}. L'ensemble des réponses convenables pour une majorité totalise 31,5~milliards d'euros d'économies. Les économies atteignent 97,9~Mds en y ajoutant les mesures \textit{supportables} pour une majorité, et 24,8~Mds en se limitant aux mesures \textit{souhaitables} pour une majorité.
@@ -134,13 +137,13 @@ La figure~\ref{fig:budget} présente le soutien aux mesures budgétaires, class�
   \label{fig:budget}
 \end{figure}
 
-Cinq mesures recueillent plus de 50\,\% de réponses favorables (souhaitable ou convenable, incluant les NSP au dénominateur)~: l'élimination des doublons entre niveaux territoriaux (76,6\,\%, économie estimée~: 9~Mds€), la TVA à taux élevé sur les biens de luxe (74,5\,\%, 3,5~Mds€), le rétablissement de l'ISF (70,4\,\%, 11~Mds€), le retrait des aides sociales aux étrangers non-UE (69,5\,\%, 6,7~Mds€) et la suppression de l'AME (65,8\,\%, 1,3~Mds€). Le gel des dépenses de fonctionnement de l'État atteint 63,0\,\% (21,4~Mds€).
+% Cinq mesures recueillent plus de 50\,\% de réponses favorables (souhaitable ou convenable, incluant les NSP au dénominateur)~: l'élimination des doublons entre niveaux territoriaux (76,6\,\%, économie estimée~: 9~Mds€), la TVA à taux élevé sur les biens de luxe (74,5\,\%, 3,5~Mds€), le rétablissement de l'ISF (70,4\,\%, 11~Mds€), le retrait des aides sociales aux étrangers non-UE (69,5\,\%, 6,7~Mds€) et la suppression de l'AME (65,8\,\%, 1,3~Mds€). Le gel des dépenses de fonctionnement de l'État atteint 63,0\,\% (21,4~Mds€).
 
-En excluant les NSP du dénominateur (taux \emph{xPNR}), les soutiens sont plus élevés~: élimination des doublons~92\,\%, TVA luxe~81\,\%, ISF~77\,\%, retrait des aides étrangers~72\,\%, suppression AME~68\,\%.
+% En excluant les NSP du dénominateur (taux \emph{xPNR}), les soutiens sont plus élevés~: élimination des doublons~92\,\%, TVA luxe~81\,\%, ISF~77\,\%, retrait des aides étrangers~72\,\%, suppression AME~68\,\%.
 
-À l'inverse, les mesures les plus rejetées sont le report de l'âge de départ à la retraite à 65~ans (rejeté par une large majorité sauf chez les électeurs de centre-droite), les hausses de TVA et de CSG d'un point (rejetées par environ 80\,\% des répondants).
+% À l'inverse, les mesures les plus rejetées sont le report de l'âge de départ à la retraite à 65~ans (rejeté par une large majorité sauf chez les électeurs de centre-droite), les hausses de TVA et de CSG d'un point (rejetées par environ 80\,\% des répondants).
 
-% \textbf{Lien avec le rendement budgétaire.} La corrélation entre le niveau de soutien à une mesure et son rendement budgétaire est faible~: certaines mesures très populaires (élimination des doublons, ISF) ont un rendement modéré, tandis que d'autres mesures potentiellement importantes (réforme des retraites, hausse de la CSG) sont impopulaires.
+% % \textbf{Lien avec le rendement budgétaire.} La corrélation entre le niveau de soutien à une mesure et son rendement budgétaire est faible~: certaines mesures très populaires (élimination des doublons, ISF) ont un rendement modéré, tandis que d'autres mesures potentiellement importantes (réforme des retraites, hausse de la CSG) sont impopulaires.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -310,6 +310,7 @@ convert <- function(e) {
     e$education_quota <- ifelse(e$age > 25 & e$age < 65, e$education, 0)
     e <- create_item("education_quota", labels = c("Not 25-64" = 0, "Below upper secondary" = 1, "Upper secondary" = 2, "Post secondary" = 3), values = 0:3, missing.values = c(NA, 0), df = e, annotation = "education_quota: ifelse(age > 25 & age < 65, education, 0).")
     if ("income" %in% names(e)) e <- create_item("income", new_var = "income_quartile", labels = c("PNR" = 0, "Q1" = 1, "Q2" = 2, "Q3" = 3, "Q4" = 4), values = c("not", "100|200|250", "300|400|500", "600|700|750", "800|900"), grep = TRUE, missing.values = c("PNR"), df = e)
+    e$income_factor <- as.factor(e$income_quartile)
     e <- create_item("income", new_var = "income_decile", labels = c("d1" = 1, "d2" = 2, "d3" = 3, "d4" = 4, "d5" = 5, "d6" = 6, "d7" = 7, "d8" = 8, "d9" = 9, "d10" = 10, "PNR" = 0), values = c("less", "100 and", "201|300", "301", "401", "501", "601", "701|800", "801", "more", "not"), grep = T, missing.values = c("PNR"), df = e)  
     e$uc <- .5 + .5*pmax(0, e$hh_size - e$Nb_children__14) + .3*e$Nb_children__14
     
@@ -318,6 +319,7 @@ convert <- function(e) {
     if ("urbanity" %in% names(e)) {
         e$urban <- e$urbanity == 1
         e <- create_item("urbanity", labels = c("Cities" = 1, "Towns and suburbs" = 2, "Rural" = 3), grep = TRUE, values = c("1", "2", "3|4"), keep_original = TRUE, missing.values = 0, df = e)
+        e$urbanity_factor <- as.character(e$urbanity)
     }
     e <- create_item("foreign", new_var = "foreign_born_family", labels = c("No" = 0, "One parent" = 1, "Two parents" = 2, "Self" = 3), grep = TRUE, values = c("too|Non", "one of|un de", "both|deux", "Yes|Oui"), df = e) 
     e$foreign_born <- e$foreign_born_family %in% 3

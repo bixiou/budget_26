@@ -1,4 +1,4 @@
-﻿##### Budget 26 analyses #####
+##### Budget 26 analyses #####
 # Results documented below from analyse_budget.R (run April 2026)
 
 # Key findings:
@@ -188,19 +188,19 @@ ep_score <- function(x) {
   )
 }
 
-determinants <- c("vote_factor", "income_quartile", "age_factor", "man", "education_original", "urbanity_original")
-determinants <- c("vote_factor")
-determinants <- determinants[determinants %in% names(e)]
+# determinants <- c("vote_factor", "income_factor", "age_factor", "man", "education_original", "urbanity_factor")
+# determinants <- c("vote_original", "vote_factor", "man", "age_factor", "income_factor", "education_original", "urbanity_factor", "vote_factor:age_factor", "income_factor:age_factor", "man:age_factor") 
+determinants <- c("no.na(vote_agg)",  "man", "age_factor", "income_factor", "urbanity_factor", "as.factor(region)", "as.factor(education)", "no.na(wealth_quartile_5)", "employment_agg", "Nb_children__14", "hh_size", "voted")
+# determinants <- c("vote_original")
+# determinants <- determinants[determinants %in% names(e)]
 
 fit_decomp <- function(y, df = e, det = determinants) {
-  dd <- data.frame(y = y, df[, det, drop = FALSE], no_weight = df$no_weight)
-  dd <- dd[complete.cases(dd) & !is.na(dd$y), ]
-  if (nrow(dd) < 50) return(NULL)
-  f <- as.formula(paste("y ~", paste(det, collapse = " + ")))
-  mod <- tryCatch(lm(f, data = dd, weights = no_weight), error = function(e) NULL)
+  # if (!grepl("sum_", y)) y <- paste(y, "> 0") # Explain 10-11% of variance instead of 13%
+  mod <- tryCatch(lm(as.formula(paste("as.numeric(", y, ") ~", paste(det, collapse = '+'))), data = df, weights = no_weight), error = function(e) NULL)
   if (is.null(mod)) return(NULL)
   s <- summary(mod)$coefficients
-  sig <- sapply(det, function(v) sum(grepl(paste0("^", v), rownames(s)) & s[, 4] < 0.05))
+  # sig <- sapply(det, function(v) sum(grepl(paste0("^", v), rownames(s)) & s[, 4] < 0.05))
+  sig <- s[, 4] < 0.05
   lmg <- if (length(det) == 1) {
     setNames(summary(mod)$r.squared, det)
   } else {
@@ -210,41 +210,24 @@ fit_decomp <- function(y, df = e, det = determinants) {
   list(sig = sig, lmg = lmg, R2 = summary(mod)$r.squared)
 }
 
-total_sig <- setNames(integer(length(determinants)), determinants)
-total_lmg <- setNames(numeric(length(determinants)), determinants)
-n_models <- 0
-
-for (v in variables_budget) {
-  res <- fit_decomp(budget_accept[[v]])
-  if (!is.null(res)) {
-    total_sig <- total_sig + (res$sig > 0)
-    total_lmg <- total_lmg + res$lmg
-    n_models <- n_models + 1
+for (det in list(determinants, "no.na(vote_agg)", "vote_original", "education_original", determinants[2:11])) {
+  temp <- fit_decomp("sum_convenable", det = det)
+  total_sig <- setNames(integer(length(temp$sig)), names(temp$sig))
+  total_lmg <- setNames(numeric(length(temp$lmg)), names(temp$lmg))
+  attitudes <- c(variables_budget, variables_effect_program, "sum_convenable", "sum_souhaitable")
+  for (v in attitudes) {
+    res <- fit_decomp(v, det = det)
+    if (!is.null(res)) {
+      total_sig <- total_sig + (res$sig > 0)
+      total_lmg <- total_lmg + res$lmg
+    }
   }
-}
-for (v in variables_effect_program) {
-  res <- fit_decomp(ep_score(e[[v]]))
-  if (!is.null(res)) {
-    total_sig <- total_sig + (res$sig > 0)
-    total_lmg <- total_lmg + res$lmg
-    n_models <- n_models + 1
-  }
-}
-for (yv in c("sum_convenable", "sum_souhaitable")) {
-  res <- fit_decomp(e[[yv]])
-  if (!is.null(res)) {
-    total_sig <- total_sig + (res$sig > 0)
-    total_lmg <- total_lmg + res$lmg
-    n_models <- n_models + 1
-  }
+  print(det)
+  print(sort(total_sig)) # Number of significant coefs
+  print(sort(round(100 * total_lmg / length(attitudes), 2))) # R^2 explained
+  print(round(sum(100 * total_lmg / length(attitudes)), 2)) # Total R^2
 }
 
-cat(sprintf("Models fitted: %d\n", n_models))
-cat("Total significant coefs (alpha = 0.05) per covariate:\n")
-print(total_sig)
-cat("Mean variance share (lmg, as % of R²) per covariate:\n")
-print(round(100 * total_lmg / n_models, 2))
-round(sum(100 * total_lmg / n_models), 2)
 
 ##### 3. Clustering of respondents #####
 # Cluster 1: frugaux (20%), 2: nationalistes (49%), 3: progressistes (31%)

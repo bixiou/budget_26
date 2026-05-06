@@ -318,16 +318,22 @@ for (det in list(determinants, "no.na(vote_agg)", "vote_original", "education_or
   make_lmg_figs(variables_effect_program, "effect_program",
                 "Déterminants du programme électoral")
 
-  # --- Set 3: top 10 most politically polarized attitudes ---
-  vote_r2 <- sapply(attitudes, function(v) {
-    res <- fit_decomp(v, det = "no.na(vote_agg)")
-    if (is.null(res)) 0 else res$R2
+  # --- Set 3: top 10 most dispersed attitudes (variance / max possible variance) ---
+  # max_var = ((max - min) / 2)^2 normalises for different scale widths across variable types
+  norm_var <- sapply(attitudes, function(v) {
+    x <- as.numeric(e[[v]])
+    x <- x[!is.na(x)]
+    if (length(x) < 2) return(0)
+    rng <- range(x)
+    max_var <- ((rng[2] - rng[1]) / 2)^2
+    if (max_var == 0) return(0)
+    var(x) / max_var
   })
-  top8_polarized <- names(sort(vote_r2, decreasing = TRUE))[1:8]
-  cat("\nTop 10 attitudes les plus polarisées politiquement :\n")
-  print(round(sort(vote_r2, decreasing = TRUE)[1:8], 3))
-  make_lmg_figs(top8_polarized, "attitudes_polarisees",
-                "Déterminants des 10 attitudes les plus polarisées")
+  top15_polarized <- names(sort(norm_var, decreasing = TRUE))[1:15]
+  cat("\nTop 15 attitudes les plus dispersées (variance / variance max) :\n")
+  print(round(sort(norm_var, decreasing = TRUE)[1:15], 3))
+  make_lmg_figs(top15_polarized, "attitudes_dispersees",
+                "Déterminants des 15 attitudes les plus dispersées")
 }
 
 

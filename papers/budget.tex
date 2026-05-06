@@ -84,6 +84,8 @@ Après avoir renseigné leurs caractéristiques sociodémographiques et leur vot
 Le total des économies réalisées par les mesures \textit{convenables} ou \textit{souhaitables} est affiché à gauche.} \\ Les répondants doivent choisir une valeur parmi les quatre décrites ou \textit{Ne sais pas} pour 30 mesures, avec l'économie budgétaire qu'elles représentent entre parenthèses.
 \end{itemize}
 
+% TODO! sélection et chiffrage des mesures
+
 % L'enquête comprenait ensuite des questions sur d'autres sujets qui ne sont pas analysées dans cette note.
 
 \subsection{Échantillon et pondération}
@@ -97,11 +99,11 @@ Le tableau~\ref{tab:representativite} présente les statistiques de représentat
 
 \begin{table}[htbp]
   \centering
-  \caption{Représentativité de l'échantillon}
+  \caption{Représentativité de l'échantillon.}
   \label{tab:representativite}
   \input{../tables/FR_bold_fr.tex}
   \par\smallskip
-  {\footnotesize Note~: Les valeurs en gras indiquent un écart supérieur à 20\% entre l'échantillon et la population. Les lignes \textit{Vote ou proximité} incluent les abstentionnistes ayant indiqué leur vote hypothétique, et les fréquences correspondantes dans la population ont été ajustées de sorte à sommer à 0.827~: la proportion de répondants ayant indiqué leur vote réel ou hypothétique. %La pondération ramène les proportions proches de celles de la population.
+  {\footnotesize Note~: Les valeurs en gras indiquent un écart supérieur à 20\% entre l'échantillon et la population. Les lignes \textit{Vote ou affinité} incluent les abstentionnistes ayant indiqué leur vote hypothétique, et les fréquences correspondantes dans la population ont été ajustées de sorte à sommer à 0.827~: la proportion de répondants ayant indiqué leur vote réel ou hypothétique. %La pondération ramène les proportions proches de celles de la population.
   }
 \end{table}
 
@@ -118,7 +120,7 @@ La figure~\ref{fig:effect_program} présente l'effet de différentes mesures sur
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{../figures/effect_program.pdf}
-  \caption{Effet de mesures sur l'évaluation d'un programme présidentiel}
+  \caption{Effet de mesures sur l'évaluation d'un programme présidentiel.}
   \label{fig:effect_program}
 \end{figure}
 
@@ -158,14 +160,14 @@ J'étudie comment chaque attitude politique peut être prédite par un ensemble 
 \footnote{Plus précisément, j'applique la méthode LMG à chaque attitude, c'est-à-dire que pour chaque attitude, je calcule la moyenne de l'analyse de variance (ANOVA) pour chaque permutation des variables sociodémographiques \citep{lindeman_introduction_1980,gromping_estimators_2007}. Les 49 attitudes politiques étudiées contiennent chaque variable de \texttt{budget} (recodée entre $-1$ et 2) et de \texttt{programme} (de $-2$ à 2), ainsi que deux autres variables~: la somme des économies impliquées par les mesures \textit{convenables} pour un répondant, et de même pour les mesures \textit{souhaitables}. Les variables sociodémographiques utilisées sont le vote (réel ou hypothétique, regroupé en trois familles politiques), les indicatrices de genre, d'âge, de niveau de vie, de diplôme, d'urbanité, de région, de patrimoine, de statut d'emploi, d'abstention aux élections européennes, la taille du ménage et le nombre d'enfants de moins de 14 ans dans le ménage. D'autres variables ou des interactions de variables n'ont pas été retenues car leur pouvoir prédictif est trop faible.}.
 
 
-Les caractéristiques sociodémographiques expliquent 13\,\% de la variance, ce qui est attendu pour les attitudes politiques. Pour interpréter ce chiffre, prenons un cas simplifié, où 50\,\% des répondants sont \textit{Pour} une mesure et autant \textit{Contre}. Imaginons que le genre soit la seule caractéristique qui prédit cette attitude~: 68\,\% des femmes sont \textit{Pour} vs. 32\,\% des hommes. En d'autres termes, on a une chance sur deux de correctement prédire l'attitude quand on ne sait rien de la personne, et 68\,\% de chances quand on connaît son genre. Dans ce cas, un rapide calcul montre que 13\,\% de la variance est expliqué par les caractéristiques sociodémographiques\footnote{En effet, on a 36\,\% de chances supplémentaires de faire une prédiction correcte en connaissant le genre. Cela signifie que le genre explique 36\,\% de l'écart-type, soit une part $0,36^2=0,13$ de la variance.}  
+Les caractéristiques sociodémographiques expliquent 13\,\% de la variance, ce qui est habituel pour les attitudes politiques. Pour interpréter ce chiffre, prenons un cas simplifié, où 50\,\% des répondants sont \textit{Pour} une mesure et autant \textit{Contre}. Imaginons que le genre soit la seule caractéristique qui prédit cette attitude~: 68\,\% des femmes sont \textit{Pour} vs. 32\,\% des hommes. En d'autres termes, on a une chance sur deux de correctement prédire l'attitude quand on ne sait rien de la personne, et 68\,\% de chances quand on connaît son genre. Dans ce cas, un rapide calcul montre que 13\,\% de la variance est expliqué par les caractéristiques sociodémographiques\footnote{En effet, on a 36\,\% de chances supplémentaires de faire une prédiction correcte en connaissant le genre. Cela signifie que le genre explique 36\,\% de l'écart-type, soit une part $0,36^2=0,13$ de la variance.}  
 % Pour mieux comprendre, la variance totale de l'attitude (codée comme $\{0;\,1\}$) est 0,25. Avec 52\,\% de femmes, la variance expliquée par le genre est $0,52\cdot (0,68-0,50)^2+0,48\cdot (0,32-0,50)^2=0,18^2=0,0325$, soit 13\,\% de la variance totale.}. 
 % Si on connaît le vote, qui explique 9\% de la variance, on a .5+(.09*.25)^.5=65% de prédire l'attitude correcte plutôt que 50%.
 
-À elle seule, la proximité partisane explique 7\,\% de la variance dans les attitudes lorsqu'elle est définie par bloc politique (Gauche, Centre-droit/Droite ou Extrême-droite) et 9\,\% lorsqu'elle est définie par le parti politique. Les caractéristiques sociodémographiques hors vote expliquent quant à elles 8\,\% de la variance. La somme de ces deux valeurs est supérieure à 13\,\% car le vote s'explique en partie par les autres caractéristiques sociodémographiques. Lorsqu'on analyse la variance \textit{additionnelle} expliquée par chaque caractéristique (i.e., hors variance déjà expliquée par les autres variables), le bloc politique explique 6\,\% de la variance, l'âge 1,5\,\%, le patrimoine 1,3\,\%, et les autres variables moins de 1\,\% (statut d'emploi 0,9\,\%, genre 0,7\,\%, niveau de vie 0,7\,\%, etc.). Notons que lorsqu'on reproduit l'analyse sans le vote, les parts expliquées par chaque caractéristique sociodémographique ne changent pas tellement. En particulier, le niveau de diplôme (en 8 catégories) explique une faible part de la variance (0,5\,\% de variance additionnelle, ou 1,5\,\% considéré isolément). 
+À elle seule, l'affinité partisane explique 7\,\% de la variance dans les attitudes lorsqu'elle est définie par bloc politique (Gauche, Centre-droit/Droite ou Extrême-droite) et 9\,\% lorsqu'elle est définie par le parti politique. Les caractéristiques sociodémographiques hors vote expliquent quant à elles 8\,\% de la variance. La somme de ces deux valeurs est supérieure à 13\,\% car le vote s'explique en partie par les autres caractéristiques sociodémographiques. Lorsqu'on analyse la variance \textit{additionnelle} expliquée par chaque caractéristique (i.e., hors variance déjà expliquée par les autres variables), le bloc politique explique 6\,\% de la variance, l'âge 1,5\,\%, le patrimoine 1,3\,\%, et les autres variables moins de 1\,\% (statut d'emploi 0,9\,\%, genre 0,7\,\%, niveau de vie 0,7\,\%, etc.). Notons que lorsqu'on reproduit l'analyse sans le vote, les parts expliquées par chaque caractéristique sociodémographique ne changent pas tellement. En particulier, le niveau de diplôme (en 8 catégories) explique une faible part de la variance (0,5\,\% de variance additionnelle, ou 1,5\,\% considéré isolément). % TODO! figure variance additionnelle et isolément, nombre de variables significatives
 
-En d'autres termes, les attitudes politiques sont très variables d'un individu à l'autre, même au sein des groupes sociaux qui servent généralement de catégories pour appréhender les désaccords politiques. 
-Les figures~\ref{fig:notes_groupes_budget} et~\ref{fig:notes_groupes_effect_program} présentent les attitudes moyennes des répondants de chaque bloc politique concernant le \texttt{budget} et le \texttt{programme}. Généralement, sur de tels graphiques, les barres horizontales représentent l'intervalle de confiance de la moyenne. Avec nos données, de telles barres auraient été fines, et auraient permis d'observer des écarts significatifs entre les moyennes de différents blocs. Mais ici, j'ai fait le choix de rendre compte de la variabilité au sein de chaque bloc, et les barres horizontales représentent l'écart moyen à la moyenne du bloc des individus de part et d'autre de cette moyenne\footnote{L'écart moyen à la moyenne est calculé séparément pour les observations supérieures vs. inférieures à la moyenne.}. Ainsi, sur nos figures, les barres sont une façon de visualiser l'étendue des attitudes au sein de chaque bloc, et elles révèlent que les attitudes sont souvent aussi variables au sein d'un bloc politique qu'au sein de la population dans son ensemble.
+En d'autres termes, les attitudes politiques sont très variables d'un individu à l'autre, même au sein des groupes sociaux qui servent généralement de grilles de lecture pour appréhender les désaccords politiques. 
+Les figures~\ref{fig:notes_groupes_budget} et~\ref{fig:notes_groupes_effect_program} présentent les attitudes moyennes des répondants de chaque bloc politique concernant le \texttt{budget} et le \texttt{programme}. Généralement, sur de tels graphiques, les barres horizontales auraient représenté l'intervalle de confiance de la moyenne. Avec nos données, de tels intervalles auraient été courts, et auraient permis d'observer des écarts significatifs entre les moyennes de différents blocs. Mais ici, j'ai fait le choix de rendre compte de la variabilité au sein de chaque bloc, et les barres horizontales représentent l'écart moyen à la moyenne du bloc des individus de part et d'autre de cette moyenne\footnote{L'écart moyen à la moyenne est calculé séparément pour les observations supérieures vs. inférieures à la moyenne.}. Ainsi, sur nos figures, les barres sont une façon de visualiser l'étendue des attitudes au sein de chaque bloc, et elles révèlent que les attitudes sont souvent aussi variables au sein d'un bloc politique qu'au sein de la population dans son ensemble.
 
 \begin{figure}[htbp]
   \centering
@@ -181,39 +183,59 @@ Les figures~\ref{fig:notes_groupes_budget} et~\ref{fig:notes_groupes_effect_prog
   \label{fig:notes_groupes_effect_program}
 \end{figure}
 
-Les variables sociodémographiques (revenu, âge, genre, diplôme) n'expliquent collectivement qu'environ 5\,\% de la variance du soutien aux mesures. Le vote déclaré en explique également 5\,\%. Ensemble, ces deux blocs de variables en expliquent environ 9\,\% de la variance, soit nettement moins que les préférences idiosyncrasiques non capturées par ces caractéristiques.
+% Les variables sociodémographiques (revenu, âge, genre, diplôme) n'expliquent collectivement qu'environ 5\,\% de la variance du soutien aux mesures. Le vote déclaré en explique également 5\,\%. Ensemble, ces deux blocs de variables en expliquent environ 9\,\% de la variance, soit nettement moins que les préférences idiosyncrasiques non capturées par ces caractéristiques.
 
 \textbf{Vote.} C'est le déterminant le plus fort. Les électeurs de gauche soutiennent davantage les hausses d'impôts sur le patrimoine et s'opposent fortement aux mesures anti-immigration ($-36$~pp sur la suppression de l'AME, $-57$~pp sur le retrait des aides aux étrangers). Les électeurs de centre-droite soutiennent davantage le report de la retraite à 65~ans (+34~pp) et moins la réduction des dépenses militaires ($-16$~pp). Les électeurs de gauche s'opposent aussi davantage au gel des dépenses ($-15$~pp).
 
-\textbf{Ce qui distingue la gauche.} Le clivage le plus net entre gauche et reste de l'électorat porte sur les mesures anti-immigration (retrait des aides aux étrangers, suppression de l'AME). Dans une moindre mesure, la gauche soutient davantage les taxes sur les riches (ISF, droits de succession, impôt sur les hauts revenus).
+\textbf{Ce qui distingue la gauche.} Le clivage le plus net entre la gauche et le reste de l'électorat porte sur les mesures visant les étrangers (retrait des aides aux étrangers, suppression de l'AME). Dans une moindre mesure, la gauche soutient davantage les taxes sur les plus aisés (ISF, droits de succession, impôt sur les hauts revenus).
 
-\textbf{Ce qui distingue le centre.} Les électeurs de centre-droite se distinguent principalement par leur soutien au report de l'âge de la retraite à 65~ans, et dans une moindre mesure par leur opposition aux hausses fiscales sur le patrimoine.
+\textbf{Ce qui distingue le centre.} Les électeurs de centre-droit/droite se distinguent principalement par leur soutien au report de l'âge de la retraite à 65~ans, et dans une moindre mesure par leur opposition aux hausses fiscales sur le patrimoine.
 
-\textbf{Ce qui distingue l'extrême droite.} Les électeurs d'extrême droite partagent avec la gauche une forte opposition aux mesures de réduction de l'État providence (gel des aides sociales, coupes dans l'éducation) mais se rejoignent avec le centre sur les mesures anti-immigration.
+\textbf{Ce qui distingue l'extrême droite.} Les électeurs d'extrême droite partagent avec la gauche une forte opposition aux mesures de réduction de l'État providence (gel des aides sociales, coupes dans l'éducation) mais rejoignent ceux du centre sur les mesures anti-immigration.
 
-\textbf{Âge.} Les jeunes (18--24 ans) soutiennent moins l'élimination des doublons ($-17$~pp), la suppression de l'AME ($-16$~pp) et le gel des dépenses ($-17$~pp).
+% \textbf{Âge.} Les jeunes (18--24 ans) soutiennent moins l'élimination des doublons ($-17$~pp), la suppression de l'AME ($-16$~pp) et le gel des dépenses ($-17$~pp).
 
-\textbf{Revenu.} Le revenu est en grande partie non significatif, ce qui suggère que le clivage principal n'est pas économique mais culturel (le vote servant de proxy d'orientation idéologique).
+% \textbf{Revenu.} Le revenu est en grande partie non significatif, ce qui suggère que le clivage principal n'est pas économique mais culturel (le vote servant de proxy d'orientation idéologique).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Distances entre groupes électoraux}
+\label{sec:ecarts}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Pour étudier les disparités entre groupes d'électeurs, je définis d'abord la distance entre chaque paire de répondants comme la moyenne des écarts de leurs évaluations aux questions \texttt{budget} et \texttt{programme}\footnote{Ces questions sont recodées de $-1$ à 2 et de $-2$ à 2, respectivement. Une distance de 0 est imputée dans le cas d'une réponse \textit{Ne sais pas} à une variable \texttt{budget}.}. 
+La distance moyenne entre répondants est de 1,16, soit un peu plus d'une graduation par réponse. La figure~\ref{fig:distance_matrix_pairwise} présente les distances entre (répondants de) groupes électoraux, exprimées en variation par rapport à la distance moyenne entre tous les répondants. 
+
+La plus grande distance est observée entre les électeurs LR et LFI, à 1,38 (+18,5~\% par rapport àla distance moyenne), tandis que la plus faible est observée au sein des électeurs PS, à 1,07 ($-$7,8~\%). % TODO! robustesse à distance moyenne pour NSP; recodage de programme en -1/0/+1; se baser uniquement sur variables les plus clivantes
+Ainsi, il y a davantage de disparités dans les attitudes individuelles au sein d'un groupe électoral qu'entre toute paire de groupes. % TODO! étayé par  distance_matrix_means
+Ce phénomène peut expliquer que la plupart des électeurs ne se reconnaissent dans aucun parti, car aucun programme ne les satisfait pleinement. 
+
+Malgré les fortes disparités au sein de chaque groupe, les distances attitudinales entre électeurs de différents partis permettent de reconstituer le spectre politique~: (1) les électeurs PS et LÉ sont légèrement plus proches de LFI que du Centre-droit, (2) les électeurs du Centre-droit sont plus proches de LR que du PS ou LÉ, et (3) les électeurs LR sont plus légèrement plus proche du Centre-droit que de l'Extrême-droite. Ainsi, la tripartition Gauche, Centre-droit/Droite et Extrême-droite émerge naturellement des préférences individuelles. De façon intéressante, ce sont les attitudes des électeurs d'extrême droite qui sont les plus proches de celles de l'ensemble de l'électorat, tandis que les électeurs de LFI en sont les plus éloignés.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{../figures/distance_matrix_pairwise.pdf}
+  \caption{Distances moyennes entre (et au sein) de groupes électoraux (distance inter-individuelle moyenne aux questions \texttt{budget} et \texttt{programme}, exprimée en variation par rapport à la distance moyenne au sein de l'échantillon).}
+  \label{fig:distance_matrix_pairwise}
+\end{figure}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Paquets de mesures à majorité conjointe}
 \label{sec:paquets}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Nous cherchons des ensembles de mesures tels qu'une même majorité de citoyens soutient simultanément chacune des mesures de l'ensemble. Formellement, un paquet $S$ est \emph{faisable} si la proportion pondérée de répondants qui soutiennent \emph{chaque} mesure de $S$ dépasse 50\,\% (avec les NSP exclus du dénominateur — convention \emph{xPNR}). Nous examinons deux définitions du soutien à une mesure.
+Je cherche des paquets de mesures tels qu'une même majorité de citoyens accepte simultanément chacune des mesures du paquet. %
+% \footnote{Formellement, un paquet est \textit{acceptable} si la proportion de répondants qui trouvent \textit{inacceptable} aucune des mesures du paquet dépasse 50\,\%.}. 
+En particulier, j'identifie le \textit{plus grand} paquet accepté, c'est-à-dire le paquet qui permet la plus grande économie, telle qu'une majorité de répondants ne trouve aucune des mesures du paquet \textit{inacceptable}. Je réalise cette recherche pour l'ensemble de l'électorat, mais aussi pour les électeurs de chaque bloc politique, de chaque parti, et de chaque coalition de partis. 
+La figure~\ref{fig:coalition_packages_matrix} présente les plus grands paquets acceptés au sein de chaque regroupement politique. 
 
-\textbf{Algorithme.} Nous utilisons l'algorithme Apriori niveau par niveau~: en exploitant la propriété d'anti-monotonicité (tout sur-ensemble d'un paquet infaisable est infaisable), les candidats de taille $k$ sont générés uniquement à partir des paquets faisables de taille $k-1$, ce qui évite d'évaluer les sur-ensembles de paquets déjà infaisables.
+Le plus grand paquet accepté par une majorité de répondants permet d'économiser 69,6~Mds grâce à 6 mesures~: le gel des dépenses publiques pendant deux ans et l'élimination des doublons territoriaux (30,4~Mds), une fiscalité accrue sur les plus aisés à travers l'ISF, la taxe d'habitation et l'impôt sur les revenus (25~Mds), et la suppression des exonérations sectorielles de taxes sur les carburants (14,2~Mds). Ce paquet est soutenue par 57~\% des électeurs de Gauche et par une majorité d'une coalition formée par Les Écologistes, le Parti Socialiste et le centre-droit, mais il n'est soutenu par une majorité d'électeurs d'aucune autre coalition. 
 
-La figure~\ref{fig:coalition_support_heatmap} présente le taux de soutien (conv+souh) à chaque mesure au sein de chaque coalition électorale. Elle révèle d'importantes disparités~: certaines mesures (élimination des doublons, TVA luxe) recueillent un soutien élevé dans tous les groupes, tandis que d'autres (retrait des aides aux étrangers, report de la retraite) sont fortement clivantes.
+% TODO! sum_convenable 
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\linewidth]{../figures/coalition_support_heatmap.pdf}
-  \caption{Taux de soutien (conv+souh) par mesure et par coalition électorale}
-  \label{fig:coalition_support_heatmap}
-\end{figure}
+Les autres coalitions envisagées font émerger des paquets légèrement plus petits, à l'exception de la coalition LÉ--PS--Centre-droit, dont une majorité accepte un paquet à 73,1~Mds d'économies constitué du paquet précédent complété par une TVA augmentée sur les produits de luxe. 
 
-La figure~\ref{fig:coalition_packages_matrix} présente les paquets de mesures à majorité conjointe identifiés pour chaque coalition. Quelle que soit la coalition envisagée, il n'existe pas de programme atteignant les 90~milliards d'euros nécessaires qui soit soutenu conjointement par une majorité~: une majorité d'électeurs trouvera toujours au moins une des mesures d'un tel paquet inacceptable. La coalition LÉ--LR (analogue au modèle SPD--CDU en Allemagne) converge vers des choix proches de l'ensemble de l'électorat, en épargnant davantage les mesures anti-immigration et les mesures fiscales sur les riches comparativement aux coalitions incluant le RN ou la LFI.
+En dépit de la politique d'Emmanuel Macron, 32,8~Mds de taxes supplémentaires sur les plus aisés figurent dans le paquet issu des électeurs de Centre-droit. Aussi, malgré leur proximité avec les électeurs LR, le paquet de Centre-droit ne contient pas de mesures visant les étrangers. Il se distingue du paquet de Gauche par l'augmentation de l'âge de départ à la retraite et le maintien des exonérations de taxes sur les carburants.
 
 \begin{figure}[htbp]
   \centering
@@ -222,118 +244,56 @@ La figure~\ref{fig:coalition_packages_matrix} présente les paquets de mesures �
   \label{fig:coalition_packages_matrix}
 \end{figure}
 
-\subsubsection*{Définition stricte : convenable ou souhaitable (xPNR)}
+Le paquet le plus accepté permettant au moins 90~Mds d'économie n'obtient que 34\,\% d'acceptation conjointe. Avec une approche plus restrictive, le paquet le plus grand de mesures \textit{convenables} pour une majorité conjointe ne contient que trois mesures (élimination des doublons, gel des dépenses et ISF) pour 41,4~Mds d'économies. 
 
-Avec cette définition, 12~mesures ont un soutien individuel supérieur à 50\,\%. La recherche exhaustive sur leurs $2^{12} = 4\,096$ sous-ensembles montre qu'aucun paquet de 4~mesures ou plus n'atteint 50\,\% de soutien conjoint. Nous trouvons six paquets optimaux de 3~mesures (tableau~\ref{tab:paquets_strict}).
+% La coalition LÉ--LR (analogue au modèle SPD--CDU en Allemagne) converge vers des choix proches de l'ensemble de l'électorat, en épargnant davantage les mesures anti-immigration et les mesures fiscales sur les riches comparativement aux coalitions incluant le RN ou la LFI.
 
-\begin{table}[htbp]
-  \centering
-  \caption{Paquets de 3 mesures à majorité conjointe — définition stricte (conv+souh, xPNR)}
-  \label{tab:paquets_strict}
-  \begin{tabular}{lcc}
-    \toprule
-    Mesures & Soutien conjoint & Économies (Mds€) \\
-    \midrule
-    Doublons + aides étrangers + AME & 58,8\,\% & 17,0 \\
-    Doublons + ISF + TVA luxe & 57,9\,\% & 23,5 \\
-    Doublons + aides étrangers + TVA luxe & 51,0\,\% & 19,2 \\
-    Doublons + gel dépenses + aides étrangers & 51,7\,\% & 37,1 \\
-    Gel dépenses + aides étrangers + AME & 50,6\,\% & 29,4 \\
-    Aides étrangers + AME + TVA luxe & 50,1\,\% & 11,5 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+% \textbf{Algorithme.} Nous utilisons l'algorithme Apriori niveau par niveau~: en exploitant la propriété d'anti-monotonicité (tout sur-ensemble d'un paquet infaisable est infaisable), les candidats de taille $k$ sont générés uniquement à partir des paquets faisables de taille $k-1$, ce qui évite d'évaluer les sur-ensembles de paquets déjà infaisables.
 
-Le paquet au soutien conjoint le plus élevé (doublons + aides aux étrangers + AME, 58,8\,\%) est porté par une majorité très à droite~: extrême droite 34,9\,\% (vs 23,9\,\% dans l'ensemble), gauche 12,7\,\% (vs 23,0\,\%). Le paquet (doublons + ISF + TVA luxe, 57,9\,\%) a au contraire un profil plutôt gauche/centre. Ces deux majorités sont largement non superposables.
-
-\subsubsection*{Définition élargie : supportable, convenable ou souhaitable (xPNR)}
-
-En incluant les réponses « supportable » comme soutien, 23~mesures passent le seuil de 50\,\%. L'algorithme Apriori n'évalue que 2\,912~sous-ensembles (sur les $2^{23} = 8\,388\,608$ possibles). La taille maximale d'un paquet faisable passe à 6~mesures~; 15~paquets de cette taille dépassent 50\,\% de soutien conjoint (tableau~\ref{tab:paquets_large}).
-
-\begin{table}[htbp]
-  \centering
-  \caption{Paquets de 6 mesures à majorité conjointe — définition élargie (supp+conv+souh, xPNR)}
-  \label{tab:paquets_large}
-  \small
-  \begin{tabular}{lcc}
-    \toprule
-    Mesures & Soutien conjoint & Économies (Mds€) \\
-    \midrule
-    Doublons + gel dép. + aides étr. + AME + ISF + TVA luxe & \textbf{54,8\,\%} & 52,9 \\
-    Doublons + gel dép. + aides étr. + AME + durée trav. + ISF & 52,6\,\% & 51,3 \\
-    Doublons + gel dép. + aides étr. + AME + durée trav. + TVA luxe & 53,8\,\% & 43,8 \\
-    Doublons + gel dép. + aides étr. + durée trav. + ISF + TVA luxe & 52,8\,\% & 53,5 \\
-    Doublons + gel dép. + aides étr. + ISF + TVA luxe + IR aisés & 50,4\,\% & 56,3 \\
-    Doublons + gel dép. + aides étr. + AME + durée trav. + gel aides & 51,9\,\% & 43,7 \\
-    Doublons + gel dép. + AME + durée trav. + ISF + TVA luxe & 50,7\,\% & 48,1 \\
-    Doublons + gel dép. + CIR + aides étr. + AME + durée trav. & 51,1\,\% & 41,8 \\
-    Doublons + gel dép. + CIR + aides étr. + AME + ISF & 50,7\,\% & 50,9 \\
-    Doublons + gel dép. + CIR + aides étr. + AME + TVA luxe & 50,1\,\% & 43,4 \\
-    Doublons + gel dép. + CIR + aides étr. + ISF + TVA luxe & 50,0\,\% & 53,1 \\
-    Doublons + CIR + aides étr. + AME + ISF + TVA luxe & 50,8\,\% & 33,0 \\
-    Doublons + aides étr. + AME + durée trav. + ISF + TVA luxe & 53,3\,\% & 33,4 \\
-    Doublons + aides étr. + AME + ISF + TVA luxe + IR aisés & 51,8\,\% & 36,2 \\
-    Gel dép. + aides étr. + AME + durée trav. + ISF + TVA luxe & 51,8\,\% & 68,0 \\
-    \bottomrule
-  \end{tabular}
-  \par\smallskip
-  {\footnotesize Abréviations~: gel dép. = gel des dépenses État/collectivités~; aides étr. = retrait des aides aux étrangers non-UE~; durée trav. = allongement durée du travail/chômage~; gel aides = gel des aides sociales~; CIR = réduction du crédit impôt recherche~; IR aisés = hausse IR sur les ménages aisés.}
-\end{table}
-
-Le paquet au plus grand rendement (gel des dépenses + aides étrangers + AME + durée du travail + ISF + TVA luxe, 51,8\,\%, 68~Mds€) inclut à la fois des mesures anti-immigration et des mesures fiscales de gauche, ce qui correspond au profil « nationaliste » identifié en section~\ref{sec:clusters}. Le paquet au soutien conjoint le plus élevé (doublons + gel des dépenses + aides étrangers + AME + ISF + TVA luxe, 54,8\,\%, 52,9~Mds€) est modérément droitier~: extrême droite 28,4\,\% (+4,5~pp vs ensemble), centre-droite 26,3\,\% (+4,2~pp), gauche 17,9\,\% ($-5,1$~pp). Ce profil est nettement plus transpartisan que celui des paquets de la définition stricte.
-
-\textbf{Résultat clé.} Quel que soit la définition du soutien, il n'existe pas de programme de sept mesures ou plus soutenu conjointement par une majorité. Le plus grand paquet majoritaire atteint 68~milliards d'euros d'économies, loin des 112~milliards nécessaires. Avec la définition stricte (conv+souh), les paquets majoritaires sont polarisés politiquement — deux familles de paquets aux profils opposés (anti-immigration vs impôts sur la fortune). Avec la définition élargie (supp+conv+souh), un paquet de 6~mesures réunissant les deux familles dépasse 50\,\% de soutien conjoint, mais ne constitue pas encore un consensus politique.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Distances entre groupes électoraux}
-\label{sec:ecarts}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-La majorité de la variance des préférences budgétaires se situe au sein des groupes électoraux plutôt qu'entre eux, ce qui explique une large insatisfaction des électeurs vis-à-vis des programmes budgétaires de leur parti. On retrouve néanmoins le spectre politique à travers les soutiens aux mesures~: LFI est le groupe le plus éloigné de l'Ensemble, et le choix de LÉ/PS est particulièrement difficile car ces partis sont plus proches de LFI que du centre, mais ne peuvent gouverner sans s'allier au centre, lequel est très éloigné de LFI.
-
-La figure~\ref{fig:distance_matrix_pairwise} présente la matrice des distances par paires entre groupes électoraux, calculée à partir des différences de taux de soutien aux mesures budgétaires.
+La figure~\ref{fig:coalition_support_heatmap} présente pour chaque mesure le taux de répondants la trouvant convenable (ou souhaitable), par coalition électorale. Certaines mesures (élimination des doublons, TVA sur le luxe) recueillent un soutien élevé dans tous les groupes, tandis que d'autres (retrait des aides aux étrangers, report de la retraite) sont très clivantes.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{../figures/distance_matrix_pairwise.pdf}
-  \caption{Distances par paires entre groupes électoraux (basées sur les préférences budgétaires)}
-  \label{fig:distance_matrix_pairwise}
+  \includegraphics[width=\linewidth]{../figures/coalition_support_heatmap.pdf}
+  \caption{Taux de \textit{convenable} ou \textit{souhaitable} par mesure et par coalition d'électeurs.}
+  \label{fig:coalition_support_heatmap}
 \end{figure}
-
-Cette matrice confirme que trois blocs font sens~: (1) EELV et PS sont plus proches de LFI que du centre~; (2) le centre est plus proche de LR que de PS ou EELV~; (3) LR est plus proche du centre que de l'extrême droite. La structuration ternaire gauche/centre/droite qui domine le débat politique se retrouve donc dans les préférences budgétaires déclarées.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Typologies de répondants et de mesures}
 \label{sec:clusters}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Clustering des répondants}
+\subsection{Regroupement des répondants}
 
-Un clustering $k$-means appliqué à la matrice binaire de soutien identifie trois profils de répondants~:
-
-\begin{enumerate}
-  \item \textbf{Frugaux} (20\,\% des répondants)~: soutien fort aux mesures de rationalisation des dépenses publiques~; opposition aux hausses d'impôts sur tous les ménages~; attitude ambivalente sur les mesures anti-immigration.
-
-  \item \textbf{Nationalistes} (49\,\%)~: profil dominant. Fort soutien aux mesures anti-immigration (retrait des aides aux étrangers, suppression de l'AME) combiné à un soutien modéré aux hausses fiscales sur le patrimoine. Ce profil hybride ne correspond à aucune offre partisane existante.
-
-  \item \textbf{Progressistes} (31\,\%)~: fort soutien aux impôts sur la fortune (ISF, droits de succession), très faible soutien aux mesures anti-immigration. Électorat de gauche surreprésenté.
-\end{enumerate}
-
-La cohérence entre ces clusters de répondants et le vote déclaré est notable~: les progressistes concentrent les électeurs de gauche, les nationalistes regroupent une partie de l'extrême droite et des non-votants, les frugaux attirent davantage le centre-droit.
-
-\subsection{Clustering des mesures}
-
-Un clustering analogue appliqué aux mesures (selon leur profil de soutien par groupe d'électeurs) identifie trois familles~:
+Un clustering $k$-means appliqué à la matrice binaire de soutien identifie trois profils de répondants~: % TODO! méthodo
 
 \begin{enumerate}
-  \item \textbf{Mesures de droite} (rendement cumulé~: 64~Mds€)~: mesures anti-immigration, gel des aides sociales, report de la retraite. Plébiscitées par les clusters nationalistes et frugaux, rejetées par les progressistes.
-
-  \item \textbf{Mesures impopulaires} (121~Mds€)~: hausses de TVA, de CSG, réduction des remboursements de soins. Rejetées par l'ensemble des clusters, quel que soit le vote.
-
-  \item \textbf{Mesures de gauche} (39~Mds€)~: ISF, droits de succession, taxes sur les revenus du capital, impôt sur les hauts revenus. Soutenues par les progressistes, tolérées par les nationalistes, rejetées par les frugaux.
+  \item \textbf{Sociaux-nativistes} (49\,\% des répondants)~: fort soutien aux mesures anti-immigration (retrait des aides aux étrangers, suppression de l'AME) combiné à un soutien modéré aux hausses de taxes sur les plus aisés. Ce profil hybride ne correspond à aucune offre partisane existante.
+  
+  \item \textbf{Progressistes} (31\,\%)~: fort soutien aux impôts sur la fortune (ISF, droits de succession), très faible soutien aux mesures anti-immigration. L'électorat de gauche est surreprésenté dans ce profil.
+  
+  \item \textbf{Frugaux} (20\,\%)~: soutien fort aux mesures de rationalisation des dépenses publiques~; opposition aux hausses d'impôts indiscriminées (TVA, CSG)~; attitude ambivalente sur les mesures anti-immigration.
 \end{enumerate}
 
-La figure~\ref{fig:budget_correlations} présente les corrélations entre mesures. On observe notamment~: une forte corrélation entre les mesures anti-immigration (AME et retrait des aides aux étrangers, $r = 0{,}72$), une corrélation positive entre les mesures taxant le patrimoine, et une corrélation négative entre les mesures de réduction de l'État providence et celles taxant les riches — illustrant la fracture entre les deux familles de soutien majoritaire identifiées en section~\ref{sec:paquets}.
+La cohérence entre ces profils de répondants et le vote est notable~: les progressistes concentrent les électeurs de gauche, les sociaux-nativistes regroupent une partie de l'extrême droite et des non-votants, les frugaux attirent davantage le centre-droit. % TODO! chiffres
+
+
+\subsection{Regroupement des mesures}
+
+Trois types de mesures sont identifiés par un clustering analogue appliqué aux mesures (regroupées lorsqu'elles sont soutenues par les mêmes répondants)~:
+
+\begin{enumerate}
+  \item \textbf{Mesures impopulaires} (rendement cumulé~: 121~Mds€)~: hausses d'impôts indiscriminées, réduction des remboursements de soins. Ces mesures sont rejetées par la plupart des répondants.
+
+  \item \textbf{Mesures de droite} (64~Mds€)~: mesures anti-immigration, gel des aides sociales, report de l'âge de la retraite. Ces mesures sont généralement appréciées par les profils sociaux-nativistes et frugaux et rejetées par les progressistes.
+
+  \item \textbf{Mesures de gauche} (39~Mds€)~: impôts sur les plus aisés. Ces mesures sont généralement soutenues par les progressistes, tolérées par les sociaux-nativistes, et rejetées par les frugaux.
+\end{enumerate}
+
+La figure~\ref{fig:budget_correlations} présente les corrélations entre mesures. On observe notamment~: une forte corrélation entre les mesures anti-immigration,  
+% (AME et retrait des aides aux étrangers, $r = 0{,}72$), 
+une corrélation positive entre les différents impôts sur les plus aisés, et une corrélation négative entre les mesures de restriction de l'État providence et celles taxant les riches.
 
 \begin{figure}[htbp]
   \centering
@@ -343,30 +303,39 @@ La figure~\ref{fig:budget_correlations} présente les corrélations entre mesure
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Comparaison avec Les Progressistes}
+\section{Comparaison avec La Plateforme Progressiste}
 \label{sec:progressistes}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-La plateforme Les Progressistes a organisé fin 2025 une conférence de consensus en ligne~\citep{Progressistes2025}. Les participants à cet exercice ont des préférences budgétaires proches de celles des Écologistes (EELV)~: contrairement aux électeurs de centre-droit, ils sont moins favorables aux mesures de retrait des aides aux étrangers et aux baisses d'impôts sur les entreprises, et davantage orientés vers les mesures écologiques. Par rapport à l'ensemble de l'électorat, les participants aux Progressistes sont moins favorables aux mesures anti-immigration, plus favorables aux taxes sur les riches, et davantage soucieux de la transition écologique.
+La Plateforme Progressiste est une initiative ayant pour objectif d'établir le programme d'un <<~arc progressiste [qui] ira de ceux qui disent non à un projet avec Les Républicains pour 2027, à ceux qui disent non à La France insoumise~>>\footnote{Source~: interview de Pascal Canfin dans \href{https://www.lemonde.fr/politique/article/2025/07/01/pascal-canfin-personne-parmi-les-progressistes-ne-pourra-gagner-seul-l-election-presidentielle_6617180_823448.html}{Le Monde}.}. Lors d'une conférence de consensus en ligne fin 2025, environ 150 sympathisants ont voté sur différentes mesures d'économies budgétaires. Les \href{https://laplateformeprogressiste.org/wp-content/uploads/2025/12/20251210_Resultats-par-mesure-1.pdf}{mesures soutenues} par une majorité de répondants totalisent 99,9~Mds d'économies, un montant proche des 97,9~Mds de mesures convenables dans notre échantillon. Les mesures soutenues par une majorité de \textit{progressistes} incluent la rationalisation des dépenses publiques, la fin des exonérations sectorielles de taxes sur les carburants, la taxation des plus aisés, et des mesures d'économies sur les retraités (notamment aisés). Les participants à cet exercice ont des préférences budgétaires proches de celles des électeurs PS~: contrairement aux électeurs de centre-droit, ils sont majoritairement défavorables au report de l'âge d'ouverture des droits à la retraite, et majoritairement favorables aux taxes écologiques. Contrairement à la majorité des Français, les \textit{progressistes} sont largement opposés à des mesures visant les étrangers, et plus favorables à des mesures appréciées dans la sphère institutionnelle et qui ont probablement été justifiées lors de la conférence de consensus, comme la diminution des aides à l'apprentissage ou la suppression de l'abattement fiscal pour frais professionnels des retraités. %réforme de l'hôpital. % TODO notes CAE
+Cette comparaison illustre le rôle que peuvent jouer l'information et la délibération dans la formation des attitudes, même si elle pourrait être due à un biais de sélection des participants à la conférence de consensus.
+% des participants %à des exercices de démocratie délibérative en ligne sont 
+% plus politisés que l'électeur médian. 
 
-Ce résultat est cohérent avec le profil sociologique des participants aux exercices de démocratie délibérative en ligne~: ils sont en général plus diplômés, plus à gauche et plus engagés politiquement que l'électeur médian. Il illustre le risque de biais de sélection dans ce type d'exercice, et plaide pour des études d'opinion représentatives comme complément indispensable.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusion}
 \label{sec:conclusion}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Cette enquête apporte plusieurs enseignements.
+% ça sera difficile de réaliser les économies sur les dépenses publiques, difficile de ne pas taxer les plus aisés
+% paquets mêlant droite et gauche
+% Limitations liées au faible échantillon et au manque de délibération
+% et le choix de LÉ/PS est particulièrement difficile car ces partis sont plus proches de LFI que du centre, mais auront du mal à gouverner sans s'allier au centre (vu le rapport de forces électoral), lequel est très éloigné de LFI.
+% Deux majorités possibles : nativistes-sociaux ou alliance entre frugaux et progressistes.
+% Centre/Droite peuvent être avantagés par réputation de sérieux gestionnaire et de conscience des réalités économiques (puisque leurs mesures sont les plus favorables à la croissance), mais une majorité préférerait taxer les riches plutôt que la croissance (pb de montrer ça: le but ici est de réduire le déficit)
 
-\textbf{Premièrement}, les Français sont favorables à certaines mesures de consolidation budgétaire, notamment l'élimination des doublons administratifs, les impôts sur le patrimoine (ISF, TVA luxe, droits de succession) et les mesures migratoires. En revanche, ils rejettent les hausses d'impôts touchant l'ensemble de la population (TVA, CSG) et le report de la retraite.
+% Cette enquête apporte plusieurs enseignements.
 
-\textbf{Deuxièmement}, la question \texttt{effect\_program} révèle qu'un candidat valorisant à la fois la réduction des dépenses de fonctionnement et l'amélioration des services publics maximise son attractivité — deux objectifs dont la conciliation est difficile. Le retour du déficit sous les 3\,\% du PIB est modérément valorisant.
+% \textbf{Premièrement}, les Français sont favorables à certaines mesures de consolidation budgétaire, notamment l'élimination des doublons administratifs, les impôts sur le patrimoine (ISF, TVA luxe, droits de succession) et les mesures migratoires. En revanche, ils rejettent les hausses d'impôts touchant l'ensemble de la population (TVA, CSG) et le report de la retraite.
 
-\textbf{Troisièmement}, les résultats sur les paquets majoritaires illustrent la difficulté à gouverner~: le plus grand paquet de mesures soutenu conjointement par une majorité atteint 68~milliards d'euros, loin des 112~milliards nécessaires. Les paquets majoritaires sont fracturés politiquement (familles anti-immigration et impôts sur la fortune incompatibles avec la définition stricte~; partiellement réconciliables avec la définition élargie).
+% \textbf{Deuxièmement}, la question \texttt{programme} révèle qu'un candidat valorisant à la fois la réduction des dépenses de fonctionnement et l'amélioration des services publics maximise son attractivité -- deux objectifs dont la conciliation est difficile. 
 
-\textbf{Quatrièmement}, la structuration de l'électorat en trois blocs (gauche, centre, droite nationaliste) se retrouve dans les préférences budgétaires. L'écart entre les préférences individuelles et celles du parti pour lequel chacun a voté est important~: la majorité de la variance est intragroupe, ce qui contribue à l'insatisfaction généralisée envers l'offre politique.
+% \textbf{Troisièmement}, les résultats sur les paquets majoritaires illustrent la difficulté à gouverner~: le plus grand paquet de mesures soutenu conjointement par une majorité atteint 68~milliards d'euros, loin des 112~milliards nécessaires. Les paquets majoritaires sont fracturés politiquement (familles anti-immigration et impôts sur la fortune incompatibles avec la définition stricte~; partiellement réconciliables avec la définition élargie).
 
-\textbf{Limites.} L'enquête mesure des préférences déclarées sur des mesures individuelles présentées sans contexte de contrainte budgétaire globale~; les citoyens n'ont pas à arbitrer entre mesures ni à équilibrer un budget. Les taux de soutien pourraient différer si les mesures étaient présentées dans un cadre de choix contraint. Par ailleurs, certaines mesures populaires soulèvent des questions constitutionnelles (retrait des aides aux étrangers, restauration de la taxe d'habitation) ou supposent d'autres réformes impopulaires (les économies sur les doublons territoriaux impliquent des suppressions de postes).
+% \textbf{Quatrièmement}, la structuration de l'électorat en trois blocs (gauche, centre, droite nationaliste) se retrouve dans les préférences budgétaires. L'écart entre les préférences individuelles et celles du parti pour lequel chacun a voté est important~: la majorité de la variance est intragroupe, ce qui contribue à l'insatisfaction généralisée envers l'offre politique.
+
+% \textbf{Limites.} Certaines mesures populaires soulèvent des questions constitutionnelles (retrait des aides aux étrangers, restauration de la taxe d'habitation) ou supposent d'autres réformes impopulaires (les économies sur les doublons territoriaux impliquent des suppressions de postes).
 
 \bigskip
 

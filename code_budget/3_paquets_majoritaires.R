@@ -105,7 +105,8 @@ coalition_defs <- list(
   PS_centre_LR         = c(party_ps, party_centre, party_lr),
   EELV_PS_centre_LR    = c(party_eelv, party_ps, party_centre, party_lr),
   LR                   = party_lr,
-  LR_RN_Reconquete     = c(party_lr, party_rn, party_recon)
+  LR_RN_Reconquete     = c(party_lr, party_rn, party_recon),
+  centre_LR_RN_Reconquete = c(party_centre, party_lr, party_rn, party_recon)
 )
 for (cn in names(coalition_defs)) {
   e[[cn]] <- as.integer(e$vote_original %in% coalition_defs[[cn]])
@@ -613,7 +614,8 @@ group_labels_fr <- c(
   "PS_centre_LR"             = "PS + Centre + LR",
   "EELV_PS_centre_LR"        = "LÉ + PS + Centre + LR",
   "LR"                       = "LR",
-  "LR_RN_Reconquete"         = "LR + RN + Reconquête"
+  "LR_RN_Reconquete"         = "LR + RN + Reconquête",
+  "centre_LR_RN_Reconquete"  = "Centre + LR + Extrême-droite"
 )
 # Labels abrégés (axe x, haut + bas)
 group_labels_short <- c(
@@ -634,7 +636,8 @@ group_labels_short <- c(
   "PS_centre_LR"             = "PS+C+LR",
   "EELV_PS_centre_LR"        = "LÉ+PS+C+LR",
   "LR"                       = "LR",
-  "LR_RN_Reconquete"         = "LR+RN+Rec."
+  "LR_RN_Reconquete"         = "LR+RN+Rec.",
+  "centre_LR_RN_Reconquete"  = "C+LR+ED"
 )
 
 group_mean_vec <- function(variables, score_fn) {

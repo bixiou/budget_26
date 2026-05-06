@@ -483,7 +483,7 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
     "Center-right" = !is.na(e$vote_agg) & e$vote_agg == 1,
     "Far right"    = !is.na(e$vote_agg) & e$vote_agg == 2
   )
-  party_coal_keys <- c("EELV_PS_centre", "PS_centre", "PS_centre_LR", "EELV_PS_centre_LR",
+  party_coal_keys <- c("EELV_PS_centre", "PS_centre", "PS_centre_LR", "centre_LR_RN_Reconquete",
                         "LR_RN_Reconquete", "LFI", "EELV", "PS", "centre", "LR")
   coal_masks <- c(
     vote_bloc_masks,
@@ -527,6 +527,7 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
   col_levs    <- names(coal_masks)
   col_display <- group_labels_fr[col_levs]
   col_display["LR_RN_Reconquete"] <- "LR + Extrême-droite"
+  col_display["centre_LR_RN_Reconquete"] <- "Centre + LR + Extrême-droite"
   savings_vec <- sapply(pkg_res, `[[`, "savings")
 
   # Support of Ensemble's package within each coalition (% SCS joint support)
@@ -561,7 +562,7 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
     pol_lbl  = factor("Économies (Mds€)", levels = pol_levs),
     lbl_txt  = sprintf("%.1f", savings_vec),
     fill_cat = sav_keys,
-    txt_col  = ifelse(savings_vec / 120 > 0.55, "white", "black"),
+    txt_col  = "black",
     stringsAsFactors = FALSE
   )
 
@@ -630,25 +631,26 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
 ##### 6b. Coalition support heatmap: Conv+Souh rate per measure per coalition #####
 {
   h_defs <- list(
-    "Overall"           = NULL,
-    "Left"              = NULL,
-    "Center-right"      = NULL,
-    "Far right"         = NULL,
-    "EELV_PS_centre"    = NULL,
-    "PS_centre"         = NULL,
-    "PS_centre_LR"      = NULL,
-    "EELV_PS_centre_LR" = NULL,
-    "LR_RN_Reconquete"  = NULL,
-    "LFI"               = NULL,
-    "EELV"              = NULL,
-    "PS"                = NULL,
-    "centre"            = NULL,
-    "LR"                = NULL
+    "Overall"                 = NULL,
+    "Left"                    = NULL,
+    "Center-right"            = NULL,
+    "Far right"               = NULL,
+    "EELV_PS_centre"          = NULL,
+    "PS_centre"               = NULL,
+    "PS_centre_LR"            = NULL,
+    "centre_LR_RN_Reconquete" = NULL,
+    "LR_RN_Reconquete"        = NULL,
+    "LFI"                     = NULL,
+    "EELV"                    = NULL,
+    "PS"                      = NULL,
+    "centre"                  = NULL,
+    "LR"                      = NULL
   )
   h_lbl <- c(
     "Overall" = "Ensemble", "Left" = "Gauche", "Center-right" = "Centre + LR",
     "Far right" = "Extrême-droite", "EELV_PS_centre" = "LÉ + PS + C",
-    "PS_centre" = "PS + C", "PS_centre_LR" = "PS + C + LR", "EELV_PS_centre_LR" = "LÉ + PS + C + LR",
+    "PS_centre" = "PS + C", "PS_centre_LR" = "PS + C + LR",
+    "centre_LR_RN_Reconquete" = "Centre + LR + Extr.-droite",
     "LR_RN_Reconquete" = "LR + Extr.-droite",
     "LFI" = "LFI", "EELV" = "LÉ", "PS" = "PS", "centre" = "Centre", "LR" = "LR"
   )
@@ -717,32 +719,68 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
   row_ord  <- order(cs_mat[, "Overall"])
   pol_lbl  <- paste0(h_lbf[h_short], " (", gsub("\\.", ",", sprintf("%.1f", h_amt)), " Mds€)")
   names(pol_lbl) <- variables_budget
-  pol_levs <- pol_lbl[variables_budget[row_ord]]
+
+  # Weighted median per coalition for the 3 acceptability sums (Mds€)
+  med_metrics <- c("Médiane Souhaitable (Mds€)" = "sum_souhaitable",
+                   "Médiane Convenable (Mds€)"  = "sum_convenable",
+                   "Médiane Acceptable (Mds€)"  = "sum_supportable")
+  m_mat <- sapply(names(h_masks), function(cn) {
+    sapply(med_metrics, function(v) {
+      ok <- h_masks[[cn]] & !is.na(e[[v]]) & !is.na(e$no_weight) & e$no_weight > 0
+      if (!any(ok)) return(NA_real_)
+      as.numeric(Hmisc::wtd.quantile(e[[v]][ok], e$no_weight[ok], probs = 0.5, na.rm = TRUE))
+    })
+  })
+  rownames(m_mat) <- names(med_metrics)
+
+  # y-axis levels: policies (bottom) → medians (top, "Souhaitable" highest)
+  med_levs <- c("Médiane Acceptable (Mds€)", "Médiane Convenable (Mds€)", "Médiane Souhaitable (Mds€)")
+  pol_levs <- c(pol_lbl[variables_budget[row_ord]], med_levs)
+
+  # Shared blue palette; rate normalized to [0,1], medians normalized to global max
+  blue_pal100 <- colorRampPalette(c("#ffffff", "#1f3a93"))(100)
+  hex_from <- function(x) ifelse(is.na(x), "grey90",
+                                 blue_pal100[pmin(100, pmax(1, round(x * 99) + 1))])
+  m_max <- max(m_mat, na.rm = TRUE)
 
   df_h <- expand.grid(measure = variables_budget, coalition = names(h_masks), stringsAsFactors = FALSE)
-  df_h$rate    <- mapply(function(m, c) cs_mat[m, c], df_h$measure, df_h$coalition)
-  df_h$pol_lbl <- factor(pol_lbl[df_h$measure], levels = pol_levs)
-  df_h$col_lbl <- factor(h_lbl[df_h$coalition],  levels = h_lbl)
-  df_h$txt_col <- ifelse(is.na(df_h$rate) | df_h$rate < 0.55, "black", "white")
-  face_x_h     <- ifelse(h_lbl == h_lbl["Overall"], "bold", "plain")
+  df_h$rate     <- mapply(function(m, c) cs_mat[m, c], df_h$measure, df_h$coalition)
+  df_h$pol_lbl  <- factor(pol_lbl[df_h$measure], levels = pol_levs)
+  df_h$col_lbl  <- factor(h_lbl[df_h$coalition],  levels = h_lbl)
+  df_h$fill_hex <- hex_from(df_h$rate)
+  df_h$lbl_txt  <- ifelse(is.na(df_h$rate), "", sprintf("%.0f", df_h$rate * 100))
+  df_h$txt_col  <- ifelse(is.na(df_h$rate) | df_h$rate < 0.55, "black", "white")
 
-  p_coal_supp <- ggplot(df_h, aes(x = col_lbl, y = pol_lbl, fill = rate)) +
-    geom_tile(color = "white", linewidth = 0.3, width = 0.92) +
-    geom_text(aes(label = ifelse(is.na(rate), "", sprintf("%.0f", rate * 100)),
-                  color = I(txt_col)), size = 2.1) +
-    scale_fill_gradient(low = "white", high = "#1f3a93", na.value = "grey90",
-                        name = "Conv+Souh (%)",
-                        labels = function(x) paste0(round(x * 100), "%")) +
+  df_m <- expand.grid(metric = names(med_metrics), coalition = names(h_masks), stringsAsFactors = FALSE)
+  df_m$value    <- mapply(function(m, c) m_mat[m, c], df_m$metric, df_m$coalition)
+  df_m$pol_lbl  <- factor(df_m$metric, levels = pol_levs)
+  df_m$col_lbl  <- factor(h_lbl[df_m$coalition], levels = h_lbl)
+  df_m$fill_hex <- hex_from(df_m$value / m_max)
+  df_m$lbl_txt  <- ifelse(is.na(df_m$value), "", sprintf("%.0f", df_m$value))
+  df_m$txt_col  <- ifelse(is.na(df_m$value) | df_m$value / m_max < 0.55, "black", "white")
+
+  face_x_h <- ifelse(h_lbl == h_lbl["Overall"], "bold", "plain")
+  face_y_h <- ifelse(pol_levs %in% med_levs, "bold", "plain")
+
+  p_coal_supp <- ggplot() +
+    geom_tile(data = df_h, aes(x = col_lbl, y = pol_lbl, fill = fill_hex),
+              color = "white", linewidth = 0.3, width = 0.92) +
+    geom_text(data = df_h, aes(x = col_lbl, y = pol_lbl, label = lbl_txt, color = I(txt_col)),
+              size = 2.1) +
+    geom_tile(data = df_m, aes(x = col_lbl, y = pol_lbl, fill = fill_hex),
+              color = "white", linewidth = 0.3, width = 0.92) +
+    geom_text(data = df_m, aes(x = col_lbl, y = pol_lbl, label = lbl_txt, color = I(txt_col)),
+              size = 2.1, fontface = "bold") +
+    geom_hline(yintercept = length(variables_budget) + 0.5,
+               color = "grey45", linewidth = 0.5) +
+    scale_fill_identity() +
     scale_x_discrete(position = "top") +
-    labs(x = NULL, y = NULL,
-         # title = "Taux de soutien (conv+souh) par mesure et par coalition",
-         # subtitle = "Moyenne pondérée, NSP exclus du dénominateur"
-         ) +
+    labs(x = NULL, y = NULL) +
     theme_bw(base_size = 8.5) +
     theme(
       axis.text.x         = element_text(angle = 35, hjust = 0, size = 7.5, face = face_x_h),
-      axis.text.y         = element_text(size = 7.5),
-      legend.position     = "bottom",
+      axis.text.y         = element_text(size = 7.5, face = face_y_h),
+      legend.position     = "none",
       panel.grid          = element_blank(),
       plot.title          = element_text(size = 9.5, face = "bold", hjust = 0),
       plot.subtitle       = element_text(size = 7.5, color = "grey40", hjust = 0),

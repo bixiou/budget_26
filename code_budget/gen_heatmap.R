@@ -116,7 +116,7 @@ p_coal_supp <- ggplot(df_h, aes(x = col_lbl, y = pol_lbl, fill = rate)) +
     legend.position     = "bottom",
     panel.grid          = element_blank(),
     plot.title          = element_text(size = 9.5, face = "bold", hjust = 0),
-    plot.subtitle       = element_text(size = 7.5, color = "grey40", hjust = 0),
+    plot.subtitle       = element_text(size = 7.5, color = "black", hjust = 0),
     plot.title.position = "plot",
     plot.margin         = margin(t = 5, r = 60, b = 5, l = 5)
   )

@@ -280,6 +280,9 @@ barres_multiple(barres_defs["budget"], weights = F)
   print(bp[, c("variable", "amount", "souhaitable", "conv+souh", "supp+conv+souh", "souh xPNR", "conv+souh xPNR", "supp+conv+souh xPNR", "cum conv+souh")])
 }
 
+sum(bp$amount[bp$`conv+souh xPNR` > 0.5]) # 96.9
+sum(bp$amount[bp$`souh xPNR` > 0.5]) # 31.5
+sum(bp$amount[bp$`supp+conv+souh xPNR` > 0.5]) # 174.8
 budget_majorite_convenable <- bp$variable[bp$`conv+souh xPNR` > 0.5]
 budget_majorite_souhaitable <- bp$variable[bp$`souh xPNR` > 0.5]
 decrit(budget_policies$leaning[budget_policies$variable_name %in% budget_majorite_convenable]) # 5 (37.5G€) hurt the rich, 3 shrink welfare state (26.7G€), 3 sectoral (24.7G€), 2 hurt foreigners (8G€)

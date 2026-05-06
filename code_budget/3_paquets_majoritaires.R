@@ -20,7 +20,7 @@ library(ggrepel)
 start <- Sys.time()
 ## ── Constantes ──────────────────────────────────────────────────────────────
 THRESHOLD     <- 0.5   # seuil majorité
-THRESHOLD_LOW <- 0.336  # seuil bas pour partie (2) (0.249 si NSP exclus)
+THRESHOLD_LOW <- 0.3455  # seuil bas pour partie (2) (0.336 si poids, 0.249 si poids et NSP exclus)
 AMOUNT_TARGET <- 90    # Mds€
 
 ## ── Variables et montants ───────────────────────────────────────────────────

@@ -229,6 +229,108 @@ for (det in list(determinants, "no.na(vote_agg)", "vote_original", "education_or
 }
 
 
+##### 2c. LMG and isolated-R² figures #####
+{
+  det_labels <- c(
+    "no.na(vote_agg)"          = "Bloc politique",
+    "man"                      = "Genre",
+    "age_factor"               = "Âge",
+    "income_factor"            = "Niveau de vie",
+    "urbanity_factor"          = "Urbanité",
+    "as.factor(region)"        = "Région",
+    "as.factor(education)"     = "Diplôme",
+    "no.na(wealth_quartile_5)" = "Patrimoine",
+    "employment_agg"           = "Statut d'emploi",
+    "Nb_children__14"          = "Nb enfants < 14 ans",
+    "hh_size"                  = "Taille du ménage",
+    "voted"                    = "A voté (Européennes)"
+  )
+
+  # Collect average LMG and average isolated R² across a set of attitude variables.
+  # Returns list(avg_lmg, avg_iso) as named numeric vectors (% of variance, names = determinants).
+  collect_lmg_iso <- function(vars_set) {
+    lmg_mat <- matrix(NA_real_, nrow = length(determinants), ncol = length(vars_set),
+                      dimnames = list(determinants, vars_set))
+    iso_mat  <- lmg_mat
+
+    for (v in vars_set) {
+      # Full LMG (joint regression on all determinants)
+      res_full <- fit_decomp(v, det = determinants)
+      if (!is.null(res_full)) {
+        shared <- intersect(determinants, names(res_full$lmg))
+        lmg_mat[shared, v] <- res_full$lmg[shared]
+      }
+      # Isolated R² (one regressor at a time)
+      for (d in determinants) {
+        res_iso <- fit_decomp(v, det = d)
+        if (!is.null(res_iso)) iso_mat[d, v] <- res_iso$R2
+      }
+    }
+    list(
+      avg_lmg = rowMeans(lmg_mat, na.rm = TRUE) * 100,
+      avg_iso = rowMeans(iso_mat,  na.rm = TRUE) * 100
+    )
+  }
+
+  # Build and save a horizontal bar figure.
+  bar_fig <- function(df_vals, title, subtitle, xlab, tag) {
+    df <- data.frame(
+      label = factor(det_labels[determinants],
+                     levels = det_labels[determinants[order(df_vals)]]),
+      value = df_vals,
+      stringsAsFactors = FALSE
+    )
+    p <- ggplot(df, aes(x = value, y = label)) +
+      geom_col(fill = "#2c6fad", width = 0.7) +
+      geom_text(aes(label = sprintf("%.1f%%", value)), hjust = -0.1, size = 2.8) +
+      scale_x_continuous(expand = expansion(mult = c(0, 0.18)),
+                         labels = function(x) paste0(x, "%")) +
+      labs(title = title, subtitle = subtitle, x = xlab, y = NULL) +
+      theme_bw(base_size = 9) +
+      theme(panel.grid.major.y  = element_blank(),
+            panel.grid.minor    = element_blank(),
+            plot.title          = element_text(size = 9.5, face = "bold", hjust = 0),
+            plot.subtitle       = element_text(size = 7.5, color = "black", hjust = 0),
+            plot.title.position = "plot",
+            plot.margin         = margin(t = 5, r = 20, b = 5, l = 5))
+    ggsave(sprintf("../figures/%s.pdf", tag), p, width = 6, height = 4.5, device = cairo_pdf)
+    cat("→ ../figures/", tag, ".pdf\n", sep = "")
+  }
+
+  make_lmg_figs <- function(vars_set, tag, title_base) {
+    cat("\nComputing LMG/R² for", tag, "(", length(vars_set), "variables) ...\n")
+    res <- collect_lmg_iso(vars_set)
+    bar_fig(res$avg_lmg, tag = paste0("lmg_", tag),
+            title    = paste0(title_base, " — LMG"),
+            subtitle = sprintf("R² total moyen : %.1f%%", sum(res$avg_lmg)),
+            xlab     = "Part moyenne de variance expliquée (LMG, %)")
+    bar_fig(res$avg_iso, tag = paste0("r2_iso_", tag),
+            title    = paste0(title_base, " — R² isolé"),
+            subtitle = "Régression séparée avec un seul régresseur à la fois",
+            xlab     = "R² moyen (%)")
+  }
+
+  # --- Set 1: all attitudes ---
+  attitudes <- c(variables_budget, variables_effect_program, "sum_convenable", "sum_souhaitable")
+  make_lmg_figs(attitudes, "attitudes", "Déterminants des attitudes")
+
+  # --- Set 2: effect_program only ---
+  make_lmg_figs(variables_effect_program, "effect_program",
+                "Déterminants du programme électoral")
+
+  # --- Set 3: top 10 most politically polarized attitudes ---
+  vote_r2 <- sapply(attitudes, function(v) {
+    res <- fit_decomp(v, det = "no.na(vote_agg)")
+    if (is.null(res)) 0 else res$R2
+  })
+  top8_polarized <- names(sort(vote_r2, decreasing = TRUE))[1:8]
+  cat("\nTop 10 attitudes les plus polarisées politiquement :\n")
+  print(round(sort(vote_r2, decreasing = TRUE)[1:8], 3))
+  make_lmg_figs(top8_polarized, "attitudes_polarisees",
+                "Déterminants des 10 attitudes les plus polarisées")
+}
+
+
 ##### 3. Clustering of respondents #####
 # Cluster 1: frugaux (20%), 2: nationalistes (49%), 3: progressistes (31%)
 cat("\n=== K-means clustering of respondents (k selected by silhouette) ===\n")
@@ -618,8 +720,8 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
       plot.title.position  = "plot",
       plot.caption.position = "plot",
       plot.title           = element_text(size = 9.5, face = "bold", hjust = 0),
-      plot.subtitle        = element_text(size = 7.5, color = "grey40", hjust = 0),
-      plot.caption         = element_text(size = 6.5, color = "grey50", hjust = 0),
+      plot.subtitle        = element_text(size = 7.5, color = "black", hjust = 0),
+      plot.caption         = element_text(size = 6.5, color = "black", hjust = 0),
       plot.margin          = margin(t = 5, r = 60, b = 5, l = 5)
     )
 
@@ -783,7 +885,7 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
       legend.position     = "none",
       panel.grid          = element_blank(),
       plot.title          = element_text(size = 9.5, face = "bold", hjust = 0),
-      plot.subtitle       = element_text(size = 7.5, color = "grey40", hjust = 0),
+      plot.subtitle       = element_text(size = 7.5, color = "black", hjust = 0),
       plot.title.position = "plot",
       plot.margin         = margin(t = 5, r = 60, b = 5, l = 5)
     )

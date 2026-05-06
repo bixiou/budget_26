@@ -1,5 +1,6 @@
 # library(utils) # causes a bug with new RStudio
-chooseCRANmirror(ind = 1)
+# chooseCRANmirror(ind = 1)
+options(repos = c(CRAN = "https://cloud.r-project.org"))
 .libPaths(c("C:/Users/fabre/AppData/Local/R/win-library/4.4", "C:/Program Files/R/R-4.4.3/library", "C:/Users/fabre/AppData/Local/R/win-library/4.3", "C:/Program Files/R/R-4.3.1/library"))
 # if (interactive() && requireNamespace("rstudioapi", quietly = TRUE)) {
 #   tryCatch({
@@ -3287,3 +3288,4 @@ convert_html_to_latex <- function(text) {
   # text <- gsub("\\\\\\s*\\[", "\\\\ \n [", text)
   return(text)
 }
+

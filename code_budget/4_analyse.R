@@ -320,7 +320,7 @@ for (det in list("no.na(vote_agg)", "vote_original", "education_original", deter
             axis.title          = element_text(color = "black"),
             plot.title.position = "plot",
             plot.margin         = margin(t = 3, r = 12, b = 3, l = 3))
-    ggsave(sprintf("../figures/%s.pdf", tag), p, width = 3.4, height = 2.6, device = cairo_pdf)
+    ggsave(sprintf("../figures/%s.pdf", tag), p, width = 2.5, height = 1.9, device = cairo_pdf)
     cat("→ ../figures/", tag, ".pdf\n", sep = "")
   }
 
@@ -330,7 +330,8 @@ for (det in list("no.na(vote_agg)", "vote_original", "education_original", deter
     bar_fig(res$avg_lmg, tag = paste0("lmg_", tag),
             title    = paste0(title_base, " — LMG"),
             subtitle = sprintf("R² total moyen : %.1f%%", sum(res$avg_lmg)),
-            xlab     = "Part moyenne de variance expliquée (LMG, %)")
+            xlab     = "Part moyenne de variance expliquée (%)             ")
+    # xlab     = "Part moyenne de variance expliquée (LMG, %)                           ")
     bar_fig(res$avg_iso, tag = paste0("r2_iso_", tag),
             title    = paste0(title_base, " — R² isolé"),
             subtitle = "Régression séparée avec un seul régresseur à la fois",

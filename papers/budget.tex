@@ -122,7 +122,7 @@ La figure~\ref{fig:effect_program} présente l'effet de différentes mesures sur
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{../figures/effect_program.pdf}
-  \caption{Effet de mesures sur l'évaluation d'un programme présidentiel.}
+  \caption{Effet de mesures sur l'évaluation d'un programme présidentiel.\\ \textit{Pour chacune des mesures ci-dessous, sa présence dans le programme d'un candidat à l'élection présidentielle de 2027 vous rendrait-elle plus ou moins favorable à ce candidat~?}}
   \label{fig:effect_program}
 \end{figure}
 
@@ -141,7 +141,7 @@ La figure~\ref{fig:budget} présente le soutien aux mesures budgétaires, class�
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{../figures/budget.pdf}
-  \caption{Évaluations des mesures budgétaires.}
+  \caption{Évaluations des mesures budgétaires. }
   \label{fig:budget}
 \end{figure}
 
@@ -166,8 +166,7 @@ Les caractéristiques sociodémographiques expliquent 13\,\% de la variance, ce 
 % Si on connaît le vote, qui explique 9\% de la variance, on a .5+(.09*.25)^.5=65% de prédire l'attitude correcte plutôt que 50%.
 
 À elle seule, l'affinité partisane explique 7\,\% de la variance dans les attitudes lorsqu'elle est définie par bloc politique (Gauche, Centre-droit/Droite ou Extrême-droite) et 9\,\% lorsqu'elle est définie par le parti politique. Les caractéristiques sociodémographiques hors vote expliquent quant à elles 8\,\% de la variance. La somme de ces deux valeurs est supérieure à 13\,\% car le vote s'explique en partie par les autres caractéristiques sociodémographiques. Lorsqu'on analyse la variance \textit{additionnelle} expliquée par chaque caractéristique (i.e., hors variance déjà expliquée par les autres variables), le bloc politique explique 6\,\% de la variance, l'âge 1,5\,\%, le patrimoine 1,3\,\%, et les autres variables (genre, niveau de vie, diplôme\dots)
-moins de 1\,\% (figure~ref{fig:lmg}).  % (statut d'emploi 0,9\,\%, genre 0,7\,\%, niveau de vie 0,7\,\%, etc.). Notons que lorsqu'on reproduit l'analyse sans le vote, les parts expliquées par chaque caractéristique sociodémographique ne changent pas tellement. En particulier, le niveau de diplôme (en 8 catégories) explique une faible part de la variance (0,5\,\% de variance additionnelle, ou 1,5\,\% considéré isolément). % TODO! improve figures (LMG, etc.), 
-% TODO proportion de variables significatives. bloc: 86%, age: 53%, genre: 47%, patrimoine: 39%, niveau de vie: 29%
+moins de 1\,\% (figure~ref{fig:lmg})\footnote{De même, en régressant chaque attitude sur l'ensemble des caractéristiques sociodémographiques, le bloc politique compte (au moins) un coefficient significatif dans 86~\% des régressions, l'âge dans 53~\%, le genre 47~\%, le patrimoine 39~\%, et le niveau de vie 29~\%.}.  % (statut d'emploi 0,9\,\%, genre 0,7\,\%, niveau de vie 0,7\,\%, etc.). Notons que lorsqu'on reproduit l'analyse sans le vote, les parts expliquées par chaque caractéristique sociodémographique ne changent pas tellement. En particulier, le niveau de diplôme (en 8 catégories) explique une faible part de la variance (0,5\,\% de variance additionnelle, ou 1,5\,\% considéré isolément). 
 
 En d'autres termes, les attitudes politiques sont très variables d'un individu à l'autre, même au sein des groupes sociaux qui servent généralement de grilles de lecture pour appréhender les désaccords politiques. 
 Les figures~\ref{fig:notes_groupes_budget} et~\ref{fig:notes_groupes_effect_program} présentent les attitudes moyennes des répondants de chaque bloc politique concernant le \texttt{budget} et le \texttt{programme}. Généralement, sur de tels graphiques, les barres horizontales auraient représenté l'intervalle de confiance de la moyenne. Avec nos données, de tels intervalles auraient été courts, et auraient permis d'observer des écarts significatifs entre les moyennes de différents blocs. Mais ici, j'ai fait le choix de rendre compte de la variabilité au sein de chaque bloc, et les barres horizontales représentent l'écart moyen à la moyenne du bloc des individus de part et d'autre de cette moyenne\footnote{L'écart moyen à la moyenne est calculé séparément pour les observations supérieures vs. inférieures à la moyenne.}. Ainsi, sur nos figures, les barres sont une façon de visualiser l'étendue des attitudes au sein de chaque bloc, et elles révèlent que les attitudes sont souvent aussi variables au sein d'un bloc politique qu'au sein de la population dans son ensemble.
@@ -175,14 +174,14 @@ Les figures~\ref{fig:notes_groupes_budget} et~\ref{fig:notes_groupes_effect_prog
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{../figures/notes_groupes_budget.pdf}
-  \caption{Soutien moyen aux mesures budgétaires par groupe électoral}
+  \caption{Évaluation moyenne des mesures budgétaires, par bloc politique. \\ Chaque barre latérale représente l'écart moyen à la moyenne du bloc parmi les évaluations situées du même côté de la moyenne.}
   \label{fig:notes_groupes_budget}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{../figures/notes_groupes_effect_program.pdf}
-  \caption{Score moyen d'impact électoral des mesures par groupe électoral}
+  \caption{Évaluation moyenne des mesures programmatiques, par bloc politique. \\ Chaque barre latérale représente l'écart moyen à la moyenne du bloc parmi les évaluations situées du même côté de la moyenne.}
   \label{fig:notes_groupes_effect_program}
 \end{figure}
 
@@ -244,7 +243,7 @@ En dépit de la politique d'Emmanuel Macron, 32,8~Mds de taxes supplémentaires 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{../figures/coalition_packages_matrix.pdf}
-  \caption{Paquets de mesures à majorité conjointe par coalition électorale.}
+  \caption{Plus grands paquets de mesures acceptés par une majorité conjointe, par coalition. \\ Une majorité est dite conjointe lorsqu'aucun des répondants qui la compose ne juge une mesure du paquet \textit{inacceptable}.}
   \label{fig:coalition_packages_matrix}
 \end{figure}
 
@@ -316,6 +315,7 @@ Cette comparaison illustre le rôle que peuvent jouer l'information et la délib
 % Deux majorités possibles : nativistes-sociaux ou alliance entre frugaux et progressistes.
 % Centre/Droite peuvent être avantagés par réputation de sérieux gestionnaire et de conscience des réalités économiques (puisque leurs mesures sont les plus favorables à la croissance), mais une majorité préférerait taxer les riches plutôt que la croissance (pb de montrer ça: le but ici est de réduire le déficit)
 % Soit être impopulaire, soit taxer les riches, soit laisser déraper la dette publique, et sûrement un peu des trois à la fois
+% Programmes des partis ne correspondent pas aux attitudes de leurs électeurs
 
 % Cette enquête apporte plusieurs enseignements.
 
@@ -364,15 +364,16 @@ Cette comparaison illustre le rôle que peuvent jouer l'information et la délib
 
 \begin{figure}[htbp]
   \centering
+  \vspace{-1cm}
   \includegraphics[width=\linewidth]{../figures/coalition_support_heatmap.pdf}
-  \caption{Taux de \textit{convenable} ou \textit{souhaitable} par mesure et par coalition d'électeurs (en \%). Les trois premières lignes rapportent la somme médiane des mesures soutenues par les répondants d'une coalition.}
+  \caption{Taux d'évaluations \textit{convenable} ou \textit{souhaitable} par mesure et par coalition (en \%). Les trois premières lignes rapportent la médiane de la somme des mesures soutenues par les répondants d'une coalition.}
   \label{fig:coalition_support_heatmap}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{../figures/budget_correlations.pdf}
-  \caption{Matrice de corrélations entre mesures budgétaires.}
+  \caption{Matrice des corrélations entre évaluations de mesures budgétaires.}
   \label{fig:budget_correlations}
 \end{figure}
 

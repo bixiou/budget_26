@@ -38,7 +38,8 @@ package <- function(p, version = NULL, remove = FALSE, github = '') {
 #   # package("devtools")
 #   # devtools::install_github("iatgen/iatgen")
 # } else library(iatgen)
-# package("ggplot2")
+package("ggplot2")
+package("ggrepel")
 # if (!is.element("ggalt", installed.packages()[,1])) { devtools::install_github("eliocamp/ggalt@new-coord-proj")
 # } else package("ggalt") # maps
 # package("janitor") # heatmaps

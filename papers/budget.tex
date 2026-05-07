@@ -12,6 +12,7 @@
 \usepackage{booktabs}
 \usepackage{makecell}
 \usepackage{graphicx}
+\usepackage{subcaption}
 \usepackage{amsmath}
 \usepackage{xcolor}
 \usepackage{textcomp}
@@ -165,7 +166,8 @@ Les caractéristiques sociodémographiques expliquent 13\,\% de la variance, ce 
 % Si on connaît le vote, qui explique 9\% de la variance, on a .5+(.09*.25)^.5=65% de prédire l'attitude correcte plutôt que 50%.
 
 À elle seule, l'affinité partisane explique 7\,\% de la variance dans les attitudes lorsqu'elle est définie par bloc politique (Gauche, Centre-droit/Droite ou Extrême-droite) et 9\,\% lorsqu'elle est définie par le parti politique. Les caractéristiques sociodémographiques hors vote expliquent quant à elles 8\,\% de la variance. La somme de ces deux valeurs est supérieure à 13\,\% car le vote s'explique en partie par les autres caractéristiques sociodémographiques. Lorsqu'on analyse la variance \textit{additionnelle} expliquée par chaque caractéristique (i.e., hors variance déjà expliquée par les autres variables), le bloc politique explique 6\,\% de la variance, l'âge 1,5\,\%, le patrimoine 1,3\,\%, et les autres variables (genre, niveau de vie, diplôme\dots)
-moins de 1\,\% (figure~ref{fig:lmg}).  % (statut d'emploi 0,9\,\%, genre 0,7\,\%, niveau de vie 0,7\,\%, etc.). Notons que lorsqu'on reproduit l'analyse sans le vote, les parts expliquées par chaque caractéristique sociodémographique ne changent pas tellement. En particulier, le niveau de diplôme (en 8 catégories) explique une faible part de la variance (0,5\,\% de variance additionnelle, ou 1,5\,\% considéré isolément). % TODO! improve figures (LMG, etc.), nombre de variables significatives
+moins de 1\,\% (figure~ref{fig:lmg}).  % (statut d'emploi 0,9\,\%, genre 0,7\,\%, niveau de vie 0,7\,\%, etc.). Notons que lorsqu'on reproduit l'analyse sans le vote, les parts expliquées par chaque caractéristique sociodémographique ne changent pas tellement. En particulier, le niveau de diplôme (en 8 catégories) explique une faible part de la variance (0,5\,\% de variance additionnelle, ou 1,5\,\% considéré isolément). % TODO! improve figures (LMG, etc.), 
+% TODO proportion de variables significatives. bloc: 86%, age: 53%, genre: 47%, patrimoine: 39%, niveau de vie: 29%
 
 En d'autres termes, les attitudes politiques sont très variables d'un individu à l'autre, même au sein des groupes sociaux qui servent généralement de grilles de lecture pour appréhender les désaccords politiques. 
 Les figures~\ref{fig:notes_groupes_budget} et~\ref{fig:notes_groupes_effect_program} présentent les attitudes moyennes des répondants de chaque bloc politique concernant le \texttt{budget} et le \texttt{programme}. Généralement, sur de tels graphiques, les barres horizontales auraient représenté l'intervalle de confiance de la moyenne. Avec nos données, de tels intervalles auraient été courts, et auraient permis d'observer des écarts significatifs entre les moyennes de différents blocs. Mais ici, j'ai fait le choix de rendre compte de la variabilité au sein de chaque bloc, et les barres horizontales représentent l'écart moyen à la moyenne du bloc des individus de part et d'autre de cette moyenne\footnote{L'écart moyen à la moyenne est calculé séparément pour les observations supérieures vs. inférieures à la moyenne.}. Ainsi, sur nos figures, les barres sont une façon de visualiser l'étendue des attitudes au sein de chaque bloc, et elles révèlent que les attitudes sont souvent aussi variables au sein d'un bloc politique qu'au sein de la population dans son ensemble.
@@ -206,16 +208,18 @@ Les figures~\ref{fig:notes_groupes_budget} et~\ref{fig:notes_groupes_effect_prog
 Pour étudier les disparités entre groupes d'électeurs, je définis d'abord la distance entre chaque paire de répondants comme la moyenne des écarts de leurs évaluations aux questions \texttt{budget} et \texttt{programme}\footnote{Ces questions sont recodées de $-1$ à 2 et de $-2$ à 2, respectivement. Une distance de 0 est imputée dans le cas d'une réponse \textit{Ne sais pas} à une variable \texttt{budget}.}. 
 La distance moyenne entre répondants est de 1,16, soit un peu plus d'une graduation par réponse. La figure~\ref{fig:distance_matrix_pairwise} présente les distances entre (répondants de) groupes électoraux, exprimées en variation par rapport à la distance moyenne entre tous les répondants. 
 
-La plus grande distance est observée entre les électeurs LR et LFI, à 1,38 (+18,5~\% par rapport àla distance moyenne), tandis que la plus faible est observée au sein des électeurs PS, à 1,07 ($-$7,8~\%). % TODO! robustesse à distance moyenne pour NSP; recodage de programme en -1/0/+1; se baser uniquement sur variables les plus clivantes
-Ainsi, il y a davantage de disparités dans les attitudes individuelles au sein d'un groupe électoral qu'entre toute paire de groupes. % TODO! étayé par  distance_matrix_means
+La plus grande distance est observée entre les électeurs LR et LFI, à 1,38 (+18,5~\% par rapport àla distance moyenne), tandis que la plus faible est observée au sein des électeurs PS, à 1,07 ($-$7,8~\%). 
+Ainsi, il y a davantage de disparités dans les attitudes individuelles au sein d'un groupe électoral qu'entre toute paire de groupes. 
 Ce phénomène peut expliquer que la plupart des électeurs ne se reconnaissent dans aucun parti, car aucun programme ne les satisfait pleinement. 
 
-Malgré les fortes disparités au sein de chaque groupe, les distances attitudinales entre électeurs de différents partis permettent de reconstituer le spectre politique~: (1) les électeurs PS et LÉ sont légèrement plus proches de LFI que du Centre-droit, (2) les électeurs du Centre-droit sont plus proches de LR que du PS ou LÉ, et (3) les électeurs LR sont plus légèrement plus proche du Centre-droit que de l'Extrême-droite. Ainsi, la tripartition Gauche, Centre-droit/Droite et Extrême-droite émerge naturellement des préférences individuelles. De façon intéressante, ce sont les attitudes des électeurs d'extrême droite qui sont les plus proches de celles de l'ensemble de l'électorat, tandis que les électeurs de LFI en sont les plus éloignés.
+Malgré les fortes disparités au sein de chaque groupe, les distances attitudinales entre électeurs de différents partis permettent de reconstituer le spectre politique~: (1) les électeurs PS et LÉ sont légèrement plus proches de LFI que du Centre-droit, (2) les électeurs du Centre-droit sont plus proches de LR que du PS ou LÉ, et (3) les électeurs LR sont légèrement plus proche du Centre-droit que de l'Extrême-droite. Ainsi, la tripartition Gauche, Centre-droit/Droite et Extrême-droite émerge naturellement des préférences individuelles. De façon intéressante, ce sont les attitudes des électeurs du RN qui sont les plus proches de celles de l'ensemble de l'électorat, % j'ai pas mis RN dans la matrice mais c'est à -0.7 (contre -0.5 pour ED=RN+R!). J'ai vérifié que ce qui est dit dans la footnote reste valable avec RN plutôt que ED.
+tandis que les électeurs de LFI en sont les plus éloignés. Ces observations sont robustes à des définitions alternatives de la distance%
+\footnote{Lorsque la distance est définie à partir des 15 attitudes les plus clivantes (celles avec la plus grande variance), toutes les observations sont confirmées. Une seule observation est mise en défaut lorsque la distance est définie comme l'écart entre évaluations moyennes de deux groupes~: la coalition la plus proche de l'ensemble de l'électorat est alors celle réunissant gauche et extrême-droite. De même, une observation est mise en défautlorsqu'on recode les variables \texttt{programme} entre $-1$ et $1$ plutôt que entre $-2$ et $2$ (ignorant l'intensité des évaluations)~: les électeurs LR sont alors plus proches de l'extrême-droite que du Centre-droit.}.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{../figures/distance_matrix_pairwise.pdf}
-  \caption{Distances moyennes entre (et au sein) de groupes électoraux (distance inter-individuelle moyenne aux questions \texttt{budget} et \texttt{programme}, exprimée en variation par rapport à la distance moyenne au sein de l'échantillon).}
+  \caption{Distances moyennes entre (et au sein) de groupes électoraux (distance inter-individuelle moyenne aux questions \texttt{budget} et \texttt{programme}, exprimée en variation par rapport à la distance moyenne au sein de l'Ensemble de l'échantillon).}
   \label{fig:distance_matrix_pairwise}
 \end{figure}
 
@@ -311,6 +315,7 @@ Cette comparaison illustre le rôle que peuvent jouer l'information et la délib
 % et le choix de LÉ/PS est particulièrement difficile car ces partis sont plus proches de LFI que du centre, mais auront du mal à gouverner sans s'allier au centre (vu le rapport de forces électoral), lequel est très éloigné de LFI.
 % Deux majorités possibles : nativistes-sociaux ou alliance entre frugaux et progressistes.
 % Centre/Droite peuvent être avantagés par réputation de sérieux gestionnaire et de conscience des réalités économiques (puisque leurs mesures sont les plus favorables à la croissance), mais une majorité préférerait taxer les riches plutôt que la croissance (pb de montrer ça: le but ici est de réduire le déficit)
+% Soit être impopulaire, soit taxer les riches, soit laisser déraper la dette publique, et sûrement un peu des trois à la fois
 
 % Cette enquête apporte plusieurs enseignements.
 
@@ -335,6 +340,25 @@ Cette comparaison illustre le rôle que peuvent jouer l'information et la délib
 \setcounter{figure}{0}
 
 \section{Figures supplémentaires}
+
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{../figures/r2_iso_attitudes.pdf}
+    \subcaption{R\textsuperscript{2} isolé (un seul régresseur à la fois)}
+    \label{fig:r2_iso_attitudes}
+  \end{subfigure}\hfill
+  \begin{subfigure}[b]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{../figures/lmg_attitudes.pdf}
+    \subcaption{Décomposition LMG (régression jointe)}
+    \label{fig:lmg_attitudes}
+  \end{subfigure}
+  \caption{Déterminants sociodémographiques des attitudes. (a) R\textsuperscript{2} moyen obtenu en régressant chaque attitude sur un seul déterminant à la fois ; (b) part moyenne de variance expliquée par chaque déterminant dans la régression jointe (décomposition LMG). Moyennes sur l'ensemble des variables d'attitudes (mesures budgétaires, jugements de programme et indices agrégés \textit{sum\_convenable} et \textit{sum\_souhaitable}).}
+  \label{fig:determinants_attitudes}
+\end{figure}
 
 
 \begin{figure}[htbp]

@@ -201,30 +201,47 @@ fit_decomp <- function(y, df = e, det = determinants) {
   s <- summary(mod)$coefficients
   # sig <- sapply(det, function(v) sum(grepl(paste0("^", v), rownames(s)) & s[, 4] < 0.05))
   sig <- s[, 4] < 0.05
+  # Per-variable: TRUE if at least one of the variable's categories is significant
+  sig_by_var <- setNames(sapply(det, function(d) {
+    matches <- startsWith(rownames(s), d)
+    if (!any(matches)) FALSE else any(sig[matches], na.rm = TRUE)
+  }), det)
   lmg <- if (length(det) == 1) {
     setNames(summary(mod)$r.squared, det)
   } else {
     tryCatch(calc.relimp(mod, type = "lmg", rela = FALSE, rank = FALSE)@lmg,
              error = function(e) setNames(rep(NA_real_, length(det)), det))
   }
-  list(sig = sig, lmg = lmg, R2 = summary(mod)$r.squared)
+  list(sig = sig, sig_by_var = sig_by_var, lmg = lmg, R2 = summary(mod)$r.squared)
 }
 
-for (det in list(determinants, "no.na(vote_agg)", "vote_original", "education_original", determinants[2:11])) {
+# Stocke la proportion d'attitude regressions où ≥1 catégorie d'une variable
+# est significative — un vecteur nommé par configuration de déterminants.
+prop_sig_by_var_list <- list()
+
+for (det in list("no.na(vote_agg)", "vote_original", "education_original", determinants[2:11], determinants)) {
   temp <- fit_decomp("sum_convenable", det = det)
   total_sig <- setNames(integer(length(temp$sig)), names(temp$sig))
+  total_sig_by_var <- setNames(integer(length(det)), det)
   total_lmg <- setNames(numeric(length(temp$lmg)), names(temp$lmg))
   attitudes <- c(variables_budget, variables_effect_program, "sum_convenable", "sum_souhaitable")
+  n_reg <- 0L
   for (v in attitudes) {
     res <- fit_decomp(v, det = det)
     if (!is.null(res)) {
       total_sig <- total_sig + (res$sig > 0)
+      total_sig_by_var <- total_sig_by_var + as.integer(res$sig_by_var)
       total_lmg <- total_lmg + res$lmg
+      n_reg <- n_reg + 1L
     }
   }
+  prop_sig_by_var <- total_sig_by_var / n_reg
+  prop_sig_by_var_list[[paste(det, collapse = "+")]] <- prop_sig_by_var
   print(det)
   print(sort(total_sig)) # Number of significant coefs
-  print(sort(round(100 * total_lmg / length(attitudes), 2))) # R^2 explained
+  cat("Proportion of attitude regressions with ≥1 significant coef per determinant variable (n=", n_reg, "):\n", sep = "")
+  print(sort(round(prop_sig_by_var, 3)))
+  # print(sort(round(100 * total_lmg / length(attitudes), 2))) # R^2 explained
   print(round(sum(100 * total_lmg / length(attitudes)), 2)) # Total R^2
 }
 
@@ -274,6 +291,9 @@ for (det in list(determinants, "no.na(vote_agg)", "vote_original", "education_or
 
   # Build and save a horizontal bar figure.
   bar_fig <- function(df_vals, title, subtitle, xlab, tag) {
+    # Toute valeur manquante (NaN/NA — ex. déterminant systématiquement aliasé
+    # par calc.relimp) → 0 ; sinon le bar correspondant ne s'affiche pas.
+    df_vals[!is.finite(df_vals)] <- 0
     df <- data.frame(
       label = factor(det_labels[determinants],
                      levels = det_labels[determinants[order(df_vals)]]),
@@ -282,18 +302,25 @@ for (det in list(determinants, "no.na(vote_agg)", "vote_original", "education_or
     )
     p <- ggplot(df, aes(x = value, y = label)) +
       geom_col(fill = "#2c6fad", width = 0.7) +
-      geom_text(aes(label = sprintf("%.1f%%", value)), hjust = -0.1, size = 2.8) +
+      geom_text(aes(label = sprintf("%.1f%%", value)), hjust = -0.1, size = 2.4, color = "black") +
       scale_x_continuous(expand = expansion(mult = c(0, 0.18)),
                          labels = function(x) paste0(x, "%")) +
-      labs(title = title, subtitle = subtitle, x = xlab, y = NULL) +
-      theme_bw(base_size = 9) +
+      labs(
+           # title = title, subtitle = subtitle,
+           x = xlab, y = NULL) +
+      theme_bw(base_size = 8) +
       theme(panel.grid.major.y  = element_blank(),
             panel.grid.minor    = element_blank(),
-            plot.title          = element_text(size = 9.5, face = "bold", hjust = 0),
-            plot.subtitle       = element_text(size = 7.5, color = "black", hjust = 0),
+            # Cadre retiré, remplacé par un cadre en L (axe x bas + axe y gauche)
+            # — garantit que les bars de longueur ~0 restent ancrées et visibles.
+            panel.border        = element_blank(),
+            axis.line           = element_line(color = "black", linewidth = 0.3),
+            axis.ticks          = element_line(color = "black", linewidth = 0.3),
+            axis.text           = element_text(color = "black"),
+            axis.title          = element_text(color = "black"),
             plot.title.position = "plot",
-            plot.margin         = margin(t = 5, r = 20, b = 5, l = 5))
-    ggsave(sprintf("../figures/%s.pdf", tag), p, width = 6, height = 4.5, device = cairo_pdf)
+            plot.margin         = margin(t = 3, r = 12, b = 3, l = 3))
+    ggsave(sprintf("../figures/%s.pdf", tag), p, width = 3.4, height = 2.6, device = cairo_pdf)
     cat("→ ../figures/", tag, ".pdf\n", sep = "")
   }
 
@@ -335,6 +362,7 @@ for (det in list(determinants, "no.na(vote_agg)", "vote_original", "education_or
   make_lmg_figs(top15_polarized, "attitudes_dispersees",
                 "Déterminants des 15 attitudes les plus dispersées")
 }
+
 
 
 ##### 3. Clustering of respondents #####
@@ -718,14 +746,15 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
          ) +
     theme_bw(base_size = 8.5) +
     theme(
-      axis.text.x          = element_text(angle = 35, hjust = 0, size = 7.5, face = face_x),
-      axis.text.y          = element_text(size = 7.5, face = face_y),
+      axis.text.x          = element_text(angle = 35, hjust = 0, size = 7.5, face = face_x, color = "black"),
+      axis.text.y          = element_text(size = 7.5, face = face_y, color = "black"),
       legend.position      = "bottom",
-      legend.text          = element_text(size = 8),
+      legend.text          = element_text(size = 8, color = "black"),
+      legend.title         = element_text(color = "black"),
       panel.grid           = element_blank(),
       plot.title.position  = "plot",
       plot.caption.position = "plot",
-      plot.title           = element_text(size = 9.5, face = "bold", hjust = 0),
+      plot.title           = element_text(size = 9.5, face = "bold", hjust = 0, color = "black"),
       plot.subtitle        = element_text(size = 7.5, color = "black", hjust = 0),
       plot.caption         = element_text(size = 6.5, color = "black", hjust = 0),
       plot.margin          = margin(t = 5, r = 60, b = 5, l = 5)
@@ -886,11 +915,11 @@ if(!is.null(bp) && "variable_name" %in% names(bp)) {
     labs(x = NULL, y = NULL) +
     theme_bw(base_size = 8.5) +
     theme(
-      axis.text.x         = element_text(angle = 35, hjust = 0, size = 7.5, face = face_x_h),
-      axis.text.y         = element_text(size = 7.5, face = face_y_h),
+      axis.text.x         = element_text(angle = 35, hjust = 0, size = 7.5, face = face_x_h, color = "black"),
+      axis.text.y         = element_text(size = 7.5, face = face_y_h, color = "black"),
       legend.position     = "none",
       panel.grid          = element_blank(),
-      plot.title          = element_text(size = 9.5, face = "bold", hjust = 0),
+      plot.title          = element_text(size = 9.5, face = "bold", hjust = 0, color = "black"),
       plot.subtitle       = element_text(size = 7.5, color = "black", hjust = 0),
       plot.title.position = "plot",
       plot.margin         = margin(t = 5, r = 60, b = 5, l = 5)

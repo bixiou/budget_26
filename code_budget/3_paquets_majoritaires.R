@@ -107,6 +107,7 @@ coalition_defs <- list(
   LR                   = party_lr,
   LR_RN_Reconquete     = c(party_lr, party_rn, party_recon),
   centre_LR_RN_Reconquete = c(party_centre, party_lr, party_rn, party_recon)
+  # RN                   = party_rn
 )
 for (cn in names(coalition_defs)) {
   e[[cn]] <- as.integer(e$vote_original %in% coalition_defs[[cn]])
@@ -422,7 +423,7 @@ df5 <- df5[!is.na(df5$x), ]
 
 p5 <- ggplot(df5, aes(x = x, y = y, label = measure)) +
   geom_point(size = 2.5, color = "steelblue") +
-  geom_text_repel(size = 2.8, max.overlaps = 30, segment.color = "grey60") +
+  geom_text_repel(size = 2.8, max.overlaps = 30, segment.color = "grey60", color = "black") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),
                      limits = c(NA, NA), expand = expansion(mult = c(0.05, 0.1))) +
   scale_x_continuous(limits = c(-1.2, 1.2),
@@ -434,7 +435,10 @@ p5 <- ggplot(df5, aes(x = x, y = y, label = measure)) +
     y     = "Taux de soutien conv+souh (%, pondéré, NSP = soutien)",
     title = "Positionnement politique des partisans vs taux de soutien"
   ) +
-  theme_bw(base_size = 11)
+  theme_bw(base_size = 11) +
+  theme(axis.text  = element_text(color = "black"),
+        axis.title = element_text(color = "black"),
+        plot.title = element_text(color = "black"))
 
 ggsave("../figures/positionnement_soutien.pdf", p5, width = 11, height = 7)
 cat("  → ../figures/positionnement_soutien.pdf\n")
@@ -515,7 +519,8 @@ colors_groups <- c(
   "Extrême-droite"        = "#A020F0"   # violet
 )
 
-plot_lines <- function(df, title, xlab, show_vline = TRUE) {
+plot_lines <- function(df, title, xlab, show_vline = TRUE,
+                       x_breaks = waiver(), x_labels = waiver()) {
   # Ordre des mesures par la note moyenne d'Ensemble (décroissant)
   order_df <- df[df$group == "Overall", ]
   order_df <- order_df[order(order_df$mean), ]
@@ -537,17 +542,31 @@ plot_lines <- function(df, title, xlab, show_vline = TRUE) {
                    position = dodge) +
     geom_point(size = 2.1, position = dodge) +
     scale_color_manual(values = colors_groups, drop = FALSE) +
+    scale_x_continuous(breaks = x_breaks, labels = x_labels) +
     coord_cartesian(xlim = xlim_range) +
-    labs(y = NULL, x = xlab,
-         # title = title,
-         color = "Groupe",
-         caption = "Point = moyenne pondérée ; barres = écart moyen à la moyenne (asymétrique : en-dessous / au-dessus de μ)") +
+    labs(y = NULL,
+         # x = xlab, title = title,
+         x = NULL,
+         color = "Groupe"
+         # caption = "Point = moyenne pondérée ; barres = écart moyen à la moyenne (asymétrique : en-dessous / au-dessus de μ)"
+         ) +
     theme_bw(base_size = 10) +
     theme(
-      legend.position    = "top",
-      panel.grid.major.y = element_blank(),
-      panel.grid.minor.y = element_blank(),
-      panel.grid.major.x = element_line(color = "grey90", linewidth = 0.3)
+      # Légende décalée à gauche d'environ un quart de la largeur
+      legend.position      = "top",
+      legend.justification  = c(1, 0),
+      panel.grid.major.y   = element_blank(),
+      panel.grid.minor.y   = element_blank(),
+      panel.grid.major.x   = element_line(color = "grey90", linewidth = 0.3),
+      axis.text            = element_text(color = "black"),
+      axis.title           = element_text(color = "black"),
+      legend.text          = element_text(color = "black"),
+      legend.title         = element_text(color = "black"),
+      plot.caption         = element_text(color = "black"),
+      plot.title           = element_text(color = "black"),
+      # Marge droite légèrement augmentée pour éviter de couper la dernière
+      # lettre du label x le plus à droite (« Beaucoup plus favorable »).
+      plot.margin          = margin(t = 5, r = 18, b = 5, l = 5)
     ) +
     scale_y_discrete(expand = expansion(add = 0.5))
   if (show_vline && xmin < 0 && xmax > 0) {
@@ -559,15 +578,21 @@ plot_lines <- function(df, title, xlab, show_vline = TRUE) {
 p6_ep  <- plot_lines(df_ep,
                      "Effet d'une mesure dans un programme présidentiel (note moyenne par groupe)",
                      "Favorabilité moyenne à un candidat portant la mesure (-2 = beaucoup moins favorable ; +2 = beaucoup plus favorable)",
-                     show_vline = TRUE)
+                     show_vline = TRUE,
+                     x_breaks = c(-2, -1, 0, 1, 2),
+                     x_labels = c("Beaucoup moins\nfavorable", "Moins\nfavorable",
+                                  "Ne changerait\nrien",
+                                  "Plus\nfavorable", "Beaucoup plus\nfavorable"))
 p6_bud <- plot_lines(df_bud,
                      "Jugement sur les mesures budgétaires (note moyenne par groupe)",
                      "Jugement moyen (-1 = inacceptable ; 0 = supportable ; 1 = convenable ; 2 = souhaitable)",
-                     show_vline = FALSE)
+                     show_vline = FALSE,
+                     x_breaks = c(-1, 0, 1, 2),
+                     x_labels = c("Inacceptable", "Supportable", "Convenable", "Souhaitable"))
 
-# Format A4 portrait (largeur 8.27")
-ggsave("../figures/notes_groupes_effect_program.pdf", p6_ep,  width = 8.27, height = 7)
-ggsave("../figures/notes_groupes_budget.pdf",         p6_bud, width = 8.27, height = 11)
+# Réduit (auparavant 8.27 × 7 / 8.27 × 11)
+ggsave("../figures/notes_groupes_effect_program.pdf", p6_ep,  width = 5.5, height = 5)
+ggsave("../figures/notes_groupes_budget.pdf",         p6_bud, width = 5.5, height = 7)
 cat("  → ../figures/notes_groupes_effect_program.pdf\n")
 cat("  → ../figures/notes_groupes_budget.pdf\n")
 
@@ -690,33 +715,99 @@ print(round(dist_mat / d_indiv_tot, 3))
 ## d(A, B) = E[|X_i − X_j|] avec i tiré (pondéré) dans A et j (indépendamment) dans B
 ## Pour chaque mesure : ∑_{a,b} p_A(a) p_B(b) |v_a − v_b|, puis somme sur mesures.
 ## Sur la diagonale : distance moyenne entre deux individus du même groupe.
+## NSP/NA : la distance entre une réponse NSP et toute autre réponse est définie
+## comme la distance moyenne (E|X_i − X_j| sur les paires non-NSP, échantillon complet)
+## plutôt que 0 — pour ne pas sous-estimer les distances entre groupes contenant
+## beaucoup de NSP.
 cat("\nMatrice de distances inter-individuelles (par paires de tirages A×B) :\n")
 score_list <- c(
   lapply(variables_effect_program, function(v) ep_score(e[[v]])),
   lapply(variables_budget,         function(v) bud_score(e[[v]]))
 )
-# Pré-calcul : pour chaque groupe × mesure, distribution pondérée (v, p)
-group_dist <- lapply(dist_groups, function(mask) {
-  lapply(score_list, function(x) {
-    ok <- mask & !is.na(x) & e$no_weight > 0
-    if (!any(ok)) return(list(v = numeric(0), p = numeric(0)))
+
+## Helper : matrice ng × ng des distances inter-individuelles à partir d'une
+## liste de scores (un vecteur de longueur n par variable). NSP (NA) contribue
+## la distance moyenne pour la mesure (et non 0).
+compute_pairwise_dist <- function(scores) {
+  # 1) Distance moyenne par mesure, sur les paires non-NSP de l'échantillon complet
+  mean_dist_v <- sapply(scores, function(x) {
+    ok <- !is.na(x) & e$no_weight > 0
+    if (sum(ok) < 2) return(0)
     xv <- x[ok]; wv <- e$no_weight[ok]
     tab <- tapply(wv, xv, sum)
-    list(v = as.numeric(names(tab)), p = as.numeric(tab) / sum(tab))
+    vs <- as.numeric(names(tab)); p <- as.numeric(tab) / sum(tab)
+    sum(outer(vs, vs, function(a, b) abs(a - b)) * outer(p, p))
   })
-})
-dist_mat_indiv <- matrix(0, ng, ng, dimnames = list(gnames, gnames))
-for (i in seq_len(ng)) for (j in seq(i, ng)) {
-  d <- 0
-  for (k in seq_along(score_list)) {
-    dA <- group_dist[[i]][[k]]; dB <- group_dist[[j]][[k]]
-    if (length(dA$v) == 0 || length(dB$v) == 0) next
-    d <- d + sum(outer(dA$v, dB$v, function(a, b) abs(a - b)) * outer(dA$p, dB$p))
+  # 2) Pour chaque groupe × mesure : distribution non-NSP (p somme à 1 − p_nsp)
+  #    et fraction NSP (p_nsp)
+  gd <- lapply(dist_groups, function(mask) {
+    lapply(scores, function(x) {
+      ok <- mask & e$no_weight > 0
+      tot_w <- sum(e$no_weight[ok])
+      if (tot_w == 0) return(list(v = numeric(0), p = numeric(0), p_nsp = 0))
+      nsp <- ok & is.na(x); non <- ok & !is.na(x)
+      p_nsp <- sum(e$no_weight[nsp]) / tot_w
+      if (!any(non)) return(list(v = numeric(0), p = numeric(0), p_nsp = p_nsp))
+      xv <- x[non]; wv <- e$no_weight[non]
+      tab <- tapply(wv, xv, sum)
+      list(v = as.numeric(names(tab)), p = as.numeric(tab) / tot_w, p_nsp = p_nsp)
+    })
+  })
+  m <- matrix(0, ng, ng, dimnames = list(gnames, gnames))
+  for (i in seq_len(ng)) for (j in seq(i, ng)) {
+    d <- 0
+    for (k in seq_along(scores)) {
+      dA <- gd[[i]][[k]]; dB <- gd[[j]][[k]]
+      cross <- if (length(dA$v) > 0 && length(dB$v) > 0) {
+        sum(outer(dA$v, dB$v, function(a, b) abs(a - b)) * outer(dA$p, dB$p))
+      } else 0
+      # P(au moins un NSP dans la paire) × distance moyenne pour la mesure
+      nsp_share <- dA$p_nsp + dB$p_nsp - dA$p_nsp * dB$p_nsp
+      d <- d + cross + nsp_share * mean_dist_v[k]
+    }
+    m[i, j] <- d
+    m[j, i] <- d
   }
-  dist_mat_indiv[i, j] <- d
-  dist_mat_indiv[j, i] <- d
+  m
 }
+
+dist_mat_indiv <- compute_pairwise_dist(score_list)
 print(round(dist_mat_indiv, 3))
+
+## ── (3b) Robustesse : effect_program recodé en −1/0/+1 ─────────────────────
+ep_score_recoded <- function(x) case_when(
+  x %in% c("Beaucoup plus favorable", "Plus favorable")  ~  1,
+  x == "Ne changerait rien"                              ~  0,
+  x %in% c("Moins favorable", "Beaucoup moins favorable") ~ -1,
+  TRUE ~ NA_real_
+)
+score_list_recoded <- c(
+  lapply(variables_effect_program, function(v) ep_score_recoded(e[[v]])),
+  lapply(variables_budget,         function(v) bud_score(e[[v]]))
+)
+dist_mat_indiv_recoded <- compute_pairwise_dist(score_list_recoded)
+cat("\nMatrice (effect_program recodé en −1/0/+1, robustesse) :\n")
+print(round(dist_mat_indiv_recoded, 3))
+
+## ── (3c) Robustesse : 15 attitudes les plus dispersées (cf. 4_analyse) ─────
+## Critère : variance / variance maximale = var(x) / ((max(x)−min(x))/2)²
+all_attitudes_vars <- c(variables_effect_program, variables_budget)
+norm_var_disp <- sapply(all_attitudes_vars, function(v) {
+  x <- as.numeric(e[[v]])
+  x <- x[!is.na(x)]
+  if (length(x) < 2) return(0)
+  rng <- range(x); mx <- ((rng[2] - rng[1]) / 2)^2
+  if (mx == 0) return(0)
+  var(x) / mx
+})
+top15_disp <- names(sort(norm_var_disp, decreasing = TRUE))[1:15]
+cat("\n15 attitudes les plus dispersées (variance / variance max) :\n")
+print(round(sort(norm_var_disp, decreasing = TRUE)[1:15], 3))
+top15_idx <- match(top15_disp, all_attitudes_vars)
+score_list_dispersees <- score_list[top15_idx]
+dist_mat_indiv_dispersees <- compute_pairwise_dist(score_list_dispersees)
+cat("\nMatrice (15 attitudes les plus dispersées, robustesse) :\n")
+print(round(dist_mat_indiv_dispersees, 3))
 
 ## ── Export des matrices en heatmaps (cellules d'autant plus sombres que d est faible) ──
 # Ordre d'affichage des lignes/colonnes dans les matrices
@@ -731,7 +822,9 @@ display_order <- c(
   "LR", "LR_RN_Reconquete"
 )
 
-plot_dist_heatmap <- function(mat, title, outfile) {
+plot_dist_heatmap <- function(mat, title, outfile,
+                              normalized = TRUE,
+                              fill_name  = if (normalized) "Écart vs\nintra-Ensemble" else "Distance") {
   # Réordonner selon display_order
   ord <- display_order[display_order %in% rownames(mat)]
   mat <- mat[ord, ord, drop = FALSE]
@@ -743,35 +836,49 @@ plot_dist_heatmap <- function(mat, title, outfile) {
   df$A <- factor(group_labels_fr[as.character(df$A)],    levels = rev(rn_fr))
   df$B <- factor(group_labels_short[as.character(df$B)], levels = cn_short)
   nr <- length(levels(df$A)); nc <- length(levels(df$B))
-  # Texte blanc quand la cellule est très foncée (|écart| élevé)
-  text_thresh <- max(abs(range(df$dist, na.rm = TRUE))) * 0.55
+  # Texte blanc quand la cellule est très foncée
+  text_thresh <- if (normalized) {
+    max(abs(range(df$dist, na.rm = TRUE))) * 0.55
+  } else {
+    max(df$dist, na.rm = TRUE) * 0.6
+  }
+  fill_dark <- if (normalized) abs(df$dist) > text_thresh else df$dist > text_thresh
+  legend_fmt <- if (normalized) function(x) sprintf("%+.0f%%", x) else function(x) sprintf("%.1f", x)
   p <- ggplot(df, aes(x = B, y = A, fill = dist)) +
     geom_tile(color = "white", linewidth = 0.3) +
     geom_text(aes(label = sprintf("%.1f", dist),
-                  color = abs(dist) > text_thresh),
+                  color = fill_dark),
               size = 1.9, show.legend = FALSE) +
-    scale_color_manual(values = c(`TRUE` = "white", `FALSE` = "black")) +
-    scale_fill_gradient2(low = "#2b6cb0", mid = "white", high = "#c53030",
-                         midpoint = 0, name = "Écart vs\nintra-Ensemble",
-                         labels = function(x) sprintf("%+.0f%%", x)) +
+    scale_color_manual(values = c(`TRUE` = "white", `FALSE` = "black"))
+  if (normalized) {
+    p <- p + scale_fill_gradient2(low = "#2b6cb0", mid = "white", high = "#c53030",
+                                  midpoint = 0, name = fill_name,
+                                  labels = legend_fmt)
+  } else {
+    p <- p + scale_fill_gradient(low = "white", high = "#c53030",
+                                 name = fill_name, labels = legend_fmt)
+  }
+  p <- p +
     coord_fixed(clip = "off") +
     labs(x = NULL, y = NULL, title = title) +
     theme_minimal(base_size = 8) +
     theme(
-      plot.title         = element_text(size = 9, hjust = 0,
+      plot.title         = element_text(size = 9, hjust = 0, color = "black",
                                          margin = margin(t = -32, b = 22, l = -55)),
-      axis.text.x.bottom = element_text(angle = 45, hjust = 1, vjust = 1, size = 6.5),
-      axis.text.y        = element_text(size = 6.5),
+      axis.text.x.bottom = element_text(angle = 45, hjust = 1, vjust = 1, size = 6.5, color = "black"),
+      axis.text.y        = element_text(size = 6.5, color = "black"),
       panel.grid         = element_blank(),
       legend.position    = "right",
       legend.key.height  = grid::unit(0.8, "cm"),
+      legend.text        = element_text(color = "black"),
+      legend.title       = element_text(color = "black"),
       plot.margin        = margin(t = 25, r = 5, b = 5, l = 5)
     ) +
     ggplot2::annotate("text",
              x = seq_len(nc),
              y = nr + 0.85,
              label = levels(df$B),
-             angle = 45, hjust = 0, vjust = 0.5, size = 2.1)
+             angle = 45, hjust = 0, vjust = 0.5, size = 2.1, color = "black")
   ggsave(outfile, p, width = 6.5, height = 5.5)
   cat("  →", outfile, "\n")
 }
@@ -795,6 +902,33 @@ plot_dist_heatmap(
   # "Distance inter-individuelle moyenne entre (et au sein des) groupes : écart vs. intra-Ensemble (en %)",
   NULL,
   "../figures/distance_matrix_pairwise.pdf"
+)
+
+## (4) Variante non normalisée de distance_matrix_means : ∑ |Δ moyennes| brut
+plot_dist_heatmap(
+  dist_mat,
+  # "Distance entre groupes (∑ |Δ moyennes|, valeurs brutes)",
+  NULL,
+  "../figures/distance_matrix_means_raw.pdf",
+  normalized = FALSE
+)
+
+## (3b) Robustesse — pairwise avec effect_program recodé en −1/0/+1
+ref_dist_recoded         <- dist_mat_indiv_recoded["Overall", "Overall"]
+dist_mat_indiv_recoded_norm <- (dist_mat_indiv_recoded / ref_dist_recoded - 1) * 100
+plot_dist_heatmap(
+  dist_mat_indiv_recoded_norm,
+  NULL,
+  "../figures/distance_matrix_pairwise_recoded.pdf"
+)
+
+## (3c) Robustesse — pairwise sur les 15 attitudes les plus dispersées
+ref_dist_disp                 <- dist_mat_indiv_dispersees["Overall", "Overall"]
+dist_mat_indiv_dispersees_norm <- (dist_mat_indiv_dispersees / ref_dist_disp - 1) * 100
+plot_dist_heatmap(
+  dist_mat_indiv_dispersees_norm,
+  NULL,
+  "../figures/distance_matrix_pairwise_dispersees.pdf"
 )
 
 cat("\nTerminé.\n")

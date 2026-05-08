@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{tgpagella}
 \usepackage{mathpazo}
+\usepackage[scaled=0.85]{beramono}
 \usepackage{microtype}
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{setspace}
@@ -18,20 +19,35 @@
 \usepackage{textcomp}
 \usepackage{lineno}
 \usepackage{bibunits}
+\usepackage{colortbl}
 \usepackage[round,authoryear,sort&compress]{natbib}
 \defaultbibliographystyle{plainnaturl_clean}
 \usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black,backref=true]{hyperref}
 
+\definecolor{cleft}{RGB}{248,118,109}
+\definecolor{ccdroit}{RGB}{97,156,255}
+\definecolor{cdroite}{RGB}{129,94,248}
+\definecolor{ced}{RGB}{160,32,240}
+\definecolor{cfrug}{RGB}{0,150,0}
+\definecolor{cdjc}{RGB}{155,160,115}
+\definecolor{mgt}{RGB}{240,80,155}
 % Limites de l'exercice : les répondants n'avaient pas le pour et contre des mesures. Prometteur : on pourrait demander à une convention citoyenne de plancher sur le sujet, ça permettrait de créer du consensus dans la population.
 % Tout parti doit être sérieux sur le budget s'il veut gagner.
 % Éliminer doublons: ptet pas 9 Mds (Ravignon dit 7.5), mais il faut ajouter d'autres mesures consensuelles de rationalisation des dépenses: baisse des prix des produits de santé 2.65,  Généralisation de la massification des achats et de la mutualisation des circuits entre les collectivités 3...
 % gel du point d'indice pendant 5 ans: 20.7 https://www.cfdt-ufetam.org/pas-de-hausse-du-point-dindice-ni-de-prime-gipa-pour-les-agents-publics-en-2025/
+% Gauche: anti-nativiste, pour État-providence
+% Frugaux: pour tout y.c. impôt indifférencié (exception programme 4)
+% Droite: contre taxes riches et État-providence
+% Extrême-droite: pour taxes riches et État-providence
+% budget 2 Gauche => Gauche-frugaux / Centre-gauche (Nativiste)
+% budget 3 Centre-droit => Frugaux
+% budget 4 Inversion Centre-droit / ED
 
 \title{Préférences budgétaires des Français :\\
 résultats d'une enquête représentative}
 \author{Adrien Fabre\thanks{CNRS; CIRED. Données, code et figures disponibles sur
 \url{https://github.com/bixiou/budget_26}.}}
-\date{Avril 2026}
+\date{\today}
 
 \begin{document}
 \maketitle
@@ -145,7 +161,7 @@ La figure~\ref{fig:budget} présente le soutien aux mesures budgétaires, class�
   \label{fig:budget}
 \end{figure}
 
-Les treize mesures \textit{convenables} pour une majorité sont avant tout des mesures de taxation des plus aisés (5 mesures totalisant 37,5~Mds d'économie), de gel ou rationalisation de la dépense publique (2 mesures pour 30,4~Mds), et de suppression des aides sociales aux étrangers (2 mesures pour 8~Mds). Le report de l'âge légal de départ à la retraite à 65 ans est \textit{inacceptable} pour 40\,\% des Français, tandis que les hausses d'impôts indiscriminées (TVA, CSG) ou  les baisses de niveaux de vie de retraités sont \textit{inacceptables} pour une majorité de concitoyens.
+Les treize mesures \textit{convenables} pour une majorité sont avant tout des mesures de taxation des plus aisés (5 mesures totalisant 37,5~Mds d'économie), de gel ou rationalisation de la dépense publique (2 mesures pour 30,4~Mds), et de suppression des aides sociales aux étrangers (2 mesures pour 8~Mds). Le report de l'âge légal de départ à la retraite à 65 ans est \textit{inacceptable} pour 40\,\% des Français, tandis que les hausses d'impôts indifférenciées (TVA, CSG) ou  les baisses de niveaux de vie de retraités sont \textit{inacceptables} pour une majorité de concitoyens.
 
 % À l'inverse, les mesures les plus rejetées sont le report de l'âge de départ à la retraite à 65~ans (rejeté par une large majorité sauf chez les électeurs de centre-droite), les hausses de TVA et de CSG d'un point (rejetées par environ 80\,\% des répondants).
 
@@ -261,27 +277,31 @@ La figure~\ref{fig:coalition_support_heatmap} présente pour chaque mesure le ta
 \label{sec:clusters}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Regroupement des répondants}
+\subsection{Partitionnement des répondants}
 
 Un clustering $k$-means appliqué à la matrice binaire de soutien identifie trois profils de répondants~: % TODO! méthodo
+% Frugaux vs. Nativistes: si le débat est dominé par l'immigration, les nativistes vont rallier la droite et gagner; 
+% si le RN délaisse la consolidation budgétaire, les frugaux peuvent rallier leur opposant et le faire gagner
+% si la gauche insiste sur la consolidation budgétaire, les frugaux peuvent rallier la gauche et la faire gagner
+% si la gauche insiste sur le droit des étrangers, les nativistes peuvent faire gagner la droite
 
 \begin{enumerate}
   \item \textbf{Sociaux-nativistes} (49\,\% des répondants)~: fort soutien aux mesures anti-immigration (retrait des aides aux étrangers, suppression de l'AME) combiné à un soutien modéré aux hausses de taxes sur les plus aisés. Ce profil hybride ne correspond à aucune offre partisane existante.
   
   \item \textbf{Progressistes} (31\,\%)~: fort soutien aux impôts sur la fortune (ISF, droits de succession), très faible soutien aux mesures anti-immigration. L'électorat de gauche est surreprésenté dans ce profil.
   
-  \item \textbf{Frugaux} (20\,\%)~: soutien fort aux mesures de rationalisation des dépenses publiques~; opposition aux hausses d'impôts indiscriminées (TVA, CSG)~; attitude ambivalente sur les mesures anti-immigration.
+  \item \textbf{Frugaux} (20\,\%)~: soutien fort aux mesures de rationalisation des dépenses publiques~; opposition aux hausses d'impôts indifférenciées (TVA, CSG)~; attitude ambivalente sur les mesures anti-immigration.
 \end{enumerate}
 
 La cohérence entre ces profils de répondants et le vote est notable~: les progressistes concentrent les électeurs de gauche, les sociaux-nativistes regroupent une partie de l'extrême droite et des non-votants, les frugaux attirent davantage le centre-droit. % TODO! chiffres
 
 
-\subsection{Regroupement des mesures}
+\subsection{Partitionnement des mesures}
 
 Trois types de mesures sont identifiés par un clustering analogue appliqué aux mesures (regroupées lorsqu'elles sont soutenues par les mêmes répondants)~:
 
 \begin{enumerate}
-  \item \textbf{Mesures impopulaires} (rendement cumulé~: 121~Mds€)~: hausses d'impôts indiscriminées, réduction des remboursements de soins. Ces mesures sont rejetées par la plupart des répondants.
+  \item \textbf{Mesures impopulaires} (rendement cumulé~: 121~Mds€)~: hausses d'impôts indifférenciées, réduction des remboursements de soins. Ces mesures sont rejetées par la plupart des répondants.
 
   \item \textbf{Mesures de droite} (64~Mds€)~: mesures anti-immigration, gel des aides sociales, report de l'âge de la retraite. Ces mesures sont généralement appréciées par les profils sociaux-nativistes et frugaux et rejetées par les progressistes.
 
@@ -297,10 +317,11 @@ une corrélation positive entre les différents impôts sur les plus aisés, et 
 \label{sec:progressistes}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-La Plateforme Progressiste est une initiative ayant pour objectif d'établir le programme d'un <<~arc progressiste [qui] ira de ceux qui disent non à un projet avec Les Républicains pour 2027, à ceux qui disent non à La France insoumise~>>\footnote{Source~: interview de Pascal Canfin dans \href{https://www.lemonde.fr/politique/article/2025/07/01/pascal-canfin-personne-parmi-les-progressistes-ne-pourra-gagner-seul-l-election-presidentielle_6617180_823448.html}{Le Monde}.}. Lors d'une conférence de consensus en ligne fin 2025, environ 150 sympathisants ont voté sur différentes mesures d'économies budgétaires. Les \href{https://laplateformeprogressiste.org/wp-content/uploads/2025/12/20251210_Resultats-par-mesure-1.pdf}{mesures soutenues} par une majorité de répondants totalisent 99,9~Mds d'économies, un montant proche des 97,9~Mds de mesures convenables dans notre échantillon. Les mesures soutenues par une majorité de \textit{progressistes} incluent la rationalisation des dépenses publiques, la fin des exonérations sectorielles de taxes sur les carburants, la taxation des plus aisés, et des mesures d'économies sur les retraités (notamment aisés). Les participants à cet exercice ont des préférences budgétaires proches de celles des électeurs PS~: contrairement aux électeurs de centre-droit, ils sont majoritairement défavorables au report de l'âge d'ouverture des droits à la retraite, et majoritairement favorables aux taxes écologiques. Contrairement à la majorité des Français, les \textit{progressistes} sont largement opposés à des mesures visant les étrangers, et plus favorables à des mesures appréciées dans la sphère institutionnelle et qui ont probablement été justifiées lors de la conférence de consensus, comme la diminution des aides à l'apprentissage ou la suppression de l'abattement fiscal pour frais professionnels des retraités. %réforme de l'hôpital. % TODO notes CAE
+La Plateforme Progressiste est une initiative ayant pour objectif d'établir le programme d'un <<~arc progressiste [qui] ira de ceux qui disent non à un projet avec Les Républicains pour 2027, à ceux qui disent non à La France insoumise~>>\footnote{Source~: interview de Pascal Canfin dans \href{https://www.lemonde.fr/politique/article/2025/07/01/pascal-canfin-personne-parmi-les-progressistes-ne-pourra-gagner-seul-l-election-presidentielle_6617180_823448.html}{Le Monde}.}. Lors d'une conférence de consensus en ligne fin 2025, environ 150 sympathisants ont voté sur différentes mesures d'économies budgétaires. Les \href{https://laplateformeprogressiste.org/wp-content/uploads/2025/12/20251210_Resultats-par-mesure-1.pdf}{mesures soutenues} par une majorité de répondants totalisent 99,9~Mds d'économies, un montant proche des 96,9~Mds de mesures convenables dans notre échantillon. Les mesures soutenues par une majorité de \textit{progressistes} incluent la rationalisation des dépenses publiques, la fin des exonérations sectorielles de taxes sur les carburants, la taxation des plus aisés, et des mesures d'économies sur les retraités (notamment aisés). Les participants à cet exercice ont des préférences budgétaires proches de celles des électeurs PS~: contrairement aux électeurs de centre-droit, ils sont majoritairement défavorables au report de l'âge d'ouverture des droits à la retraite, et majoritairement favorables aux taxes écologiques. Contrairement à la majorité des Français, les \textit{progressistes} sont largement opposés à des mesures visant les étrangers, et plus favorables à des mesures appréciées dans la sphère institutionnelle et qui ont probablement été justifiées lors de la conférence de consensus, comme la diminution des aides à l'apprentissage ou la suppression de l'abattement fiscal pour frais professionnels des retraités. %réforme de l'hôpital. % TODO notes CAE
 Cette comparaison illustre le rôle que peuvent jouer l'information et la délibération dans la formation des attitudes, même si elle pourrait être due à un biais de sélection des participants à la conférence de consensus.
 % des participants %à des exercices de démocratie délibérative en ligne sont 
 % plus politisés que l'électeur médian. 
+% TODO en quoi diffèrent-ils de la majorité des Français ?
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -316,6 +337,9 @@ Cette comparaison illustre le rôle que peuvent jouer l'information et la délib
 % Centre/Droite peuvent être avantagés par réputation de sérieux gestionnaire et de conscience des réalités économiques (puisque leurs mesures sont les plus favorables à la croissance), mais une majorité préférerait taxer les riches plutôt que la croissance (pb de montrer ça: le but ici est de réduire le déficit)
 % Soit être impopulaire, soit taxer les riches, soit laisser déraper la dette publique, et sûrement un peu des trois à la fois
 % Programmes des partis ne correspondent pas aux attitudes de leurs électeurs
+% Pour que la gauche gagne, elle doit porter peu de mesures (pour éviter des mesures impopulaires e.g. sur l'immigration ou baisse des dépenses militaires), insister sur la réduction du déficit et montrer qu'on ne peut le réduire sans taxer les riches
+% Pour que l'ED gagne, pareil: avoir un programme économique sérieux et soutenir la taxation des riches
+% Pour que le Centre gagne: accepter de taxer un peu les riches et éviter report de la retraite
 
 % Cette enquête apporte plusieurs enseignements.
 
@@ -339,8 +363,10 @@ Cette comparaison illustre le rôle que peuvent jouer l'information et la délib
 \appendix
 \renewcommand{\thefigure}{A\arabic{figure}}
 \setcounter{figure}{0}
+\renewcommand{\thetable}{A\arabic{table}}
+\setcounter{table}{0}
 
-\section{Figures supplémentaires}
+\section{Figures et tables supplémentaires}
 
 
 \begin{figure}[htbp]
@@ -377,5 +403,12 @@ Cette comparaison illustre le rôle que peuvent jouer l'information et la délib
   \label{fig:budget_correlations}
 \end{figure}
 
+
+\begin{table}[htbp]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\input{../tables/cluster_comparison.tex}
+\caption{Profils du partitionnement de répondants, par configuration (variables utilisées et nombre de profils). La description et la coloration des profils sont choisies à partir de leurs caractéristiques. Le \textit{bloc politique} code le vote réel ou hypothétique entre $-$1 (Gauche) et 1 (Extrême-droite). Le \textit{paquet soutenu} correspond aux économies réalisées par les mesures jugées \textit{convenables} ou \textit{souhaitables} par le répondant. Les mesures \texttt{budget} (hors mesures sectorielles) sont réparties en quatre catégories et les dernières colonnes rapportent le soutien moyen aux mesures de ces catégories, par profil. Pour chaque ensemble de variables utilisées, le gras indique le partitionnement le plus pertinent (celui avec la plus grande silhouette, score qui combine cohésion et séparation).}
+\label{tab:cluster_comparison}
+\end{table}
 
 \end{document}

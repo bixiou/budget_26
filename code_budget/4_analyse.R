@@ -110,17 +110,13 @@ representativeness_table(df = e, omit = c("Not 25-64", "Employment_18_64: Employ
 
 
 ##### Budget; Claude Code #####
-# Create numeric matrix of budget support
-budget_mat <- as.data.frame(sapply(variables_budget, function(v) e[[v]]))
-budget_mat[budget_mat == -.1] <- NA
-
-
 # Also create binary: accept = Souhaitable or Convenable
 budget_accept <- sapply(variables_budget, function(v) {
   ifelse(e[[v]] %in% c("Souhaitable", "Convenable"), 1,
          ifelse(e[[v]] %in% c("Supportable", "Inacceptable"), 0, NA))
 })
 budget_accept <- as.data.frame(budget_accept)
+program_favorable <- as.data.frame(sapply(variables_effect_program, function(v) {  e[[v]] > 0  }))
 
 ##### 1. Weighted means of budget support by sociodem #####
 cat("\n=== Weighted mean support (conv+souh) by vote_factor ===\n")
@@ -371,18 +367,21 @@ for (det in list("no.na(vote_agg)", "vote_original", "education_original", deter
 cat("\n=== K-means clustering of respondents (k selected by silhouette) ===\n")
 # Cluster on the Likert scores (Inacceptable=-1, Supportable=0, Convenable=1, Souhaitable=2).
 # Impute NAs (Ne sais pas) with the column mean so all respondents are kept.
-budget_mat_imputed <- budget_mat
-for (v in names(budget_mat_imputed)) {
-  col_mean <- mean(budget_mat_imputed[[v]], na.rm = TRUE)
-  budget_mat_imputed[[v]][is.na(budget_mat_imputed[[v]])] <- col_mean
+# Create numeric matrix of budget support
+attitudes_binary <- c(budget_accept, program_favorable) # program_favorable # budget_accept # c(budget_accept, program_favorable)
+mat_imputed <- as.data.frame(sapply(c(variables_budget, variables_effect_program), function(v) e[[v]])) # c(variables_budget, variables_effect_program) variables_budget variables_effect_program
+mat_imputed[mat_imputed == -.1] <- NA
+for (v in names(mat_imputed)) {
+  col_mean <- mean(mat_imputed[[v]], na.rm = TRUE)
+  mat_imputed[[v]][is.na(mat_imputed[[v]])] <- col_mean
 }
 
 # Pick k by maximizing mean silhouette width over k = 2..10.
-d_eucl <- dist(budget_mat_imputed)
+d_eucl <- dist(mat_imputed)
 k_range <- 2:10
 sil_width <- sapply(k_range, function(k) {
   set.seed(42)
-  km_k <- kmeans(budget_mat_imputed, centers = k, nstart = 20)
+  km_k <- kmeans(mat_imputed, centers = k, nstart = 20)
   mean(silhouette(km_k$cluster, d_eucl)[, 3])
 })
 names(sil_width) <- k_range
@@ -391,8 +390,9 @@ print(round(sil_width, 3))
 k_opt <- as.integer(names(sil_width)[which.max(sil_width)])
 cat(sprintf("Optimal k = %d (silhouette = %.3f)\n", k_opt, max(sil_width)))
 
+k_opt <- 3
 set.seed(42)
-km <- kmeans(budget_mat_imputed, centers = k_opt, nstart = 20)
+km <- kmeans(mat_imputed, centers = k_opt, nstart = 20)
 e$cluster <- factor(km$cluster)
 label(e$cluster) <- "cluster: k-means cluster on budget Likert scores (NAs imputed by column mean; k by silhouette)."
 cat("Cluster sizes:", table(km$cluster), "\n")
@@ -412,11 +412,488 @@ print(round(cluster_by_vote * 100, 1))
 
 # Mean support (binary conv+souh) by cluster, on observed values only
 cat("\nMean support by cluster:\n")
-cluster_means <- aggregate(budget_accept, by = list(cluster = km$cluster), FUN = mean, na.rm = TRUE)
+cluster_means <- aggregate(attitudes_binary, by = list(cluster = km$cluster), FUN = mean, na.rm = TRUE)
 print(round(cluster_means, 2))
+
+
+##### 3d. Programmes à majorité conjointe (SCS ≥50%) par cluster k-means #####
+{
+  mat_scs <- as.data.frame(sapply(variables_budget, function(v) {
+    x <- e[[v]]
+    ifelse(x %in% c("Souhaitable", "Convenable", "Supportable"), 1L,
+           ifelse(x == "Inacceptable", 0L, NA_integer_))
+  }))
+  vars_b  <- variables_budget
+  m_b     <- length(vars_b)
+  short_b <- sub("budget_", "", vars_b)
+  amt_b   <- budget_policies$amount[match(vars_b, budget_policies$variable_name)]
+
+  js_cl <- function(cols, wgt) {
+    sub   <- mat_scs[, cols, drop = FALSE]
+    zeros <- rowSums(sub == 0L, na.rm = TRUE)
+    weighted.mean(as.integer(zeros == 0L), wgt, na.rm = TRUE)
+  }
+
+  apriori_cl <- function(wgt, threshold = 0.5, label = "") {
+    ind_s <- sapply(seq_len(m_b), function(i) js_cl(i, wgt))
+    freq  <- which(ind_s > threshold)
+    cat(sprintf("[Cluster %s] %d mesures fréquentes (>%.0f%%)\n", label, length(freq), threshold * 100))
+    if (!length(freq)) return(list())
+    feas_k   <- as.list(seq_len(length(freq)))
+    all_feas <- lapply(feas_k, function(i) freq[i])
+    k <- 1L
+    repeat {
+      k <- k + 1L
+      if (length(feas_k) < 2) break
+      nfp   <- length(feas_k)
+      cands <- list()
+      for (i in seq_len(nfp - 1L))
+        for (j in seq(i + 1L, nfp)) {
+          s1 <- feas_k[[i]]; s2 <- feas_k[[j]]
+          if (k >= 3 && !identical(s1[-length(s1)], s2[-length(s2)])) next
+          cands[[length(cands) + 1L]] <- c(s1, s2[length(s2)])
+        }
+      if (!length(cands)) break
+      feas_k <- list()
+      for (cand in cands) {
+        sv <- js_cl(freq[cand], wgt)
+        if (!is.na(sv) && sv > threshold) {
+          feas_k[[length(feas_k) + 1L]] <- cand
+          all_feas[[length(all_feas) + 1L]] <- freq[cand]
+        }
+      }
+      cat(sprintf("  k=%d: %d faisables\n", k, length(feas_k)))
+      if (!length(feas_k)) break
+    }
+    all_feas
+  }
+
+  cat("\n=== Programmes à majorité conjointe (SCS ≥50%) par cluster k-means ===\n")
+  pkg_cluster <- list()
+  for (cl in levels(e$cluster)) {
+    wgt_cl <- ifelse(!is.na(e$cluster) & e$cluster == cl, e$no_weight, 0)
+    feas   <- apriori_cl(wgt_cl, label = cl)
+    if (!length(feas)) { cat(sprintf("Cluster %s: aucun paquet faisable.\n", cl)); next }
+    amts   <- sapply(feas, function(p) sum(amt_b[p], na.rm = TRUE))
+    js_all <- sapply(feas, function(p) js_cl(p, wgt_cl))
+    best_s <- feas[[which.max(amts)]]
+    best_a <- feas[[which.max(js_all)]]
+    cat(sprintf("\nCluster %s (%d paquets faisables):\n", cl, length(feas)))
+    cat(sprintf("  [Max économies] %d mesures | %.1f Mds€ | soutien %.1f%%\n    %s\n",
+                length(best_s), sum(amt_b[best_s], na.rm = TRUE),
+                js_cl(best_s, wgt_cl) * 100, paste(short_b[best_s], collapse = " + ")))
+    cat(sprintf("  [Max soutien]   %d mesures | %.1f Mds€ | soutien %.1f%%\n    %s\n",
+                length(best_a), sum(amt_b[best_a], na.rm = TRUE),
+                js_cl(best_a, wgt_cl) * 100, paste(short_b[best_a], collapse = " + ")))
+    cat("  Top 10 paquets (économie décroissante):\n")
+    for (idx in order(amts, decreasing = TRUE)[seq_len(min(10, length(feas)))]) {
+      cat(sprintf("    %.1f Mds€ | %.1f%% | %s\n",
+                  amts[idx], js_all[idx] * 100, paste(short_b[feas[[idx]]], collapse = " + ")))
+    }
+    pkg_cluster[[cl]] <- best_s
+  }
+}
+
+
+##### 3e. Figure: attitudes_binary les plus polarisées par cluster #####
+{
+  spread_cl <- apply(cluster_means[, -1], 2, function(x) diff(range(x, na.rm = TRUE)))
+  top15_cl  <- names(sort(spread_cl, decreasing = TRUE))[1:15]
+  cat("\nTop 15 attitudes_binary les plus polarisées (écart max−min entre clusters):\n")
+  print(round(sort(spread_cl, decreasing = TRUE)[1:15], 3))
+
+  lbl_ep_loc <- if (exists("labels_effect_program_fr")) labels_effect_program_fr else character(0)
+  label_ep   <- function(v) {
+    key <- sub("^effect_program_", "", v)
+    if (length(lbl_ep_loc) && key %in% names(lbl_ep_loc)) unname(lbl_ep_loc[key])
+    else gsub("_", " ", key)
+  }
+
+  cl_names  <- setNames(paste("Cluster", levels(e$cluster)), levels(e$cluster))
+  cl_colors <- c("Cluster 1" = "#F8766D", "Cluster 2" = "#7CAE00",
+                 "Cluster 3" = "#00BFC4", "Cluster 4" = "#C77CFF")
+
+  df_pol <- do.call(rbind, lapply(top15_cl, function(v) {
+    vname <- label_ep(v)
+    do.call(rbind, lapply(levels(e$cluster), function(cl) {
+      mask <- !is.na(e$cluster) & e$cluster == cl
+      vals <- as.numeric(attitudes_binary[[v]])[mask]
+      w    <- e$no_weight[mask]
+      ok   <- !is.na(vals) & w > 0
+      data.frame(measure = vname, cluster = cl_names[cl],
+                 mean = if (any(ok)) weighted.mean(vals[ok], w[ok]) else NA_real_,
+                 stringsAsFactors = FALSE, row.names = NULL)
+    }))
+  }))
+
+  overall_mu <- colMeans(as.data.frame(lapply(attitudes_binary[top15_cl], as.numeric)), na.rm = TRUE)
+  lbl_order  <- sapply(top15_cl[order(overall_mu)], label_ep)
+  df_pol$measure <- factor(df_pol$measure, levels = lbl_order)
+  df_pol$cluster <- factor(df_pol$cluster, levels = unname(cl_names))
+
+  n_pol    <- length(top15_cl)
+  minor_yp <- seq(0.5, n_pol - 0.5, by = 1)
+
+  p_pol <- ggplot(df_pol, aes(y = measure, x = mean, color = cluster, group = cluster)) +
+    geom_hline(yintercept = minor_yp, color = "grey85", linewidth = 0.3) +
+    geom_point(size = 2.1, position = position_dodge(width = 0.7)) +
+    scale_color_manual(values = cl_colors, drop = FALSE) +
+    scale_x_continuous(labels = function(x) paste0(round(x * 100), "%"), limits = c(0, 1)) +
+    labs(y = NULL, x = NULL, color = "Cluster") +
+    theme_bw(base_size = 10) +
+    theme(
+      legend.position      = "top",
+      legend.justification = c(1, 0),
+      panel.grid.major.y   = element_blank(),
+      panel.grid.minor.y   = element_blank(),
+      panel.grid.major.x   = element_line(color = "grey90", linewidth = 0.3),
+      axis.text            = element_text(color = "black"),
+      legend.text          = element_text(color = "black"),
+      legend.title         = element_text(color = "black"),
+      plot.margin          = margin(t = 5, r = 18, b = 5, l = 5)
+    ) +
+    scale_y_discrete(expand = expansion(add = 0.5))
+
+  ggsave("../figures/notes_groupes_cluster_polarises.pdf", p_pol,
+         width = 5.5, height = 5, device = cairo_pdf)
+  cat("→ ../figures/notes_groupes_cluster_polarises.pdf\n")
+}
 
 cat("\nMean sum_convenable (G€) by cluster:\n")
 print(round(tapply(e$sum_convenable, km$cluster, mean, na.rm = TRUE), 2))
+print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
+
+# Clusters k-means
+# attitudes_binary, k=2: 58% right (with ~45% for taxing the rich) vs. 42% left, similar sum_; most polarizing: immigration, green deal; best silhouette
+# attitudes_binary, k=3: 27% left, 34% center-right (~50% taxing the rich, against SMIC rise), 39% far right (>50% taxing the rich), center-right highest sum_
+# attitudes_binary, k=4: 19% center-right (seuls vmt contre réduire militaire), 35% far right, 23% left, 23% frugal
+# budget, k=2: 47% right, 54% left-frugal
+# budget, k=3: 21% frugal, 48% right, 31% left; best silhouette (slightly)
+# budget, k=4: 21% left, 37% far right, 25% right (contre taxes riches), 18% frugal
+# program, k=2: 57% right, 43% left; best silhouette (slightly)
+# program, k=3: 26% right, 37% far right, 37% left
+# => Quand on sépare en deux, on a une majorité plutôt à gauche sur le budget mais à droite sur le programme, donnant une majorité à droite avec forte minorité pour taxer les riches quand on combine
+# => Quand on sépare en trois, on sépare la gauche en frugal et gauche pour le budget, et la droite en centre vs. extrême pour le total; pour le total c'est la combinaison où frugal ~ center-right
+# => (Quand on sépare en quatre, on a les 4 catégories, avec far right plus gros, et right + far right > left + frugal)
+
+
+##### 3f. Cluster comparison table (budget / effect_program / both × k=2,3,4) #####
+{
+  bud_num <- function(v) case_when(
+    e[[v]] == "Souhaitable"              ~  2, e[[v]] == "Convenable"             ~  1,
+    e[[v]] == "Supportable"             ~  0, e[[v]] == "Inacceptable"            ~ -1,
+    TRUE ~ NA_real_)
+  ep_num  <- function(v) case_when(
+    e[[v]] == "Beaucoup plus favorable"  ~  2, e[[v]] == "Plus favorable"         ~  1,
+    e[[v]] == "Ne changerait rien"      ~  0, e[[v]] == "Moins favorable"         ~ -1,
+    e[[v]] == "Beaucoup moins favorable" ~ -2, TRUE ~ NA_real_)
+
+  impute_col_means <- function(df) {
+    for (v in names(df)) df[[v]][is.na(df[[v]])] <- mean(df[[v]], na.rm = TRUE)
+    df
+  }
+
+  mat_b    <- impute_col_means(as.data.frame(sapply(variables_budget,         bud_num)))
+  mat_e    <- impute_col_means(as.data.frame(sapply(variables_effect_program, ep_num)))
+  mat_both <- cbind(mat_b, mat_e)
+  mats     <- list(budget = mat_b, effect_program = mat_e, both = mat_both)
+
+  # Leaning: -1=hurt rich, 0=cost everyone, 0.5=sectoral, 1=shrink welfare state, 2=hurt foreigners
+  leaning_b <- setNames(
+    budget_policies$leaning[match(variables_budget, budget_policies$variable_name)],
+    variables_budget)
+  lean_vals   <- sort(unique(leaning_b[!is.na(leaning_b)]))
+  lean_nms    <- paste0("lean", lean_vals)
+  lean_nms_df <- make.names(lean_nms)  # R sanitises "-" → "." in data.frame col names
+
+  sil_scores <- list()
+  rows <- list()
+  for (vs in names(mats)) {
+    for (k in 2:4) {
+      set.seed(42)
+      km_tmp <- kmeans(mats[[vs]], centers = k, nstart = 20)
+      cl_vec <- km_tmp$cluster
+      n_tot  <- length(cl_vec)
+      sil_scores[[paste0(vs, "_", k)]] <- mean(cluster::silhouette(cl_vec, dist(mats[[vs]]))[, 3])
+
+      for (j in seq_len(k)) {
+        mask <- cl_vec == j
+        lean_means <- setNames(vapply(lean_vals, function(lv) {
+          vars_lv <- names(leaning_b)[!is.na(leaning_b) & leaning_b == lv]
+          if (!length(vars_lv)) return(NA_real_)
+          round(100*mean(rowMeans(budget_accept[mask, vars_lv, drop = FALSE], na.rm = TRUE), na.rm = TRUE))
+        }, numeric(1)), lean_nms)
+
+        rows[[length(rows) + 1]] <- cbind(
+          data.frame(
+            vars_set = vs, k = k, cluster = j,
+            n_pct    = round(sum(mask) / n_tot * 100, 0),
+            vote_agg = round(mean(as.numeric(e$vote_agg)[mask], na.rm = TRUE), 2) - 1,
+            sum_conv = round(mean(e$sum_convenable[mask], na.rm = TRUE), 0),
+            stringsAsFactors = FALSE),
+          as.data.frame(as.list(round(lean_means, 2))))
+      }
+    }
+  }
+
+  tbl_long <- do.call(rbind, rows)
+  rownames(tbl_long) <- NULL
+  best_k <- setNames(vapply(names(mats), function(vs) {
+    which.max(sapply(2:4, function(k) sil_scores[[paste0(vs, "_", k)]])) + 1L
+  }, integer(1)), names(mats))
+  best_global     <- names(which.max(unlist(sil_scores)))
+  best_global_vs  <- sub("_[0-9]+$", "", best_global)
+  best_global_k   <- as.integer(sub(".*_", "", best_global))
+  cat("best_k:", paste(names(best_k), best_k, sep="=", collapse=", "),
+      "| best_global:", best_global, "\n")
+  write.csv(tbl_long, "../tables/cluster_comparison.csv", row.names = FALSE)
+  cat("→ ../tables/cluster_comparison.csv\n")
+
+  # --- Post-process: sort, trim columns, assign labels, export LaTeX ---
+
+  # Ensemble row: stats for all respondents combined
+  lean_all_ens <- setNames(vapply(lean_vals, function(lv) {
+    vars_lv <- names(leaning_b)[!is.na(leaning_b) & leaning_b == lv]
+    if (!length(vars_lv)) return(NA_real_)
+    round(100 * mean(rowMeans(budget_accept[, vars_lv, drop = FALSE], na.rm = TRUE), na.rm = TRUE))
+  }, numeric(1)), lean_nms)
+  row_ens <- cbind(
+    data.frame(vars_set = "all", k = NA_integer_, cluster = 0L,
+               n_pct = 100, vote_agg = round(mean(as.numeric(e$vote_agg), na.rm = TRUE), 2) - 1,
+               sum_conv = round(mean(e$sum_convenable, na.rm = TRUE), 0),
+               stringsAsFactors = FALSE),
+    as.data.frame(as.list(lean_all_ens)))
+
+  # Sort within (vars_set, k) by vote_agg; prepend Ensemble row
+  tbl_tex <- tbl_long[order(tbl_long$vars_set, tbl_long$k, tbl_long$vote_agg), ]
+  tbl_tex <- rbind(row_ens, tbl_tex)
+  rownames(tbl_tex) <- NULL
+
+  # Drop lean0.5; reorder lean columns: lean.1, lean1, lean2 | lean0 last
+  lean_ord <- lean_nms_df[lean_vals != 0.5]
+  lean_ord <- c(lean_ord[lean_ord != "lean0"], "lean0")
+  tbl_tex  <- tbl_tex[, c("vars_set","k","cluster","n_pct","vote_agg","sum_conv", lean_ord)]
+
+  # Assign cluster descriptions and row colors based on lean scores (threshold: 50%)
+  col_map <- c(Progressistes         = "cleft",
+               Sociaux               = "mgt",
+               "Libéraux-frugaux"     = "cdjc",
+               Centre                = "cdjc",
+               "Libéraux-nativistes" = "ccdroit",
+               Conservateurs         = "cdroite",
+               Nativistes            = "cdroite",
+               "Sociaux-nativistes"  = "ced",
+               Frugaux               = "cfrug"
+               )
+
+  b <- function(x) isTRUE(x > 50)   # TRUE iff x > 50 and not NA
+  assign_label <- function(r) {
+    l1 <- r[["lean.1"]]; ls <- r[["lean1"]]; ln <- r[["lean2"]]; l0 <- r[["lean0"]]
+    sc <- r[["sum_conv"]]
+    if      ( b(l1) &&  b(ls) &&  b(ln) &&  b(l0))                           "Frugaux"
+    else if  ( b(l1) &&  b(ls) &&  b(ln) && !b(l0) && isTRUE(sc > 100))      "Libéraux-frugaux"
+    else if  ( b(l1) &&  b(ls) &&  b(ln) && !b(l0))                          "Nativistes"
+    else if  ( b(l1) && !b(ls) && !b(ln) && !b(l0))                          "Progressistes"
+    else if  ( b(l1) && !b(ls) &&  b(ln) && !b(l0) && isTRUE(ln < 60))       "Sociaux"
+    else if  ( b(l1) && !b(ls) &&  b(ln) && !b(l0))                          "Sociaux-nativistes"
+    else if  (!b(l1) && (l1>30) && b(ln) && !b(l0) && sc < 100)              "Conservateurs" 
+    else if  (!b(l1) &&            b(ln) && !b(l0))                          "Libéraux-nativistes"
+    else "Centre"
+  }
+
+  tbl_tex$desc  <- ""
+  tbl_tex$color <- ""
+  tbl_tex$desc[tbl_tex$vars_set == "all"] <- "Ensemble"
+
+  non_ens <- which(tbl_tex$vars_set != "all")
+  for (i in non_ens) {
+    lbl <- assign_label(tbl_tex[i, ])
+    tbl_tex$desc[i]  <- lbl
+    tbl_tex$color[i] <- col_map[lbl]
+  }
+
+  # Place Sociaux-nativistes immediately after Libéraux-nativistes within each (vars_set, k)
+  ens_row  <- tbl_tex[tbl_tex$vars_set == "all", , drop = FALSE]
+  body     <- tbl_tex[tbl_tex$vars_set != "all", , drop = FALSE]
+  grp_keys <- unique(body[, c("vars_set", "k")])
+  new_body <- body[0, ]
+  for (gi in seq_len(nrow(grp_keys))) {
+    sub <- body[body$vars_set == grp_keys$vars_set[gi] & body$k == grp_keys$k[gi], ]
+    sn  <- which(sub$desc == "Sociaux-nativistes")
+    ln  <- which(sub$desc == "Libéraux-nativistes")
+    if (length(sn) == 1 && length(ln) == 1 && sn < ln) {
+      rest <- setdiff(seq_len(nrow(sub)), sn)
+      ln2  <- which(rest == ln)
+      ord  <- c(rest[seq_len(ln2)], sn,
+                if (ln2 < length(rest)) rest[(ln2 + 1):length(rest)] else integer(0))
+      sub  <- sub[ord, ]
+    }
+    new_body <- rbind(new_body, sub)
+  }
+  tbl_tex <- rbind(ens_row, new_body)
+  rownames(tbl_tex) <- NULL
+
+  # LaTeX helpers
+  vs_lbl <- c(budget         = "\\texttt{budget} (30)",
+              effect_program = "\\texttt{programme} (19)",
+              both           = "Toutes (49)",
+              all            = "")
+  neg  <- function(s) sub("^-", "$-$", s)
+  fmt0 <- function(x) if (is.na(x) || !is.finite(x)) "" else neg(sprintf("%.0f", x))
+  fmt1 <- function(x) if (is.na(x) || !is.finite(x)) "" else paste0(neg(sprintf("%.1f", x)), "\\hspace{1em}")
+
+  to_row <- function(r, show_vs, bold_k = FALSE, bold_vs = FALSE) {
+    cc <- if (nchar(r$color) > 0) sprintf("\\cellcolor{%s!15}", r$color) else ""
+    cells <- c(
+      if (show_vs) {
+        lbl <- unname(vs_lbl[r$vars_set])
+        if (bold_vs) paste0("{\\bfseries ", lbl, "}") else lbl
+      } else "",
+      if (show_vs && !is.na(r$k)) {
+        k_s <- as.character(r$k)
+        if (bold_k) paste0("\\textbf{", k_s, "}") else k_s
+      } else "",
+      paste0(cc, r$desc), paste0(cc, fmt0(r$n_pct)), paste0(cc, fmt1(r$vote_agg)),
+      paste0(cc, fmt0(r$sum_conv)),
+      paste0(cc, fmt0(r[["lean.1"]])), paste0(cc, fmt0(r[["lean1"]])),
+      paste0(cc, fmt0(r[["lean2"]])),  paste0(cc, fmt0(r[["lean0"]])))
+    paste0(paste(cells, collapse = " & "), " \\\\")
+  }
+
+  # Group order: budget, effect_program, both (then by k)
+  vs_order <- c("budget", "effect_program", "both")
+  grps <- unique(tbl_tex[!is.na(tbl_tex$k), c("vars_set","k"), drop = FALSE])
+  grps$ord <- match(grps$vars_set, vs_order)
+  grps <- grps[order(grps$ord, grps$k), ]
+  grps <- grps[!(grps$vars_set == "effect_program" & grps$k == 4), ]  # programme k=4 excluded
+
+  hdr_top <- paste0("& & & & & & \\multicolumn{4}{c}",
+                    "{Soutien moyen (\\% de convenable + souhaitable)} \\\\")
+  hdr_col <- paste(
+    "\\makecell[l]{Variables\\\\utilisées\\\\(leur nombre)}",
+    "\\makecell{Nombre\\\\de\\\\profils}",
+    "\\makecell[l]{Description\\\\du profil}",
+    "\\makecell{Taille\\\\du\\\\profil\\\\(\\%)}",
+    "\\makecell{Bloc\\\\politique\\\\moyen}",
+    "\\makecell{Moyenne\\\\du paquet\\\\soutenu\\\\(Mds~€)}",
+    "\\makecell{Impôt\\\\sur les\\\\riches}",
+    "\\makecell{Réduit\\\\l'État-\\\\providence}",
+    "\\makecell{Nativiste}",
+    "\\makecell{Impôt\\\\indifférencié}",
+    sep = " & ")
+  hdr_col <- paste0(hdr_col, " \\\\")
+
+  tex <- c(
+    "\\noindent\\makebox[\\textwidth][c]{%",
+    "\\begin{tabular}{lclcrccccc}",
+    "\\toprule",
+    hdr_top,
+    "\\cmidrule(lr){7-10}",
+    hdr_col,
+    "\\midrule"
+  )
+
+  # Ensemble row (no vars_set / k shown)
+  r_ens <- tbl_tex[tbl_tex$vars_set == "all", ]
+  tex   <- c(tex, to_row(r_ens, show_vs = FALSE), "\\midrule")
+
+  # Clustering rows; \midrule between groups
+  for (gi in seq_len(nrow(grps))) {
+    vs_g <- as.character(grps$vars_set[gi]); k_g <- as.integer(grps$k[gi])
+    idx  <- which(tbl_tex$vars_set == vs_g & !is.na(tbl_tex$k) & tbl_tex$k == k_g)
+    bk   <- isTRUE(k_g == as.integer(best_k[[vs_g]]))
+    for (ri in seq_along(idx))
+      tex <- c(tex, to_row(tbl_tex[idx[ri], ], show_vs = (ri == 1),
+                           bold_k = bk, bold_vs = bk))
+    if (gi < nrow(grps)) tex <- c(tex, "\\midrule")
+  }
+
+  tex <- c(tex,
+    "\\bottomrule",
+    "\\end{tabular}}")
+
+  writeLines(tex, "../tables/cluster_comparison.tex")
+  cat("→ ../tables/cluster_comparison.tex\n")
+
+  # --- Overlap analysis: budget k=2/3/4 ---
+  cat("\n=== Budget cluster overlap (k=2/3/4) ===\n")
+  set.seed(42); km_b2 <- kmeans(mat_b, centers = 2, nstart = 20)
+  set.seed(42); km_b3 <- kmeans(mat_b, centers = 3, nstart = 20)
+  set.seed(42); km_b4 <- kmeans(mat_b, centers = 4, nstart = 20)
+
+  leans_for_cl <- function(km, j) {
+    mask <- km$cluster == j
+    v <- setNames(c(
+      vapply(lean_vals, function(lv) {
+        vv <- names(leaning_b)[!is.na(leaning_b) & leaning_b == lv]
+        if (!length(vv)) return(NA_real_)
+        100 * mean(rowMeans(budget_accept[mask, vv, drop=FALSE], na.rm=TRUE), na.rm=TRUE)
+      }, numeric(1)),
+      mean(e$sum_convenable[mask], na.rm=TRUE)
+    ), c(lean_nms_df, "sum_conv"))
+    as.list(v)
+  }
+
+  lbls_b2 <- sapply(1:2, function(j) assign_label(leans_for_cl(km_b2, j)))
+  lbls_b3 <- sapply(1:3, function(j) assign_label(leans_for_cl(km_b3, j)))
+  lbls_b4 <- sapply(1:4, function(j) assign_label(leans_for_cl(km_b4, j)))
+  cat("budget k=2:", paste(1:2, lbls_b2, sep="=", collapse=", "), "\n")
+  cat("budget k=3:", paste(1:3, lbls_b3, sep="=", collapse=", "), "\n")
+  cat("budget k=4:", paste(1:4, lbls_b4, sep="=", collapse=", "), "\n")
+
+  j_ln2 <- which(lbls_b2 == "Libéraux-nativistes")
+  j_co3 <- which(lbls_b3 == "Conservateurs")
+  j_ln3 <- which(lbls_b3 == "Libéraux-nativistes")
+  j_sn4 <- which(lbls_b4 == "Sociaux-nativistes")
+  j_ln4 <- which(lbls_b4 == "Libéraux-nativistes")
+
+  if (length(j_ln2) && length(j_co3)) {
+    m2 <- km_b2$cluster == j_ln2; m3 <- km_b3$cluster == j_co3
+    cat(sprintf("LN(k=2) ∩ Conservateurs(k=3): %d / %d LN (%.0f%%) / %d Co (%.0f%%)\n",
+                sum(m2 & m3), sum(m2), 100*mean(m3[m2]), sum(m3), 100*mean(m2[m3])))
+  } else {
+    cat("Libéraux-nativistes ou Conservateurs absents dans la config demandée.\n")
+    cat("  k=2 labels:", paste(lbls_b2, collapse=", "),
+        "| k=3 labels:", paste(lbls_b3, collapse=", "), "\n")
+  }
+
+  if (length(j_ln4)) {
+    m4   <- km_b4$cluster == j_ln4
+    dist2 <- table(km_b2$cluster[m4])
+    cat("Libéraux-nativistes (budget k=4) → budget k=2:\n")
+    for (j in names(dist2))
+      cat(sprintf("  k=2 cl%s (%s): %d (%.0f%%)\n",
+                  j, lbls_b2[as.integer(j)], dist2[[j]], 100*dist2[[j]]/sum(dist2)))
+  } else {
+    cat("Libéraux-nativistes absents dans budget k=4.\n")
+    cat("  k=4 labels:", paste(lbls_b4, collapse=", "), "\n")
+  }
+
+  if (length(j_ln3)) {
+    m3ln <- km_b3$cluster == j_ln3
+    dist4 <- table(km_b4$cluster[m3ln])
+    cat("Libéraux-nativistes (budget k=3) → budget k=4:\n")
+    for (j in names(dist4))
+      cat(sprintf("  k=4 cl%s (%s): %d (%.0f%%)\n",
+                  j, lbls_b4[as.integer(j)], dist4[[j]], 100*dist4[[j]]/sum(dist4)))
+  } else {
+    cat("Libéraux-nativistes absents dans budget k=3.\n")
+    cat("  k=3 labels:", paste(lbls_b3, collapse=", "), "\n")
+  }
+
+  # Console summary
+  cat("\n=== Cluster comparison (post-processed) ===\n")
+  cat(sprintf("%-20s  k  %-22s  n%%  sumG  lean.-1  lean1  lean2  lean0\n", "vars_set", "desc"))
+  for (i in seq_len(nrow(tbl_tex))) {
+    r    <- tbl_tex[i, ]
+    k_s  <- if (is.na(r$k)) " " else as.character(r$k)
+    line <- sprintf("%-20s  %s  %-22s  %3.0f  %4.0f  %7.0f  %5.0f  %5.0f  %5.0f",
+                    r$vars_set, k_s, r$desc, r$n_pct, r$sum_conv,
+                    r[["lean.1"]], r[["lean1"]], r[["lean2"]], r[["lean0"]])
+    cat(line, "\n")
+  }
+}
+
 
 ##### 3b. Alternative clustering: Ward hierarchical on an ordinal+NSP distance #####
 # Cluster (n=40) of PNR, cluster of right (74%, incl. 7% très frugaux) and left (22%)
@@ -489,8 +966,9 @@ print(round(cluster_means_h, 2))
 cat("\nMean sum_convenable (G€) by hierarchical cluster:\n")
 print(round(tapply(e$sum_convenable, cluster_h_int, mean, na.rm = TRUE), 2))
 
+
 ##### 3c. Clustering of measures (policy clustering) #####
-# Cluster 1: right-wing, 64G€, 2: unpopular, 121G€, 3: left-wing, 39G€
+# Cluster 1: right-wing (no majority on left), 64G€, 2: unpopular, 121G€, 3: left-wing (though majority in all blocks), 39G€
 # Cluster the budget measures themselves, using 1 - pairwise correlation of support as distance.
 # k is chosen by maximizing mean silhouette width over k = 2..8 on Ward hierarchical clustering.
 cat("\n=== Clustering of budget measures (Ward on 1 - cor) ===\n")
@@ -581,6 +1059,7 @@ cat("Overall:\n")
 print(round(joint_overall, 3))
 cat("By vote_factor:\n")
 print(round(joint_by_vote, 3))
+
 
 ##### 4. Effect_program analyses #####
 cat("\n=== Effect program: mean favorability by vote_factor ===\n")

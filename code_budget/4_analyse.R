@@ -116,7 +116,7 @@ budget_accept <- sapply(variables_budget, function(v) {
          ifelse(e[[v]] %in% c("Supportable", "Inacceptable"), 0, NA))
 })
 budget_accept <- as.data.frame(budget_accept)
-program_favorable <- as.data.frame(sapply(variables_effect_program, function(v) {  e[[v]] > 0  }))
+program_favorable <- as.data.frame(sapply(unname(variables_effect_program), function(v) {  e[[v]] > 0  }))
 
 ##### 1. Weighted means of budget support by sociodem #####
 cat("\n=== Weighted mean support (conv+souh) by vote_factor ===\n")
@@ -733,17 +733,50 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
   tbl_tex <- rbind(ens_row, new_body)
   rownames(tbl_tex) <- NULL
 
+  # Vote-agg decomposition rows (inserted after Ensemble in the table)
+  vote_vals  <- c("Left", "Center-right or Right", "Far right", "PNR or Other")
+  vote_names <- c("Gauche", "Centre-droit/Droite", "Extrême-droite", "Non-réponse/Autre")
+  rows_vote <- lapply(seq_along(vote_vals), function(i) {
+    val  <- vote_vals[i]
+    mask <- (e$vote_agg) == val
+    lmeans <- setNames(vapply(lean_vals, function(lv) {
+      vv <- names(leaning_b)[!is.na(leaning_b) & leaning_b == lv]
+      if (!length(vv)) return(NA_real_)
+      round(100*mean(rowMeans(budget_accept[mask, vv, drop=FALSE], na.rm=TRUE), na.rm=TRUE))
+    }, numeric(1)), lean_nms_df)[lean_ord]
+    r_lst <- c(list(vars_set="vote", k=NA_integer_, cluster=NA_integer_,
+                    n_pct=round(sum(mask)/nrow(e)*100, 0),
+                    vote_agg=round(mean(as.numeric(e$vote_agg)[mask], na.rm=TRUE), 2) - 1,
+                    sum_conv=round(mean(e$sum_convenable[mask], na.rm=TRUE), 0)),
+               as.list(lmeans))
+    lbl <- assign_label(r_lst)
+    data.frame(vars_set="vote", k=NA_integer_, cluster=NA_integer_,
+               n_pct=r_lst$n_pct, vote_agg=r_lst$vote_agg, sum_conv=r_lst$sum_conv,
+               as.data.frame(as.list(lmeans), stringsAsFactors=FALSE),
+               desc=vote_names[i], color=unname(col_map[lbl]),
+               stringsAsFactors=FALSE)
+  })
+  tbl_vote <- do.call(rbind, rows_vote)
+  tbl_tex  <- rbind(tbl_tex, tbl_vote)
+  rownames(tbl_tex) <- NULL
+
   # LaTeX helpers
   vs_lbl <- c(budget         = "\\texttt{budget} (30)",
-              effect_program = "\\texttt{programme} (19)",
-              both           = "Toutes (49)",
-              all            = "")
+              effect_program = "\\texttt{programme} (17)",
+              both           = "Toutes (47)",
+              all            = "",
+              vote           = "Bloc politique (1)")
   neg  <- function(s) sub("^-", "$-$", s)
   fmt0 <- function(x) if (is.na(x) || !is.finite(x)) "" else neg(sprintf("%.0f", x))
-  fmt1 <- function(x) if (is.na(x) || !is.finite(x)) "" else paste0(neg(sprintf("%.1f", x)), "\\hspace{1em}")
+  fmt1 <- function(x) {
+    if (is.na(x) || !is.finite(x)) return("")
+    s <- sub(",0$", "", sub("\\.", ",", sprintf("%.1f", x)))
+    paste0(neg(s), "\\hspace{1em}")
+  }
 
-  to_row <- function(r, show_vs, bold_k = FALSE, bold_vs = FALSE) {
-    cc <- if (nchar(r$color) > 0) sprintf("\\cellcolor{%s!15}", r$color) else ""
+  to_row <- function(r, show_vs, bold_k = FALSE, bold_vs = FALSE, bold_row = FALSE) {
+    cc  <- if (nchar(r$color) > 0) sprintf("\\cellcolor{%s!15}", r$color) else ""
+    bf  <- function(s) if (bold_row && nchar(trimws(s)) > 0) paste0("\\textbf{", s, "}") else s
     cells <- c(
       if (show_vs) {
         lbl <- unname(vs_lbl[r$vars_set])
@@ -753,10 +786,10 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
         k_s <- as.character(r$k)
         if (bold_k) paste0("\\textbf{", k_s, "}") else k_s
       } else "",
-      paste0(cc, r$desc), paste0(cc, fmt0(r$n_pct)), paste0(cc, fmt1(r$vote_agg)),
-      paste0(cc, fmt0(r$sum_conv)),
-      paste0(cc, fmt0(r[["lean.1"]])), paste0(cc, fmt0(r[["lean1"]])),
-      paste0(cc, fmt0(r[["lean2"]])),  paste0(cc, fmt0(r[["lean0"]])))
+      paste0(cc, bf(r$desc)), paste0(cc, bf(fmt0(r$n_pct))), paste0(cc, bf(fmt1(r$vote_agg))),
+      paste0(cc, bf(fmt0(r$sum_conv))),
+      paste0(cc, bf(fmt0(r[["lean.1"]]))), paste0(cc, bf(fmt0(r[["lean1"]]))),
+      paste0(cc, bf(fmt0(r[["lean2"]]))),  paste0(cc, bf(fmt0(r[["lean0"]]))))
     paste0(paste(cells, collapse = " & "), " \\\\")
   }
 
@@ -771,7 +804,7 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
                     "{Soutien moyen (\\% de convenable + souhaitable)} \\\\")
   hdr_col <- paste(
     "\\makecell[l]{Variables\\\\utilisées\\\\(leur nombre)}",
-    "\\makecell{Nombre\\\\de\\\\profils}",
+    "\\makecell{Nombre\\\\de\\\\profils\\\\$k$}",
     "\\makecell[l]{Description\\\\du profil}",
     "\\makecell{Taille\\\\du\\\\profil\\\\(\\%)}",
     "\\makecell{Bloc\\\\politique\\\\moyen}",
@@ -795,7 +828,13 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
 
   # Ensemble row (no vars_set / k shown)
   r_ens <- tbl_tex[tbl_tex$vars_set == "all", ]
-  tex   <- c(tex, to_row(r_ens, show_vs = FALSE), "\\midrule")
+  tex   <- c(tex, to_row(r_ens, show_vs = FALSE, bold_row = TRUE), "\\midrule")
+
+  # Vote-agg rows
+  rows_v <- which(tbl_tex$vars_set == "vote")
+  for (ri in seq_along(rows_v))
+    tex <- c(tex, to_row(tbl_tex[rows_v[ri], ], show_vs = (ri == 1)))
+  tex <- c(tex, "\\midrule")
 
   # Clustering rows; \midrule between groups
   for (gi in seq_len(nrow(grps))) {
@@ -814,6 +853,358 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
 
   writeLines(tex, "../tables/cluster_comparison.tex")
   cat("→ ../tables/cluster_comparison.tex\n")
+
+  # --- Table: vote_agg distribution within budget clusters k=2/3/4 ---
+  {
+    # columns: Gauche, Centre-droit/Droite, Extrême-droite, Non-rép./Autre
+    vote_col_nms  <- c("Gauche\\\\\\quad", "Centre-droit/\\\\Droite", "Extrême-\\\\droite", "Non-réponse/\\\\Autre")
+    vote_col_vals <- c("Left", "Center-right or Right", "Far right", "PNR or Other")
+
+    set.seed(42); km_bv2 <- kmeans(mat_b, centers = 2, nstart = 20)
+    set.seed(42); km_bv3 <- kmeans(mat_b, centers = 3, nstart = 20)
+    set.seed(42); km_bv4 <- kmeans(mat_b, centers = 4, nstart = 20)
+
+    lbl_bv2 <- sapply(1:2, function(j) assign_label(leans_for_cl(km_bv2, j)))
+    lbl_bv3 <- sapply(1:3, function(j) assign_label(leans_for_cl(km_bv3, j)))
+    lbl_bv4 <- sapply(1:4, function(j) assign_label(leans_for_cl(km_bv4, j)))
+
+    # share of profile j within each vote bloc v: sum(w[j & v]) / sum(w[v])
+    profile_share_in_bloc <- function(cl_vec, j, val, w = e$no_weight) {
+      vv <- as.character(e$vote_agg_factor)
+      in_bloc    <- !is.na(vv) & vv == val
+      in_profile <- cl_vec == j
+      round(100 * sum(w[in_bloc & in_profile]) / sum(w[in_bloc]))
+    }
+
+    # Row ordering: Sociaux/Progressistes=1, Frugaux=2, others=3, Sociaux-nativistes=4
+    row_priority <- function(lbl) {
+      if (grepl("^(Sociaux|Progressistes)$", lbl))   1L
+      else if (lbl == "Frugaux")                      2L
+      else if (lbl == "Sociaux-nativistes")           4L
+      else                                            3L
+    }
+
+    # Bloc shares among all respondents (for column headers)
+    vv_all      <- as.character(e$vote_agg_factor)
+    w_all       <- e$no_weight
+    bloc_pcts   <- sapply(vote_col_vals, function(val)
+      round(100 * sum(w_all[!is.na(vv_all) & vv_all == val]) / sum(w_all)))
+
+    # Column headers: name + share on last line
+    col_hdrs <- mapply(function(nm, pct)
+      sprintf("\\makecell{%s\\\\(%d\\,\\%%)} ", nm, pct),
+      vote_col_nms, bloc_pcts)
+
+    tex_v <- c(
+      "\\begin{tabular}{clcccc}",
+      "\\toprule",
+      paste0("& & \\multicolumn{4}{c}{Part du profil dans le bloc politique (\\%)} \\\\"),
+      "\\cmidrule(lr){3-6}",
+      paste0(c("$k$", "\\makecell[l]{Description du profil}", col_hdrs), collapse = " & "),
+      " \\\\",
+      "\\midrule"
+    )
+
+    for (cfg in list(list(km=km_bv2, k=2, lbls=lbl_bv2),
+                     list(km=km_bv3, k=3, lbls=lbl_bv3),
+                     list(km=km_bv4, k=4, lbls=lbl_bv4))) {
+      km_c <- cfg$km; k_c <- cfg$k; lbls_c <- cfg$lbls
+      sub_c <- tbl_tex[tbl_tex$vars_set == "budget" & !is.na(tbl_tex$k) & tbl_tex$k == k_c, ]
+      ord   <- order(sapply(lbls_c, row_priority))
+      for (ri in seq_along(ord)) {
+        ji     <- ord[ri]
+        shares <- sapply(vote_col_vals, function(val)
+          profile_share_in_bloc(km_c$cluster, ji, val))
+        lbl    <- lbls_c[ji]
+        color  <- unname(col_map[lbl])
+        cc     <- if (nchar(color) > 0) sprintf("\\cellcolor{%s!15}", color) else ""
+        desc   <- sub_c$desc[sub_c$cluster == ji]
+        n_pct  <- sub_c$n_pct[sub_c$cluster == ji]
+        desc_n <- sprintf("%s (%d\\,\\%%)", desc, n_pct)
+        k_cell <- if (ri == 1) as.character(k_c) else ""
+        tex_v  <- c(tex_v, paste(
+          c(k_cell, paste0(cc, desc_n),
+            paste0(cc, shares)),
+          collapse = " & "), " \\\\")
+      }
+      tex_v <- c(tex_v, "\\midrule")
+    }
+    tex_v[length(tex_v)] <- "\\bottomrule"
+    tex_v <- c(tex_v, "\\end{tabular}")
+
+    writeLines(tex_v, "../tables/cluster_vote_composition.tex")
+    cat("→ ../tables/cluster_vote_composition.tex\n")
+  }
+
+  # --- K-means on measures ---
+  {
+    # Transposed matrices: rows=measures, cols=respondents
+    tmats <- list(
+      budget         = t(mat_b),
+      effect_program = t(mat_e),
+      both           = t(mat_both)
+    )
+
+    # Monetary amounts per measure (Mds€); NA/0 for programme measures
+    amt_budget <- setNames(
+      budget_policies$amount[match(variables_budget, budget_policies$variable_name)],
+      variables_budget)
+    amt_ep <- setNames(rep(0, ncol(mat_e)), colnames(mat_e))
+
+    # Vote_agg bloc labels and matching strings
+    bloc_vals  <- c("Left", "Center-right or Right", "Far right", "PNR or Other")
+    bloc_nms   <- c("Gauche", "Centre-droit/\\\\Droite", "Extrême-\\\\droite", "Non-rép./\\\\Autre")
+
+    # Weighted mean vote_agg (on -1..2 scale) among supporters of measure v
+    mean_vote_sup <- function(v) {
+      vals <- as.numeric(attitudes_binary[[v]])
+      sup  <- !is.na(vals) & vals > 0
+      if (!any(sup)) return(NA_real_)
+      round(weighted.mean(as.numeric(e$vote_agg)[sup], e$no_weight[sup], na.rm = TRUE) - 1, 2)
+    }
+
+    # Weighted mean support rate for measure v among respondents in bloc
+    support_in_bloc <- function(v, bloc_str) {
+      vf   <- as.character(e$vote_agg_factor)
+      mask <- !is.na(vf) & vf == bloc_str
+      vals <- as.numeric(attitudes_binary[[v]])[mask]
+      w    <- e$no_weight[mask]; ok <- !is.na(vals) & w > 0
+      if (!any(ok)) return(NA_real_)
+      weighted.mean(vals[ok], w[ok])
+    }
+
+    vs_lbl_m <- c(budget         = "\\texttt{budget} (30)",
+                  effect_program = "\\texttt{programme} (17)",
+                  both           = "Toutes (47)")
+
+    rows_m <- list()
+    sil_m  <- list()
+    for (vs in names(tmats)) {
+      for (k in 2:4) {
+        set.seed(42)
+        km_m   <- kmeans(tmats[[vs]], centers = k, nstart = 20)
+        cl_vec <- km_m$cluster
+        sil_m[[paste0(vs, "_", k)]] <- mean(
+          cluster::silhouette(cl_vec, dist(tmats[[vs]]))[, 3])
+        var_nms <- rownames(tmats[[vs]])   # measure variable names
+
+        for (j in seq_len(k)) {
+          vv <- var_nms[cl_vec == j]
+          n_meas  <- length(vv)
+          amt_j   <- if (vs == "effect_program") 0
+                     else sum(amt_budget[intersect(vv, names(amt_budget))], na.rm = TRUE)
+          vote_j  <- round(mean(sapply(vv, mean_vote_sup), na.rm = TRUE), 2)
+          sup_j   <- sapply(bloc_vals, function(b)
+            round(100 * mean(sapply(vv, support_in_bloc, bloc_str = b), na.rm = TRUE)))
+          rows_m[[length(rows_m) + 1]] <- c(
+            list(vars_set = vs, k = k, cluster = j, n_meas = n_meas,
+                 amt = round(amt_j, 1), vote_agg = vote_j),
+            as.list(sup_j))
+        }
+      }
+    }
+    tbl_m <- do.call(rbind, lapply(rows_m, as.data.frame))
+
+    best_km <- setNames(vapply(names(tmats), function(vs) {
+      which.max(sapply(2:4, function(k) sil_m[[paste0(vs, "_", k)]])) + 1L
+    }, integer(1)), names(tmats))
+
+    neg_m  <- function(s) sub("^-", "$-$", s)
+    fmt_v  <- function(x) {
+      if (is.na(x) || !is.finite(x)) return("")
+      s <- sub(",0$", "", sub("\\.", ",", sprintf("%.1f", x)))
+      paste0(neg_m(s), "\\hspace{1em}")
+    }
+    fmt_a  <- function(x) if (is.na(x) || !is.finite(x) || x == 0) "" else
+                            neg_m(sub("\\.", ",", sprintf("%.1f", x)))
+    fmt_n  <- function(x) if (is.na(x)) "" else as.character(x)
+
+    tex_m <- c(
+      # 9 columns: vars(l) k(c) taille(c) montant(r) bloc(c) + 4 support(c)
+      "\\noindent\\makebox[\\textwidth][c]{%",
+      sprintf("\\begin{tabular}{lccr%s}", paste(rep("c", 1 + length(bloc_vals)), collapse = "")),
+      "\\toprule",
+      paste0("& & & & & \\multicolumn{", length(bloc_vals),
+             "}{c}{Soutien moyen (\\%)} \\\\"),
+      sprintf("\\cmidrule(lr){6-%d}", 5 + length(bloc_vals)),
+      paste(c("\\makecell[l]{Variables\\\\utilisées}", "$k$",
+              "\\makecell{Taille\\\\(n mes.)}",
+              "\\makecell{Montant\\\\(Mds~€)}",
+              "\\makecell{Bloc\\\\pol.\\\\moyen}",
+              sapply(bloc_nms, function(n) sprintf("\\makecell{%s}", n))),
+            collapse = " & "),
+      " \\\\",
+      "\\midrule"
+    )
+
+    grps_m <- unique(tbl_m[, c("vars_set", "k")])
+    grps_m <- grps_m[order(match(grps_m$vars_set, names(tmats)), grps_m$k), ]
+
+    for (gi in seq_len(nrow(grps_m))) {
+      vs_g <- as.character(grps_m$vars_set[gi])
+      k_g  <- as.integer(grps_m$k[gi])
+      bk   <- isTRUE(k_g == as.integer(best_km[[vs_g]]))
+      idx  <- which(tbl_m$vars_set == vs_g & tbl_m$k == k_g)
+      vs_s <- if (bk) paste0("{\\bfseries ", vs_lbl_m[vs_g], "}")
+              else vs_lbl_m[vs_g]
+      for (ri in seq_along(idx)) {
+        r   <- tbl_m[idx[ri], ]
+        sup_cells <- sapply(make.names(bloc_vals), function(b) fmt_n(r[[b]]))
+        cells <- c(
+          if (ri == 1) vs_s else "",
+          if (ri == 1) fmt_n(k_g) else "",
+          fmt_n(r$n_meas), fmt_a(r$amt), fmt_v(r$vote_agg),
+          sup_cells)
+        tex_m <- c(tex_m, paste(cells, collapse = " & "), " \\\\")
+      }
+      if (gi < nrow(grps_m)) tex_m <- c(tex_m, "\\midrule")
+    }
+    tex_m <- c(tex_m, "\\bottomrule", "\\end{tabular}}")
+
+    writeLines(tex_m, "../tables/cluster_measures_comparison.tex")
+    cat("→ ../tables/cluster_measures_comparison.tex\n")
+
+    # --- Diagnostic + table for budget k=3 measure clusters ---
+    lbl_b_m  <- if (exists("labels_budget_fr"))         labels_budget_fr         else character(0)
+    lbl_ep_m <- if (exists("labels_effect_program_fr")) labels_effect_program_fr else character(0)
+    label_meas <- function(v) {
+      if (startsWith(v, "effect_program_")) {
+        key <- sub("^effect_program_", "", v)
+        if (length(lbl_ep_m) && key %in% names(lbl_ep_m)) unname(lbl_ep_m[key]) else gsub("_", " ", key)
+      } else {
+        key <- sub("^budget_", "", v)
+        if (length(lbl_b_m) && key %in% names(lbl_b_m)) unname(lbl_b_m[key]) else gsub("_", " ", key)
+      }
+    }
+
+    set.seed(42); km_m_b3    <- kmeans(tmats[["budget"]],         centers = 3, nstart = 20)
+    set.seed(42); km_m_ep3   <- kmeans(tmats[["effect_program"]], centers = 3, nstart = 20)
+    set.seed(42); km_m_both3 <- kmeans(tmats[["both"]],           centers = 3, nstart = 20)
+
+    cat("\n=== Measures in budget k=3 ===\n")
+    for (j in 1:3) {
+      vv <- names(km_m_b3$cluster)[km_m_b3$cluster == j]
+      cat(sprintf("Cluster %d (mean leaning=%.2f, n=%d):\n", j,
+                  mean(leaning_b[intersect(vv, names(leaning_b))], na.rm = TRUE), length(vv)))
+      for (v in vv) cat(sprintf("  %s\n", label_meas(v)))
+    }
+    cat("\n=== Measures in both k=3 ===\n")
+    for (j in 1:3) {
+      vv <- names(km_m_both3$cluster)[km_m_both3$cluster == j]
+      cat(sprintf("Cluster %d (n=%d): %s\n", j, length(vv),
+                  paste(sapply(vv, label_meas), collapse = ", ")))
+    }
+    cat("\n=== Programme k=3 ===\n")
+    for (j in 1:3) {
+      vv <- names(km_m_ep3$cluster)[km_m_ep3$cluster == j]
+      cat(sprintf("Cluster %d (n=%d): %s\n", j, length(vv),
+                  paste(sapply(vv, label_meas), collapse = ", ")))
+    }
+    cat("\n=== both k=3 × budget k=3 (measures, cross-tab) ===\n")
+    ct_b <- table(both = km_m_both3$cluster[names(km_m_b3$cluster)],
+                  budget = km_m_b3$cluster)
+    # sort(km_m_both3$cluster) gives the cluster of both (k=3; 1: d/retr, 2: g/redistr, 3: impop/indif), which happens to be the union of budget(3) and program(3), 
+    #   except for Réduire aide au dvlpt (cluster impop/indif dans both mais d/retranchement dans program)
+    # sort(km_m_b3$cluster)
+    # 2 g/redistr:   taxes riches (y.c. école privée, ONU), CIR, taxes carburants, [éducation & santé, retraite 62 ans, SMIC, RIC, proportionnelle]
+    # 3 impop/indif: taxes indifférenciées, retraite 65 ans, hausse IS, TVA resto, réduire: militaire, apprentissage, remboursement soins, [hausse allocs, régulariser sans-papiers, Green Deal, éducation, retraites, APD]
+    # 1 d/retranch:  consolidation (gel dépenses, fin doublons), anti-étrangers, gel aides sociales, augmenter durée travail droit chômage, [réduire déficit,  sécuritaire]
+    print(ct_b)
+    cat("\n=== both k=3 × programme k=3 (measures, cross-tab) ===\n")
+    ct_ep <- table(both = km_m_both3$cluster[names(km_m_ep3$cluster)],
+                   programme = km_m_ep3$cluster)
+    print(ct_ep)
+    cat("\n=== Mesures programme-3 cl.3 hors both-3 cl.1 ===\n")
+    ep3_cl3 <- names(km_m_ep3$cluster)[km_m_ep3$cluster == 3]
+    for (v in ep3_cl3) {
+      both_cl <- km_m_both3$cluster[v]
+      if (!is.na(both_cl) && both_cl != 1)
+        cat(sprintf("  %s -> both cl.%d\n", label_meas(v), both_cl))
+    }
+    }
+
+    # Assign cluster names by ascending mean leaning
+    mean_lean3 <- sapply(1:3, function(j) {
+      vv <- names(km_m_b3$cluster)[km_m_b3$cluster == j]
+      mean(leaning_b[intersect(vv, names(leaning_b))], na.rm = TRUE)
+    })
+    cl3_order <- order(mean_lean3)
+    # cl3_names <- c("Sociales-redistributives", "Co\\^uts indifférenciés", "Moins d'État-providence")
+    # cl3_names <- c("Progressistes", "Frugales", "Conservatrices")
+    # cl3_names <- c("Redistributives", "Indifférenciées", "Retranchement social")
+    cl3_names <- c("De gauche", "Impopulaires", "De droite")
+
+    # Budget k=3 respondent profiles
+    set.seed(42); km_resp_b3 <- kmeans(mats[["budget"]], centers = 3, nstart = 20)
+    sub_resp_b3 <- tbl_tex[tbl_tex$vars_set == "budget" & !is.na(tbl_tex$k) & tbl_tex$k == 3, ]
+    resp3_j    <- sub_resp_b3$cluster
+    resp3_desc <- sub_resp_b3$desc
+
+    sup_in_resp <- function(vv, p) {
+      mask <- km_resp_b3$cluster == p
+      round(100 * mean(sapply(vv, function(v) {
+        vals <- as.numeric(attitudes_binary[[v]])[mask]
+        w <- e$no_weight[mask]; ok <- !is.na(vals) & w > 0
+        if (!any(ok)) return(NA_real_)
+        weighted.mean(vals[ok], w[ok])
+      }), na.rm = TRUE))
+    }
+
+    bloc_vals_t3 <- c("Left", "Center-right or Right", "Far right", "PNR or Other")
+    bloc_nms_t3  <- c("Gauche", "Centre-\\\\droit/\\\\Droite", "Extr.-\\\\droite", "Non-\\\\rép./\\\\Autre")
+
+    # Decimal-aligned vote_agg: phantom minus for positive values
+    fmt_vote_dec <- function(x) {
+      if (is.na(x) || !is.finite(x)) return("")
+      s <- sub("\\.", ",", sprintf("%.1f", abs(x)))
+      if (x < 0) paste0("$-$", s) else paste0("\\phantom{$-$}", s)
+    }
+
+    # Profile column headers: split long names across two lines
+    prof_hdr <- function(n) {
+      n2 <- switch(n,
+        Progressistes  = "Progres-\\\\sistes",
+        Conservateurs  = "Conser-\\\\vateurs",
+        n)
+      sprintf("\\makecell{%s}", n2)
+    }
+
+    # 9 cols: name(l) bloc_moyen(c) 4×bloc(c) 3×profil(c)
+    tex_m3 <- c(
+      "\\noindent\\makebox[\\textwidth][c]{%",
+      "\\begin{tabular}{lcccccccc}",
+      "\\toprule",
+      paste0("& & \\multicolumn{4}{c}{Soutien moyen par bloc politique (\\%)} & ",
+             "\\multicolumn{3}{c}{Soutien moyen par profil (\\%)} \\\\"),
+      "\\cmidrule(lr){3-6}\\cmidrule(lr){7-9}",
+      paste(c("\\makecell[l]{Ensemble de mesures\\\\(nombre; \\textit{économies})}",
+              "\\makecell{Bloc\\\\pol.\\\\moyen}",
+              sapply(bloc_nms_t3, function(n) sprintf("\\makecell{%s}", n)),
+              sapply(resp3_desc,  prof_hdr)),
+            collapse = " & "),
+      " \\\\",
+      "\\midrule"
+    )
+    for (ci in seq_along(cl3_order)) {
+      j   <- cl3_order[ci]
+      vv  <- names(km_m_b3$cluster)[km_m_b3$cluster == j]
+      amt_j   <- sum(amt_budget[intersect(vv, names(amt_budget))], na.rm = TRUE)
+      amt_str <- sub("\\.", ",", sprintf("%.1f", amt_j))
+      nm  <- sprintf("\\textbf{%s} (%d; \\textit{%s~Mds})", cl3_names[ci], length(vv), amt_str)
+      vote_j  <- round(mean(sapply(vv, mean_vote_sup), na.rm = TRUE), 1)
+      sup_bloc <- sapply(bloc_vals_t3, function(b)
+        round(100 * mean(sapply(vv, support_in_bloc, bloc_str = b), na.rm = TRUE)))
+      sup_prof <- sapply(resp3_j, function(p) sup_in_resp(vv, p))
+      tex_m3 <- c(tex_m3,
+        paste(c(nm, fmt_vote_dec(vote_j),
+                as.character(sup_bloc), as.character(sup_prof)),
+              collapse = " & "),
+        " \\\\")
+    }
+    tex_m3 <- c(tex_m3, "\\bottomrule", "\\end{tabular}}")
+    writeLines(tex_m3, "../tables/cluster_measures_budget3.tex")
+    cat("→ ../tables/cluster_measures_budget3.tex\n")
+  }
 
   # --- Overlap analysis: budget k=2/3/4 ---
   cat("\n=== Budget cluster overlap (k=2/3/4) ===\n")
@@ -881,6 +1272,311 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
     cat("  k=3 labels:", paste(lbls_b3, collapse=", "), "\n")
   }
 
+  # --- Figures: attitudes les plus polarisées pour chaque clustering ---
+  {
+    hex_col <- c(cleft    = "#F8766D", ccdroit = "#619CFF", cdroite = "#815EF8",
+                 ced      = "#A020F0", cfrug   = "#009600", cdjc    = "#9BA073",
+                 mgt      = "#F0509B")
+
+    lbl_ep_f <- if (exists("labels_effect_program_fr")) labels_effect_program_fr else character(0)
+    lbl_b_f  <- if (exists("labels_budget_fr"))         labels_budget_fr         else character(0)
+    label_att <- function(v) {
+      if (startsWith(v, "effect_program_")) {
+        key <- sub("^effect_program_", "", v)
+        if (length(lbl_ep_f) && key %in% names(lbl_ep_f)) unname(lbl_ep_f[key])
+        else gsub("_", " ", key)
+      } else {
+        key <- sub("^budget_", "", v)
+        if (length(lbl_b_f) && key %in% names(lbl_b_f)) unname(lbl_b_f[key])
+        else gsub("_", " ", key)
+      }
+    }
+
+    att_nms    <- names(attitudes_binary)
+    ks_for_vs  <- list(budget = 2:4, effect_program = 2:3, both = 2:4)
+    vs_lbl_fig <- c(budget = "budget", effect_program = "programme", both = "toutes")
+
+    for (vs in names(ks_for_vs)) {
+      for (k in ks_for_vs[[vs]]) {
+        set.seed(42)
+        cl_vec <- kmeans(mats[[vs]], centers = k, nstart = 20)$cluster
+
+        sub_tbl   <- tbl_tex[tbl_tex$vars_set == vs & !is.na(tbl_tex$k) & tbl_tex$k == k, ]
+        cl_desc   <- paste0(sub_tbl$desc, " (", sub_tbl$n_pct, "%)")
+        cl_labels <- setNames(cl_desc, as.character(sub_tbl$cluster))
+        cl_colors <- setNames(
+          ifelse(sub_tbl$color %in% names(hex_col), hex_col[sub_tbl$color], "grey70"),
+          cl_desc)
+
+        wmean_cl <- function(v, j) {
+          mask <- cl_vec == j
+          vals <- as.numeric(attitudes_binary[[v]])[mask]
+          w    <- e$no_weight[mask]
+          ok   <- !is.na(vals) & w > 0
+          if (!any(ok)) return(NA_real_)
+          weighted.mean(vals[ok], w[ok])
+        }
+
+        spread <- sapply(att_nms, function(v)
+          diff(range(sapply(seq_len(k), function(j) wmean_cl(v, j)), na.rm = TRUE)))
+        top15 <- names(sort(spread, decreasing = TRUE))[1:min(15, sum(!is.na(spread)))]
+
+        rows_p <- list()
+        for (v in top15) for (j in seq_len(k)) {
+          mask <- cl_vec == j
+          vals <- as.numeric(attitudes_binary[[v]])[mask]
+          w    <- e$no_weight[mask]; ok <- !is.na(vals) & w > 0
+          if (!any(ok)) next
+          mu <- weighted.mean(vals[ok], w[ok])
+          se <- sqrt(mu * (1 - mu) / (sum(w[ok])^2 / sum(w[ok]^2)))
+          rows_p[[length(rows_p) + 1]] <- data.frame(
+            measure = label_att(v), cluster = cl_labels[as.character(j)],
+            mean = mu, xmin = max(0, mu - 1.96*se), xmax = min(1, mu + 1.96*se),
+            stringsAsFactors = FALSE)
+        }
+        df_p <- if (length(rows_p)) do.call(rbind, rows_p) else
+          data.frame(measure=character(), cluster=character(), mean=numeric(),
+                     xmin=numeric(), xmax=numeric(), stringsAsFactors=FALSE)
+
+        # top15 is already sorted descending by spread; reverse for y-axis (most dispersed on top)
+        df_p$measure <- factor(df_p$measure,
+                               levels = sapply(rev(top15), label_att))
+        df_p$cluster <- factor(df_p$cluster, levels = cl_desc)
+
+        n_top    <- length(top15)
+        minor_yp <- seq(0.5, n_top - 0.5, by = 1)
+
+        dodge_w <- 0.45
+        p <- ggplot(df_p, aes(y = measure, x = mean, color = cluster, group = cluster)) +
+          geom_hline(yintercept = minor_yp, color = "grey85", linewidth = 0.3) +
+          geom_vline(xintercept = 0.5, linetype = "dotted", color = "grey50",
+                     linewidth = 0.4) +
+          geom_errorbarh(aes(xmin = xmin, xmax = xmax),
+                         height = 0, linewidth = 0.35,
+                         position = position_dodge(width = dodge_w)) +
+          geom_point(size = 2.5, position = position_dodge(width = dodge_w)) +
+          scale_color_manual(values = cl_colors, drop = FALSE) +
+          scale_x_continuous(labels = function(x) paste0(round(x * 100), "%"),
+                             limits = c(0, 1)) +
+          labs(y = NULL, x = NULL, color = NULL) +
+          theme_bw(base_size = 10) +
+          theme(
+            legend.position      = "top",
+            legend.justification = c(1, 0),
+            panel.grid.major.y   = element_blank(),
+            panel.grid.minor.y   = element_blank(),
+            panel.grid.major.x   = element_line(color = "grey90", linewidth = 0.3),
+            axis.text            = element_text(color = "black"),
+            legend.text          = element_text(color = "black"),
+            plot.margin          = margin(t = 5, r = 18, b = 5, l = 5)
+          ) +
+          scale_y_discrete(expand = expansion(add = 0.5))
+
+        fname <- sprintf("../figures/clusters_%s_k%d_polarises.pdf",
+                         vs_lbl_fig[vs], k)
+        ggsave(fname, p, width = 6, height = 5.5, device = cairo_pdf)
+        cat("→", fname, "\n")
+      }
+    }
+
+    # Figure pour vote_agg
+    {
+      sub_vote  <- tbl_tex[tbl_tex$vars_set == "vote", ]
+      grp_names <- paste0(sub_vote$desc, " (", sub_vote$n_pct, "%)")
+      grp_vals  <- vote_vals                     # c(-1, 0, 1, 2)
+      grp_masks <- lapply(grp_vals, function(val) e$vote_agg == val)
+      vote_colors <- setNames(
+        ifelse(sub_vote$color %in% names(hex_col), hex_col[sub_vote$color], "grey70"),
+        grp_names)
+      vote_colors[grepl("Centre",    names(vote_colors))] <- "#74B9FF"
+      vote_colors[grepl("Non-r",     names(vote_colors))] <- "grey60"
+
+      wmean_v <- function(v, mask) {
+        vals <- as.numeric(attitudes_binary[[v]])[mask]
+        w    <- e$no_weight[mask]
+        ok   <- !is.na(vals) & w > 0
+        if (!any(ok)) return(NA_real_)
+        weighted.mean(vals[ok], w[ok])
+      }
+
+      spread_v <- sapply(att_nms, function(v)
+        diff(range(sapply(grp_masks, function(m) wmean_v(v, m)), na.rm = TRUE)))
+      top15_v <- names(sort(spread_v, decreasing = TRUE))[1:min(15, sum(!is.na(spread_v)))]
+
+      rows_v <- list()
+      for (v in top15_v) for (i in seq_along(grp_names)) {
+        mask <- grp_masks[[i]]
+        vals <- as.numeric(attitudes_binary[[v]])[mask]
+        w    <- e$no_weight[mask]; ok <- !is.na(vals) & w > 0
+        if (!any(ok)) next
+        mu <- weighted.mean(vals[ok], w[ok])
+        se <- sqrt(mu * (1 - mu) / (sum(w[ok])^2 / sum(w[ok]^2)))
+        rows_v[[length(rows_v) + 1]] <- data.frame(
+          measure = label_att(v), cluster = grp_names[i],
+          mean = mu, xmin = max(0, mu - 1.96*se), xmax = min(1, mu + 1.96*se),
+          stringsAsFactors = FALSE)
+      }
+      df_v <- if (length(rows_v)) do.call(rbind, rows_v) else
+        data.frame(measure=character(), cluster=character(), mean=numeric(),
+                   xmin=numeric(), xmax=numeric(), stringsAsFactors=FALSE)
+      df_v$measure <- factor(df_v$measure, levels = sapply(rev(top15_v), label_att))
+      df_v$cluster <- factor(df_v$cluster, levels = grp_names)
+
+      n_top_v  <- length(top15_v)
+      minor_yv <- seq(0.5, n_top_v - 0.5, by = 1)
+
+      p_v <- ggplot(df_v, aes(y = measure, x = mean, color = cluster, group = cluster)) +
+        geom_hline(yintercept = minor_yv, color = "grey85", linewidth = 0.3) +
+        geom_vline(xintercept = 0.5, linetype = "dotted", color = "grey50",
+                   linewidth = 0.4) +
+        geom_errorbarh(aes(xmin = xmin, xmax = xmax),
+                       height = 0, linewidth = 0.35,
+                       position = position_dodge(width = 0.45)) +
+        geom_point(size = 2.5, position = position_dodge(width = 0.45)) +
+        scale_color_manual(values = vote_colors, drop = FALSE) +
+        scale_x_continuous(labels = function(x) paste0(round(x * 100), "%"),
+                           limits = c(0, 1)) +
+        labs(y = NULL, x = NULL, color = NULL) +
+        theme_bw(base_size = 10) +
+        theme(
+          legend.position      = "top",
+          legend.justification = c(1, 0),
+          panel.grid.major.y   = element_blank(),
+          panel.grid.minor.y   = element_blank(),
+          panel.grid.major.x   = element_line(color = "grey90", linewidth = 0.3),
+          axis.text            = element_text(color = "black"),
+          legend.text          = element_text(color = "black"),
+          plot.margin          = margin(t = 5, r = 18, b = 5, l = 5)
+        ) +
+        scale_y_discrete(expand = expansion(add = 0.5))
+
+      ggsave("../figures/clusters_vote_polarises.pdf", p_v,
+             width = 6, height = 5.5, device = cairo_pdf)
+      cat("→ ../figures/clusters_vote_polarises.pdf\n")
+    }
+
+    # Figure combinée: vote_agg + budget k=2/3/4, variables fixées
+    {
+      fixed_vars <- c(variables_effect_program[c(4, 6:8, 11, 12, 14:17)], variables_budget[c(3, 12, 19, 26, 27)])
+
+      # Build per-grouping CI rows for a fixed variable list
+      make_rows_fixed <- function(v_list, masks, grp_labels) {
+        rows <- list()
+        for (v in v_list) for (i in seq_along(grp_labels)) {
+          mask <- masks[[i]]
+          vals <- as.numeric(attitudes_binary[[v]])[mask]
+          w    <- e$no_weight[mask]; ok <- !is.na(vals) & w > 0
+          if (!any(ok)) next
+          mu <- weighted.mean(vals[ok], w[ok])
+          se <- sqrt(mu * (1 - mu) / (sum(w[ok])^2 / sum(w[ok]^2)))
+          rows[[length(rows) + 1]] <- data.frame(
+            measure = label_att(v), cluster = grp_labels[i],
+            mean = mu, xmin = max(0, mu - 1.96*se), xmax = min(1, mu + 1.96*se),
+            stringsAsFactors = FALSE)
+        }
+        if (length(rows)) do.call(rbind, rows) else
+          data.frame(measure=character(), cluster=character(), mean=numeric(),
+                     xmin=numeric(), xmax=numeric(), stringsAsFactors=FALSE)
+      }
+
+      # vote_agg grouping
+      sub_vote2   <- tbl_tex[tbl_tex$vars_set == "vote", ]
+      vg_names    <- paste0(sub_vote2$desc, " (", sub_vote2$n_pct, "%)")
+      vg_masks    <- lapply(vote_vals, function(val) e$vote_agg == val)
+      vg_colors   <- setNames(
+        ifelse(sub_vote2$color %in% names(hex_col), hex_col[sub_vote2$color], "grey70"),
+        vg_names)
+      vg_colors[grepl("Centre", names(vg_colors))] <- "#74B9FF"
+      vg_colors[grepl("Non-r",  names(vg_colors))] <- "grey60"
+      df_vg <- make_rows_fixed(fixed_vars, vg_masks, vg_names)
+
+      # budget k=2, 3, 4
+      km_list <- list()
+      for (k in 2:4) {
+        set.seed(42)
+        km_list[[as.character(k)]] <- kmeans(mats[["budget"]], centers = k, nstart = 20)
+      }
+
+      panels_df  <- list(vote = list(df = df_vg, colors = vg_colors,
+                                      title = "Bloc politique"))
+      for (k in 2:4) {
+        cl_vec_k <- km_list[[as.character(k)]]$cluster
+        sub_k    <- tbl_tex[tbl_tex$vars_set == "budget" & !is.na(tbl_tex$k) & tbl_tex$k == k, ]
+        cl_desc  <- paste0(sub_k$desc, " (", sub_k$n_pct, "%)")
+        cl_lbl_k <- setNames(cl_desc, as.character(sub_k$cluster))
+        cl_col_k <- setNames(
+          ifelse(sub_k$color %in% names(hex_col), hex_col[sub_k$color], "grey70"),
+          cl_desc)
+        masks_k  <- lapply(seq_len(k), function(j) cl_vec_k == j)
+        labs_k   <- cl_lbl_k[as.character(seq_len(k))]
+        df_k     <- make_rows_fixed(fixed_vars, masks_k, labs_k)
+        panels_df[[paste0("b", k)]] <- list(df = df_k, colors = cl_col_k,
+                                             title = sprintf("budget k=%d", k))
+      }
+
+      # Global spread for y-axis ordering
+      spread_g <- sapply(fixed_vars, function(v) {
+        all_means <- unlist(lapply(panels_df, function(pd) {
+          rows_v2 <- pd$df[pd$df$measure == label_att(v), "mean"]
+          if (length(rows_v2)) rows_v2 else NA_real_
+        }))
+        diff(range(all_means, na.rm = TRUE))
+      })
+      var_order <- names(sort(spread_g, decreasing = TRUE))
+      lev_order <- sapply(rev(var_order), label_att)  # bottom to top
+
+      # One ggplot per panel
+      make_panel <- function(pd, show_y, dodge_w = 0.55) {
+        df_i <- pd$df
+        df_i$measure <- factor(df_i$measure, levels = lev_order)
+        df_i$cluster <- factor(df_i$cluster, levels = names(pd$colors))
+        n_rows <- length(fixed_vars)
+        minor_yi <- seq(0.5, n_rows - 0.5, by = 1)
+        ggplot(df_i, aes(y = measure, x = mean, color = cluster, group = cluster)) +
+          geom_hline(yintercept = minor_yi, color = "grey85", linewidth = 0.3) +
+          geom_vline(xintercept = 0.5, linetype = "dotted", color = "grey50",
+                     linewidth = 0.4) +
+          geom_errorbarh(aes(xmin = xmin, xmax = xmax),
+                         height = 0, linewidth = 0.35,
+                         position = position_dodge(width = dodge_w)) +
+          geom_point(size = 2.5, position = position_dodge(width = dodge_w)) +
+          scale_color_manual(values = pd$colors, drop = FALSE) +
+          scale_x_continuous(labels = function(x) paste0(round(x * 100), "%")) +
+          guides(color = guide_legend(nrow = if (length(pd$colors) >= 3) 2 else 1)) +
+          labs(y = NULL, x = NULL, color = NULL, title = pd$title) +
+          theme_bw(base_size = 14) +
+          theme(
+            legend.position      = "top",
+            legend.justification = c(if (length(pd$colors) == 3) 3 else 0.7, 0),
+            legend.key.size      = unit(0.45, "cm"),
+            panel.grid.major.y   = element_blank(),
+            panel.grid.minor.y   = element_blank(),
+            panel.grid.major.x   = element_line(color = "grey90", linewidth = 0.3),
+            panel.border         = element_rect(linewidth = 0.4),
+            axis.text.x          = element_text(color = "black"),
+            axis.text.y          = if (show_y) element_text(color = "black")
+                                   else element_blank(),
+            axis.ticks.y         = if (show_y) element_line() else element_blank(),
+            legend.text          = element_text(color = "black"),
+            plot.title           = element_text(hjust = 0.5, size = 14),
+            plot.margin          = margin(t = 3, r = 6, b = 3, l = if (show_y) 3 else 1)
+          ) +
+          scale_y_discrete(expand = expansion(add = 0.5))
+      }
+
+      # 2×2 layout: row 1 = k3 (left, with y labels) + vote_agg (right)
+      #             row 2 = k4 (left, with y labels) + k2 (right)
+      p_comb <- (make_panel(panels_df[["b3"]],   show_y = TRUE) |
+                   make_panel(panels_df[["vote"]], show_y = FALSE)) /
+                (make_panel(panels_df[["b4"]],   show_y = TRUE) |
+                   make_panel(panels_df[["b2"]],  show_y = FALSE))
+
+      ggsave("../figures/clusters_combined_polarises.pdf", p_comb,
+             width = 10, height = 10, device = cairo_pdf)
+      cat("→ ../figures/clusters_combined_polarises.pdf\n")
+    }
+  }
+
   # Console summary
   cat("\n=== Cluster comparison (post-processed) ===\n")
   cat(sprintf("%-20s  k  %-22s  n%%  sumG  lean.-1  lean1  lean2  lean0\n", "vars_set", "desc"))
@@ -895,7 +1591,7 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
 }
 
 
-##### 3b. Alternative clustering: Ward hierarchical on an ordinal+NSP distance #####
+##### 3old. Alternative clustering: Ward hierarchical on an ordinal+NSP distance #####
 # Cluster (n=40) of PNR, cluster of right (74%, incl. 7% très frugaux) and left (22%)
 # Custom Gower-like distance per variable:
 #   - both Likert (-1,0,1,2): |x - y| / 3 (normalized rank distance, uses ordering)
@@ -1002,7 +1698,6 @@ savings_by_cluster <- sapply(seq_len(k_opt_m), function(cl) {
 })
 names(savings_by_cluster) <- paste0("meas_cl", seq_len(k_opt_m))
 print(round(savings_by_cluster, 1))
-cat(sprintf("Grand total across clusters: %.1f Mds€\n", sum(savings_by_cluster)))
 
 # Per-respondent mean support on each measure cluster (using binary accept).
 cluster_support <- sapply(seq_len(k_opt_m), function(cl) {

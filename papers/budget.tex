@@ -120,7 +120,7 @@ Le tableau~\ref{tab:representativite} présente les statistiques de représentat
   \label{tab:representativite}
   \input{../tables/FR_bold_fr.tex}
   \par\smallskip
-  {\footnotesize Note~: Les valeurs en gras indiquent un écart supérieur à 20\% entre l'échantillon et la population. Les lignes \textit{Vote ou affinité} incluent les abstentionnistes ayant indiqué leur vote hypothétique, et les fréquences correspondantes dans la population ont été ajustées de sorte à sommer à 0.827~: la proportion de répondants ayant indiqué leur vote réel ou hypothétique. %La pondération ramène les proportions proches de celles de la population.
+  {\footnotesize \textit{Note~:} Les valeurs en gras indiquent un écart supérieur à 20\% entre l'échantillon et la population. Les lignes \textit{Vote ou affinité} incluent les abstentionnistes ayant indiqué leur vote hypothétique, et les fréquences correspondantes dans la population ont été ajustées de sorte à sommer à 0.827~: la proportion de répondants ayant indiqué leur vote réel ou hypothétique. %La pondération ramène les proportions proches de celles de la population.
   L'intervalle de confiance à 90~\% pour une variable binaire est au maximum (lorsque sa moyenne est de 50~\%) de $\pm3$~p.p. pour un échantillon de taille N=1~000, $\pm4$~p.p. pour N=500, $\pm5$~p.p. pour 300, $\pm6$~p.p. pour N=200, $\pm8$~p.p. pour N=100, $\pm10$~p.p. pour N=62.
   }
 \end{table}
@@ -138,7 +138,7 @@ La figure~\ref{fig:effect_program} présente l'effet de différentes mesures sur
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{../figures/effect_program.pdf}
-  \caption{Effet de mesures sur l'évaluation d'un programme présidentiel.\\ \textit{Pour chacune des mesures ci-dessous, sa présence dans le programme d'un candidat à l'élection présidentielle de 2027 vous rendrait-elle plus ou moins favorable à ce candidat~?}}
+  \caption{Effet de mesures sur l'évaluation d'un programme présidentiel.} {\small \textit{Pour chacune des mesures ci-dessous, sa présence dans le programme d'un candidat à}\\\textit{l'élection présidentielle de 2027 vous rendrait-elle plus ou moins favorable à ce candidat~?}}
   \label{fig:effect_program}
 \end{figure}
 
@@ -174,7 +174,7 @@ Les treize mesures \textit{convenables} pour une majorité sont avant tout des m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 J'étudie comment chaque attitude politique peut être prédite par un ensemble de caractéristiques sociodémographiques, à l'aide de régressions linéaires. Puis, pour chaque attitude, j'analyse la part de la variance expliquée par chaque variable sociodémographique. Enfin, je calcule la moyenne des variances expliquées pour chaque attitude, afin d'estimer la puissance prédictive de chaque caractéristique sociodémographique concernant les attitudes politiques.%
-\footnote{Plus précisément, j'applique la méthode LMG à chaque attitude, c'est-à-dire que pour chaque attitude, je calcule la moyenne de l'analyse de variance (ANOVA) pour chaque permutation des variables sociodémographiques \citep{lindeman_introduction_1980,gromping_estimators_2007}. Les 49 attitudes politiques étudiées contiennent chaque variable de \texttt{budget} (recodée entre $-1$ et 2) et de \texttt{programme} (de $-2$ à 2), ainsi que deux autres variables~: la somme des économies impliquées par les mesures \textit{convenables} pour un répondant, et de même pour les mesures \textit{souhaitables}. Les variables sociodémographiques utilisées sont le vote (réel ou hypothétique, regroupé en trois familles politiques), les indicatrices de genre, d'âge, de niveau de vie, de diplôme, d'urbanité, de région, de patrimoine, de statut d'emploi, d'abstention aux élections européennes, la taille du ménage et le nombre d'enfants de moins de 14 ans dans le ménage. D'autres variables ou des interactions de variables n'ont pas été retenues car leur pouvoir prédictif est trop faible.}.
+\footnote{Plus précisément, j'applique la méthode LMG à chaque attitude, c'est-à-dire que pour chaque attitude, je calcule la moyenne de l'analyse de variance (ANOVA) pour chaque permutation des variables sociodémographiques \citep{lindeman_introduction_1980,gromping_estimators_2007}. Les 47 attitudes politiques étudiées contiennent chaque variable de \texttt{budget} (recodée entre $-1$ et 2) et de \texttt{programme} (de $-2$ à 2), ainsi que deux autres variables~: la somme des économies impliquées par les mesures \textit{convenables} pour un répondant, et de même pour les mesures \textit{souhaitables}. Les variables sociodémographiques utilisées sont le vote (réel ou hypothétique, regroupé en trois familles politiques), les indicatrices de genre, d'âge, de niveau de vie, de diplôme, d'urbanité, de région, de patrimoine, de statut d'emploi, d'abstention aux élections européennes, la taille du ménage et le nombre d'enfants de moins de 14 ans dans le ménage. D'autres variables ou des interactions de variables n'ont pas été retenues car leur pouvoir prédictif est trop faible.}.
 
 
 Les caractéristiques sociodémographiques expliquent 13\,\% de la variance, ce qui est habituel pour les attitudes politiques. Pour interpréter ce chiffre, prenons un cas simplifié, où 50\,\% des répondants sont \textit{Pour} une mesure et autant \textit{Contre}. Imaginons que le genre soit la seule caractéristique qui prédit cette attitude~: 68\,\% des femmes sont \textit{Pour} vs. 32\,\% des hommes. En d'autres termes, on a une chance sur deux de correctement prédire l'attitude quand on ne sait rien de la personne, et 68\,\% de chances quand on connaît son genre. Dans ce cas, un rapide calcul montre que 13\,\% de la variance est expliqué par les caractéristiques sociodémographiques\footnote{En effet, on a 36\,\% de chances supplémentaires de faire une prédiction correcte en connaissant le genre. Cela signifie que le genre explique 36\,\% de l'écart-type, soit une part $0,36^2=0,13$ de la variance.}  
@@ -190,14 +190,16 @@ Les figures~\ref{fig:notes_groupes_budget} et~\ref{fig:notes_groupes_effect_prog
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{../figures/notes_groupes_budget.pdf}
-  \caption{Évaluation moyenne des mesures budgétaires, par bloc politique. \\ Chaque barre latérale représente l'écart moyen à la moyenne du bloc parmi les évaluations situées du même côté de la moyenne.}
+  \caption{Évaluation moyenne des mesures budgétaires, par bloc politique. \\ 
+  {\footnotesize Chaque barre latérale représente l'écart moyen à la moyenne du bloc parmi les évaluations situées du même côté de la moyenne.}}
   \label{fig:notes_groupes_budget}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{../figures/notes_groupes_effect_program.pdf}
-  \caption{Évaluation moyenne des mesures programmatiques, par bloc politique. \\ Chaque barre latérale représente l'écart moyen à la moyenne du bloc parmi les évaluations situées du même côté de la moyenne.}
+  \caption{Évaluation moyenne des mesures programmatiques, par bloc politique. \\ 
+  {\footnotesize Chaque barre latérale représente l'écart moyen à la moyenne du bloc parmi les évaluations situées du même côté de la moyenne.}}
   \label{fig:notes_groupes_effect_program}
 \end{figure}
 
@@ -234,7 +236,8 @@ tandis que les électeurs de LFI en sont les plus éloignés. Ces observations s
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{../figures/distance_matrix_pairwise.pdf}
-  \caption{Distances moyennes entre (et au sein) de groupes électoraux (distance inter-individuelle moyenne aux questions \texttt{budget} et \texttt{programme}, exprimée en variation par rapport à la distance moyenne au sein de l'Ensemble de l'échantillon).}
+  \caption{Distances moyennes entre (et au sein) de groupes électoraux.} 
+  {\footnotesize Distance inter-individuelle moyenne aux questions \texttt{budget} et \texttt{programme}, exprimée en variation par rapport à la distance moyenne au sein de l'Ensemble de l'échantillon.}
   \label{fig:distance_matrix_pairwise}
 \end{figure}
 
@@ -259,7 +262,7 @@ En dépit de la politique d'Emmanuel Macron, 32,8~Mds de taxes supplémentaires 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{../figures/coalition_packages_matrix.pdf}
-  \caption{Plus grands paquets de mesures acceptés par une majorité conjointe, par coalition. \\ Une majorité est dite conjointe lorsqu'aucun des répondants qui la compose ne juge une mesure du paquet \textit{inacceptable}.}
+  \caption{Plus grands paquets de mesures acceptés par une majorité conjointe, par coalition. \\ {\footnotesize Une majorité est \textit{conjointe} si aucun des répondants qui la compose ne juge une mesure du paquet \textit{inacceptable}.}}
   \label{fig:coalition_packages_matrix}
 \end{figure}
 
@@ -285,6 +288,21 @@ Un clustering $k$-means appliqué à la matrice binaire de soutien identifie tro
 % si la gauche insiste sur la consolidation budgétaire, les frugaux peuvent rallier la gauche et la faire gagner
 % si la gauche insiste sur le droit des étrangers, les nativistes peuvent faire gagner la droite
 
+% On regroupe répondants; méthode; plusieurs regroupement suivant configuration
+% Exemple reposant sur budget intéressant car illustre comment des progressistes pourraient réunir une majorité (bien que la gauche n'ait qu'un tiers des électeurs)
+% k=3, plus pertinent, et cohérent avec la tripartition, avec petites différences
+
+% Progressites: recoupent bien la Gauche
+% Frugaux: pour TVA mais pas pour retraite, contr. Droite
+% Conservateurs: regroupe presque ED et C, mais moins favorables aux taxes sur riches (bien qu'une majorité d'eux veulent ISF)
+
+% pour k=2, partition qui pourrait émerger dans un second tour où un candidat rassemblerait le camp conservateur et l'autre répondrait aux préoccupations tant de la gauche (inégalité) que des frugaux (déficit)
+% pour k=4 on voit que les frugaux restent quasi intacts et les conservateurs éclatent en deux groupes: libéraux-nativistes farouchement opposés aux taxes sur les riches, et les sociaux-nativistes qui y sont favorables; sociaux-nativistes rejoints par un tiers des progressistes k=3 favorable à restreindre les aides aux étrangers
+% Sociaux-nativistes: recoupent bcp extr droite mais plus favorables aux taxes sur les riches, non représenté par les partis / Ce profil hybride ne correspond à aucune offre partisane existante.
+
+% Dans le cas précédent, la gauche s'allie avec des nativistes frugaux autour de la question des taxes sur les riches et de la réduction du déficit. Si le jeu politique met sur le devant de la scène la question migratoire et que le candidat de droite apparaît plus crédible pour réduire le déficit, l'électorat se partitionnerait autrement et ferait gagner les conservateurs.
+
+
 \begin{enumerate}
   \item \textbf{Sociaux-nativistes} (49\,\% des répondants)~: fort soutien aux mesures anti-immigration (retrait des aides aux étrangers, suppression de l'AME) combiné à un soutien modéré aux hausses de taxes sur les plus aisés. Ce profil hybride ne correspond à aucune offre partisane existante.
   
@@ -295,8 +313,27 @@ Un clustering $k$-means appliqué à la matrice binaire de soutien identifie tro
 
 La cohérence entre ces profils de répondants et le vote est notable~: les progressistes concentrent les électeurs de gauche, les sociaux-nativistes regroupent une partie de l'extrême droite et des non-votants, les frugaux attirent davantage le centre-droit. % TODO! chiffres
 
+% Piketty & Cagé: social-écologique, libéral-progressiste, national-patriote; reposent sur les programmes des partis et ne peut pas capter que les centristes sont en fait nativistes et pro-redistribution; et se distinguent sur des questions comme la retraite à 65 ans
+
+\begin{table}[htbp]
+  \centering
+  \caption{Blocs politiques par profils de répondants dans les partitionnement \texttt{budget}.}
+  \label{tab:cluster_vote}
+  \input{../tables/cluster_vote_composition}
+\end{table}
+
 
 \subsection{Partitionnement des mesures}
+
+% budget: k2: pop/impop, k3: g/impop/d, k4: only g/impop/d/g
+% programme: k2: only g/only d, k3: g/impop/d, k4: g/only g/impop/d
+% toutes: k2: impop/pop, k3: d/g/impop, k4: d/only g/impop/g
+
+% Différents clusterings donnent même classification à peu de choses près (k=2 généralement pop/impop sauf dans programme). Pour k=3 c'est impop/g/d. Description. Score moyen proche de 0: peu de polarisation. Correspond mieux à profil qu'au bloc politique,
+% pas sûr: montrant que l'offre politique ne coïncide pas avec les profils d'attitudes les plus saillants. 
+% Centre-droit plus proche de l'ED mais va devoir soutenir mesures soit de gauche soit impopulaires pour être crédible sur déficit
+
+% => Le vainqueur aura le mieux réussi à faire la synthèse entre redistribution, crédibilité budgétaire et fermeté judiciaire; reliant des aspirations qui ne vont généralement pas ensemble et qui risquent de rebuter son propre camp; suggère que démocratie directe donnerait des résultats différents que parlement
 
 Trois types de mesures sont identifiés par un clustering analogue appliqué aux mesures (regroupées lorsqu'elles sont soutenues par les mêmes répondants)~:
 
@@ -307,6 +344,16 @@ Trois types de mesures sont identifiés par un clustering analogue appliqué aux
 
   \item \textbf{Mesures de gauche} (39~Mds€)~: impôts sur les plus aisés. Ces mesures sont généralement soutenues par les progressistes, tolérées par les sociaux-nativistes, et rejetées par les frugaux.
 \end{enumerate}
+
+% c("Sociales-redistributives", "Co\\^uts indifférenciés", "Contraction de l'État-providence")
+
+\begin{table}[htbp]
+  \centering\footnotesize\setlength{\tabcolsep}{4pt}\caption{Soutien aux ensembles de mesures \texttt{budget} identifiés par partitionnement ($k$=3). }%, par groupe de répondants.}
+  \input{../tables/cluster_measures_budget3}   
+  \par\smallskip
+  {\footnotesize \textit{Note~:} Le soutien est défini par la proportion d'évaluations \textit{convenable} ou \textit{souhaitable} au sein des groupes de répondants considérés. Le \textit{bloc politique} code le vote réel ou hypothétique entre $-$1 (Gauche) et 1 (Extrême-droite). Les colonnes de droite rapportent le soutien moyen par bloc politique et par profil identifié par partitionnement des répondants à l'aide des évaluations \texttt{budget} ($k=3$).}
+  \label{tab:cluster_measures_budget3}
+\end{table}
 
 La figure~\ref{fig:budget_correlations} présente les corrélations entre mesures. On observe notamment~: une forte corrélation entre les mesures anti-immigration,  
 % (AME et retrait des aides aux étrangers, $r = 0{,}72$), 
@@ -331,7 +378,7 @@ Cette comparaison illustre le rôle que peuvent jouer l'information et la délib
 
 % ça sera difficile de réaliser les économies sur les dépenses publiques, difficile de ne pas taxer les plus aisés
 % paquets mêlant droite et gauche
-% Limitations liées au faible échantillon et au manque de délibération
+% Limitations liées au faible échantillon et au manque de délibération; au choix non exhaustif des questions (par ex rien sur la politique étrangère ou l'UE)
 % et le choix de LÉ/PS est particulièrement difficile car ces partis sont plus proches de LFI que du centre, mais auront du mal à gouverner sans s'allier au centre (vu le rapport de forces électoral), lequel est très éloigné de LFI.
 % Deux majorités possibles : nativistes-sociaux ou alliance entre frugaux et progressistes.
 % Centre/Droite peuvent être avantagés par réputation de sérieux gestionnaire et de conscience des réalités économiques (puisque leurs mesures sont les plus favorables à la croissance), mais une majorité préférerait taxer les riches plutôt que la croissance (pb de montrer ça: le but ici est de réduire le déficit)
@@ -383,10 +430,9 @@ Cette comparaison illustre le rôle que peuvent jouer l'information et la délib
     \subcaption{Décomposition du R\textsuperscript{2} (régression jointe).}
     \label{fig:lmg_attitudes}
   \end{subfigure}
-  \caption{Variance dans les attitudes expliquée par les caractéristiques sociodémographiques. (a) R\textsuperscript{2} moyen obtenu en régressant chaque attitude sur une seule caractéristique à la fois~; (b) part moyenne de variance expliquée par chaque caractéristique dans la régression jointe (décomposition LMG, variance expliquée totale~: 13~\%). Les moyennes sont calculées sur les 49 variables d'attitudes (mesures \texttt{budget}, \texttt{programme} et indices \texttt{somme\_convenable} et \texttt{somme\_souhaitable}).}
+  \caption{Variance dans les attitudes expliquée par les caractéristiques sociodémographiques. (a) R\textsuperscript{2} moyen obtenu en régressant chaque attitude sur une seule caractéristique à la fois~; (b) part moyenne de variance expliquée par chaque caractéristique dans la régression jointe (décomposition LMG, variance expliquée totale~: 13~\%). Les moyennes sont calculées sur les 47 variables d'attitudes (mesures \texttt{budget}, \texttt{programme} et indices \texttt{somme\_convenable} et \texttt{somme\_souhaitable}).}
   \label{fig:lmg}
 \end{figure}
-
 
 \begin{figure}[htbp]
   \centering
@@ -407,8 +453,17 @@ Cette comparaison illustre le rôle que peuvent jouer l'information et la délib
 \begin{table}[htbp]
 \centering\footnotesize\setlength{\tabcolsep}{4pt}
 \input{../tables/cluster_comparison.tex}
-\caption{Profils du partitionnement de répondants, par configuration (variables utilisées et nombre de profils). La description et la coloration des profils sont choisies à partir de leurs caractéristiques. Le \textit{bloc politique} code le vote réel ou hypothétique entre $-$1 (Gauche) et 1 (Extrême-droite). Le \textit{paquet soutenu} correspond aux économies réalisées par les mesures jugées \textit{convenables} ou \textit{souhaitables} par le répondant. Les mesures \texttt{budget} (hors mesures sectorielles) sont réparties en quatre catégories et les dernières colonnes rapportent le soutien moyen aux mesures de ces catégories, par profil. Pour chaque ensemble de variables utilisées, le gras indique le partitionnement le plus pertinent (celui avec la plus grande silhouette, score qui combine cohésion et séparation).}
+\caption{Profils de répondants pour différents partitionnements (variant en variables utilisées et nombre de profils) et par bloc politique. La description et la coloration des profils sont choisies à partir de leurs caractéristiques. Le \textit{bloc politique} code le vote réel ou hypothétique entre $-$1 (Gauche) et 1 (Extrême-droite). Le \textit{paquet soutenu} correspond aux économies réalisées par les mesures jugées \textit{convenables} ou \textit{souhaitables} par le répondant. Les mesures \texttt{budget} (hors mesures sectorielles) sont réparties en quatre catégories et les dernières colonnes rapportent le soutien moyen aux mesures de ces catégories, par profil. Pour chaque ensemble de variables utilisées, le gras indique le partitionnement le plus pertinent (celui avec la plus grande silhouette, score qui combine cohésion et séparation).}
 \label{tab:cluster_comparison}
 \end{table}
+
+% TODO Retour Section \ref{}
+
+% \begin{table}[htbp]
+% \centering\footnotesize\setlength{\tabcolsep}{4pt}
+% \input{../tables/cluster_measures_comparison}
+% \caption{Ensembles de mesures pour différents partitionnements (variant en variables utilisées et nombre d'ensembles). La \textit{taille} indique le nombre de mesures dans l'ensemble~; le \textit{montant} la somme des économies correspondantes (les mesures \texttt{programme} sont comptées à 0). Le \textit{bloc politique moyen} est la moyenne, sur les mesures de l'ensemble, du bloc politique moyen des répondants qui soutiennent chaque mesure. Les colonnes de droite rapportent le soutien moyen (\%) aux mesures de l'ensemble par bloc politique. Pour chaque ensemble de variables utilisées, le gras indique le partitionnement le plus pertinent (plus grande silhouette).}
+% \label{tab:cluster_measures}
+% \end{table}
 
 \end{document}

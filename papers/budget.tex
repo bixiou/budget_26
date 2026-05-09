@@ -43,8 +43,10 @@
 % budget 3 Centre-droit => Frugaux
 % budget 4 Inversion Centre-droit / ED
 
-\title{Préférences budgétaires des Français :\\
-résultats d'une enquête représentative}
+\title{
+  % Comment boucler le budget~? \\ L'élusive coalition pour gouverner la France
+  Préférences budgétaires des Français :\\ résultats d'une enquête représentative
+}
 \author{Adrien Fabre\thanks{CNRS; CIRED. Données, code et figures disponibles sur
 \url{https://github.com/bixiou/budget_26}.}}
 \date{\today}
@@ -282,38 +284,17 @@ La figure~\ref{fig:coalition_support_heatmap} présente pour chaque mesure le ta
 
 \subsection{Partitionnement des répondants}
 
-Un clustering $k$-means appliqué à la matrice binaire de soutien identifie trois profils de répondants~: % TODO! méthodo
-% Frugaux vs. Nativistes: si le débat est dominé par l'immigration, les nativistes vont rallier la droite et gagner; 
-% si le RN délaisse la consolidation budgétaire, les frugaux peuvent rallier leur opposant et le faire gagner
-% si la gauche insiste sur la consolidation budgétaire, les frugaux peuvent rallier la gauche et la faire gagner
-% si la gauche insiste sur le droit des étrangers, les nativistes peuvent faire gagner la droite
-
-% On regroupe répondants; méthode; plusieurs regroupement suivant configuration
-% Exemple reposant sur budget intéressant car illustre comment des progressistes pourraient réunir une majorité (bien que la gauche n'ait qu'un tiers des électeurs)
-% k=3, plus pertinent, et cohérent avec la tripartition, avec petites différences
-
-% Progressites: recoupent bien la Gauche
-% Frugaux: pour TVA mais pas pour retraite, contr. Droite
-% Conservateurs: regroupe presque ED et C, mais moins favorables aux taxes sur riches (bien qu'une majorité d'eux veulent ISF)
-
-% pour k=2, partition qui pourrait émerger dans un second tour où un candidat rassemblerait le camp conservateur et l'autre répondrait aux préoccupations tant de la gauche (inégalité) que des frugaux (déficit)
-% pour k=4 on voit que les frugaux restent quasi intacts et les conservateurs éclatent en deux groupes: libéraux-nativistes farouchement opposés aux taxes sur les riches, et les sociaux-nativistes qui y sont favorables; sociaux-nativistes rejoints par un tiers des progressistes k=3 favorable à restreindre les aides aux étrangers
-% Sociaux-nativistes: recoupent bcp extr droite mais plus favorables aux taxes sur les riches, non représenté par les partis / Ce profil hybride ne correspond à aucune offre partisane existante.
-
-% Dans le cas précédent, la gauche s'allie avec des nativistes frugaux autour de la question des taxes sur les riches et de la réduction du déficit. Si le jeu politique met sur le devant de la scène la question migratoire et que le candidat de droite apparaît plus crédible pour réduire le déficit, l'électorat se partitionnerait autrement et ferait gagner les conservateurs.
-
+Si jusqu'à présent, j'ai regroupé les répondants en fonction de leur vote, il est instructif de les partitionner en différents profils à partir de leurs attitudes. Le partitionnement obtenu dépend du nombre $k$ de profils et des attitudes considérées\footnote{J'utilise pour cet exercice l'algorithme des $k$-moyennes (ou \textit{$k$-means clustering}).}. Tandis que la table~\ref{tab:cluster_comparison} présente différents partitionnements en faisant varier ces configurations, un partitionnement particulier retient mon attention~: celui qui repose sur les attitudes relatives au \texttt{budget}. En effet, ce partitionnement est intéressant car il illustre comment le profil qui émerge comme <<~progressiste~>> pourrait réunir une majorité, alors même que la gauche ne représente qu'un tiers des électeurs. A contrario, la table~\ref{tab:cluster_comparison} montre que le profil des \textit{progressistes} reste minoritaire lorsqu'on sépare les répondants %en deux profils 
+en considérant leurs attitudes sur le \texttt{programme} (conjointement ou non à celles sur le \texttt{budget}). 
+La partition qui nous intéresse crée trois profils à partir des mesures \texttt{budget}\footnote{Je choisi le nombre $k$=3 de profils car dans notre cas, c'est celui qui maximise le \textit{coefficient de silhouette}, c'est-à-dire la pertinence du partitionnement.}, qu'on peut nommer ainsi~:  
 
 \begin{enumerate}
-  \item \textbf{Sociaux-nativistes} (49\,\% des répondants)~: fort soutien aux mesures anti-immigration (retrait des aides aux étrangers, suppression de l'AME) combiné à un soutien modéré aux hausses de taxes sur les plus aisés. Ce profil hybride ne correspond à aucune offre partisane existante.
-  
-  \item \textbf{Progressistes} (31\,\%)~: fort soutien aux impôts sur la fortune (ISF, droits de succession), très faible soutien aux mesures anti-immigration. L'électorat de gauche est surreprésenté dans ce profil.
-  
-  \item \textbf{Frugaux} (20\,\%)~: soutien fort aux mesures de rationalisation des dépenses publiques~; opposition aux hausses d'impôts indifférenciées (TVA, CSG)~; attitude ambivalente sur les mesures anti-immigration.
+  \item \textbf{Les conservateurs} (48\,\% des répondants)~: comme rapporté table~\ref{tab:cluster_vote}, ce profil rassemble une majorité des électeurs de droite (du centre-droit à l'extrême-droite). Cependant, contrairement aux électeurs de droite, le soutien aux mesures de taxation des plus aisés est généralement minoritaire chez les \textit{conservateurs} (avec des exceptions~: une majorité de \textit{conservateurs} soutient l'ISF, cf. figure~\ref{fig:combines}).   
+  \item \textbf{Les progressistes} (31\,\%)~: ce profil est majoritaire parmi les électeurs de gauche. % les attitudes de ce profil sont généralement conforme aux programmes de gauche, et est logiquement majoritaire parmi les électeurs de gauche. 
+  Sans surprise, une majorité de \textit{progressistes} soutient la taxation des plus riches ou le maintien de l'État-providence, et s'oppose aux impôts indifférenciés ou aux mesures nativistes de suppression d'aides pour les étrangers.
+  \item \textbf{Les frugaux} (21\,\%)~: ce profil se distingue par un soutien majoritaire à la plupart des mesures d'économie, y compris aux mesures nativistes, à celles qui restreignent l'État-providence, et aux (impopulaires) impôts indifférenciés. Ce profil ne correspond à aucun parti politique, et est à peine surreprésenté parmi les électeurs de centre-droit ou droite. Il se démarque par un grand paquet de mesures soutenues~: %les mesures convenables (ou souhaitables) pour les \textit{frugaux} représentent 
+  en moyenne 146~Mds de mesures convenables ou souhaitables, contre 93~Mds pour l'ensemble des répondants. %soutien fort aux mesures de rationalisation des dépenses publiques~; opposition aux hausses d'impôts indifférenciées (TVA, CSG)~; attitude ambivalente sur les mesures anti-immigration.
 \end{enumerate}
-
-La cohérence entre ces profils de répondants et le vote est notable~: les progressistes concentrent les électeurs de gauche, les sociaux-nativistes regroupent une partie de l'extrême droite et des non-votants, les frugaux attirent davantage le centre-droit. % TODO! chiffres
-
-% Piketty & Cagé: social-écologique, libéral-progressiste, national-patriote; reposent sur les programmes des partis et ne peut pas capter que les centristes sont en fait nativistes et pro-redistribution; et se distinguent sur des questions comme la retraite à 65 ans
 
 \begin{table}[htbp]
   \centering
@@ -322,6 +303,18 @@ La cohérence entre ces profils de répondants et le vote est notable~: les prog
   \input{../tables/cluster_vote_composition}
 \end{table}
 
+Cette tripartition automatique fait apparaître des profils quelque peu différents des blocs politiques habituels, en particulier les \textit{frugaux}. Lorsqu'on retente l'exercice avec quatre profils plutôt que trois, on retrouve le profil des \textit{frugaux} quasiment intact (18~\% des répondants), tandis que les \textit{conservateurs} éclatent en deux groupes~: 24~\% de \textit{libéraux-nativistes} largement opposés aux taxes sur les plus riches, et 36~\% de \textit{sociaux-nativistes} qui y sont majoritairement favorables. Notons que les \textit{sociaux-nativistes}, bien que formés en majorité de conservateurs, comprennent aussi environ un tiers des \textit{progressistes}, essentiellement ceux favorables aux mesures nativistes. Si les \textit{sociaux-nativistes} recoupent en grande partie les électeurs d'extrême-droite, % TODO: chiffre
+ils sont plus favorables que ceux-ci aux taxes sur les plus riches~; ainsi, leurs attitudes ne correspondent à aucune offre partisane existante.
+
+Il est intéressant de reproduire l'exercice avec une partition en deux profils plutôt que trois. On observe alors un profil de 46~\% de \textit{conservateurs} relativement inchangé, et une coalition des \textit{frugaux} et des \textit{progressistes} au sein d'un profil majoritaire que je qualifie de \textit{sociaux}. Cette partition de l'électorat pourrait éventuellement émerger lors de la présidentielle de 2027 dans le cas d'un second tour entre un candidat qui rassemblerait le camp conservateur et un autre qui réussirait à %le tour de force de répondre 
+en même temps aux principales préoccupations des progressistes (les inégalités) et des frugaux (le déficit). 
+
+Dans ce cas, la gauche s'allierait avec des nativistes frugaux autour des questions des taxes sur les riches et de la réduction du déficit. En revanche, si le jeu politique met la question migratoire sur le devant de la scène et que le candidat de droite apparaît plus crédible pour réduire le déficit, l'électorat se partitionnerait autrement et ferait probablement gagner les conservateurs. C'est ce scénario qui se produit lorsque les mesures \texttt{programme} sont utilisées pour identifier la partition (cf. table~\ref{tab:cluster_comparison}).
+
+
+% Piketty & Cagé: social-écologique, libéral-progressiste, national-patriote; reposent sur les programmes des partis et ne peut pas capter que les centristes sont en fait nativistes et pro-redistribution; et se distinguent sur des questions comme la retraite à 65 ans
+
+
 
 \subsection{Partitionnement des mesures}
 
@@ -329,21 +322,27 @@ La cohérence entre ces profils de répondants et le vote est notable~: les prog
 % programme: k2: only g/only d, k3: g/impop/d, k4: g/only g/impop/d
 % toutes: k2: impop/pop, k3: d/g/impop, k4: d/only g/impop/g
 
-% Différents clusterings donnent même classification à peu de choses près (k=2 généralement pop/impop sauf dans programme). Pour k=3 c'est impop/g/d. Description. Score moyen proche de 0: peu de polarisation. Correspond mieux à profil qu'au bloc politique,
-% pas sûr: montrant que l'offre politique ne coïncide pas avec les profils d'attitudes les plus saillants. 
-% Centre-droit plus proche de l'ED mais va devoir soutenir mesures soit de gauche soit impopulaires pour être crédible sur déficit
-
-% => Le vainqueur aura le mieux réussi à faire la synthèse entre redistribution, crédibilité budgétaire et fermeté judiciaire; reliant des aspirations qui ne vont généralement pas ensemble et qui risquent de rebuter son propre camp; suggère que démocratie directe donnerait des résultats différents que parlement
-
-Trois types de mesures sont identifiés par un clustering analogue appliqué aux mesures (regroupées lorsqu'elles sont soutenues par les mêmes répondants)~:
+% On peut appliquer un partitionnement analogue aux mesures (regroupées lorsqu'elles sont soutenues par les mêmes répondants). 
+De même qu'on a partitionné les répondants selon leurs attitudes, on %effectuer l'exercice dual de 
+partitionne ici les mesures de \texttt{budget} selon les répondants qui les soutiennent\footnote{Cette fois-ci, les différentes configurations donnent des partitions assez proches les unes des autres. Le partitionnement en deux ensembles sépare les mesures populaires des mesures impopulaires (sauf quand elle est effectuée sur les seules mesures de \texttt{programme}, où la séparation est gauche/droite). Le partitionnement en trois de l'ensemble des mesures est quasiment l'union des partitions effectuées séparement sur les mesures \texttt{budget} ou \texttt{programme} (à l'exception de la réduction de l'aide au développement, qui est à \textit{droite} dans le partitionnement \texttt{programme} mais dans l'ensemble \textit{impopulaire} quand on considère toutes les mesures). Les partitionnements en quatre ensembles font éclater les mesures de gauche en mesures majoritaires dans chaque bloc vs. seulement à gauche.}. 
+Comme le montre la table~\ref{tab:cluster_measures_budget3}, les trois ensembles de mesures identifiés correspondent assez bien aux trois profils de répondants étudiés précédemment. On distingue~:
 
 \begin{enumerate}
-  \item \textbf{Mesures impopulaires} (rendement cumulé~: 121~Mds€)~: hausses d'impôts indifférenciées, réduction des remboursements de soins. Ces mesures sont rejetées par la plupart des répondants.
-
-  \item \textbf{Mesures de droite} (64~Mds€)~: mesures anti-immigration, gel des aides sociales, report de l'âge de la retraite. Ces mesures sont généralement appréciées par les profils sociaux-nativistes et frugaux et rejetées par les progressistes.
-
-  \item \textbf{Mesures de gauche} (39~Mds€)~: impôts sur les plus aisés. Ces mesures sont généralement soutenues par les progressistes, tolérées par les sociaux-nativistes, et rejetées par les frugaux.
+  \item 15 \textbf{mesures impopulaires} (économies totales~: 122~Mds€)~: impôts indifférenciés, retraite à 65 ans, réduction des dépenses militaires, des aides à l'apprentissage ou des remboursements de soins\dots Ces mesures sont rejetées par la plupart des répondants, sauf chez les \textit{frugaux}. 
+  \item 9 \textbf{mesures de gauche} (58~Mds€)~: taxes sur les plus riches, suppression des exonérations sectorielles de taxes sur les carburants\dots Ces mesures sont en moyenne majoritaires dans chaque bloc politique, très appréciées à gauche ainsi que chez les progressistes et les frugaux, mais minoritaires chez les conservateurs.
+  \item 6 \textbf{mesures de droite} (44~Mds€)~: rationalisation ou gel de la dépense publique ou des aides sociales, mesures nativistes\dots Ces mesures sont majoritaires dans chaque bloc politique, très appréciées à droite ainsi que chez les conservateurs et les frugaux, mais minoritaires chez les progressistes.
 \end{enumerate}
+
+% De même qu'on peut partitionner les répondants selon leurs attitudes, on peut %effectuer l'exercice dual de 
+% partitionner les mesures selon les répondants qui les soutiennent. 
+% Cette fois-ci, les différentes configurations donnent des partitions assez proches les unes des autres. La partition en deux ensembles sépare les mesures populaires des mesures impopulaires (sauf quand elle est effectuée sur les seules mesures de \texttt{programme}, où la séparation est gauche/droite). La partition en trois est plus instructive, elle identifie trois ensembles~:
+
+
+% Différents clusterings donnent même classification à peu de choses près (k=2 généralement pop/impop sauf dans programme). Pour k=3 c'est impop/g/d. Description. Score moyen proche de 0: peu de polarisation. Correspond mieux à profil qu'au bloc politique,
+% pas sûr: montrant que l'offre politique ne coïncide pas avec les profils d'attitudes les plus saillants. 
+
+Si les mesures se regroupent largement selon le clivage gauche--droite, % les électeurs qui soutiennent chaque ensemble de mesures diffère peu en termes de blocs politiques. 
+la composition des électeurs qui les soutiennent varie peu d'un ensemble de mesures à l'autre\footnote{En codant le bloc politique entre $-$0,1 (Gauche) et 1 (Extrême-droite), le bloc politique moyen varie de $-$0,1 pour les répondants qui soutiennent les mesures de gauche à 0,2 pour ceux qui soutiennent les mesures de droite (cf. figure~\ref{tab:cluster_measures_budget3}).}. 
 
 % c("Sociales-redistributives", "Co\\^uts indifférenciés", "Contraction de l'État-providence")
 
@@ -355,9 +354,9 @@ Trois types de mesures sont identifiés par un clustering analogue appliqué aux
   \label{tab:cluster_measures_budget3}
 \end{table}
 
-La figure~\ref{fig:budget_correlations} présente les corrélations entre mesures. On observe notamment~: une forte corrélation entre les mesures anti-immigration,  
+Pour compléter cette analyse, la figure~\ref{fig:budget_correlations} présente les corrélations dans les soutiens entre mesures. On observe notamment une forte corrélation entre les mesures nativistes,  
 % (AME et retrait des aides aux étrangers, $r = 0{,}72$), 
-une corrélation positive entre les différents impôts sur les plus aisés, et une corrélation négative entre les mesures de restriction de l'État providence et celles taxant les riches.
+une corrélation positive entre les différents impôts sur les plus aisés, et une corrélation négative entre les mesures de restriction de l'État-providence et celles taxant les riches.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Comparaison avec La Plateforme Progressiste}
@@ -387,6 +386,14 @@ Cette comparaison illustre le rôle que peuvent jouer l'information et la délib
 % Pour que la gauche gagne, elle doit porter peu de mesures (pour éviter des mesures impopulaires e.g. sur l'immigration ou baisse des dépenses militaires), insister sur la réduction du déficit et montrer qu'on ne peut le réduire sans taxer les riches
 % Pour que l'ED gagne, pareil: avoir un programme économique sérieux et soutenir la taxation des riches
 % Pour que le Centre gagne: accepter de taxer un peu les riches et éviter report de la retraite
+
+% L'analyse des partitionnements possibles est riche d'enseignements pour la campagne présidentielle. Il suggère que si le RN délaisse la consolidation budgétaire, les frugaux rallieraient leur opposant et le feraient gagner. En particulier, si la gauche insiste sur la consolidation budgétaire, les frugaux peuvent la rallier et la faire gagner. A contrario, si la gauche insiste sur le droit des étrangers, les nativistes peuvent faire gagner la droite.
+
+% Centre-droit plus proche de l'ED mais va devoir soutenir mesures soit de gauche soit impopulaires pour être crédible sur déficit
+
+% => Le vainqueur aura le mieux réussi à faire la synthèse entre redistribution, crédibilité budgétaire et fermeté judiciaire; reliant des aspirations qui ne vont généralement pas ensemble et qui risquent de rebuter son propre camp;
+
+% suggère que démocratie directe donnerait des résultats différents que parlement
 
 % Cette enquête apporte plusieurs enseignements.
 
@@ -458,6 +465,7 @@ Cette comparaison illustre le rôle que peuvent jouer l'information et la délib
 \end{table}
 
 % TODO Retour Section \ref{}
+% TODO fig combines
 
 % \begin{table}[htbp]
 % \centering\footnotesize\setlength{\tabcolsep}{4pt}

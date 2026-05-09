@@ -765,7 +765,7 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
               effect_program = "\\texttt{programme} (17)",
               both           = "Toutes (47)",
               all            = "",
-              vote           = "Bloc politique (1)")
+              vote           = "\\multicell{Bloc\\\\politique (1)}")
   neg  <- function(s) sub("^-", "$-$", s)
   fmt0 <- function(x) if (is.na(x) || !is.finite(x)) "" else neg(sprintf("%.0f", x))
   fmt1 <- function(x) {
@@ -1588,6 +1588,249 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
                     r[["lean.1"]], r[["lean1"]], r[["lean2"]], r[["lean0"]])
     cat(line, "\n")
   }
+}
+
+
+##### 4a. Distances inter-individuelles (budget k=3) #####
+{
+  d_b    <- as.matrix(dist(mat_b))
+  cl_vec <- km_resp_b3$cluster
+  cl_map <- setNames(resp3_desc, as.character(resp3_j))
+
+  idx_up    <- which(upper.tri(d_b), arr.ind = TRUE)
+  d_overall <- mean(d_b[idx_up])
+
+  # Within-cluster mean pairwise distances
+  within_vals <- setNames(sapply(resp3_j, function(j) {
+    idx_j <- which(cl_vec == j)
+    sub   <- d_b[idx_j, idx_j, drop = FALSE]
+    if (nrow(sub) < 2) return(NA_real_)
+    mean(sub[upper.tri(sub)])
+  }), cl_map[as.character(resp3_j)])
+
+  # Between-cluster mean pairwise distances
+  pairs_cl    <- combn(sort(unique(cl_vec)), 2, simplify = FALSE)
+  between_vals <- setNames(sapply(pairs_cl, function(pair) {
+    i1 <- which(cl_vec == pair[1]); i2 <- which(cl_vec == pair[2])
+    mean(d_b[i1, i2])
+  }), sapply(pairs_cl, function(pair)
+    paste(cl_map[as.character(pair)], collapse = "\n↔ ")))
+
+  df_dist <- rbind(
+    data.frame(type  = "Intra-profil",
+               label = names(within_vals),
+               value = within_vals / d_overall,
+               stringsAsFactors = FALSE),
+    data.frame(type  = "Inter-profil",
+               label = names(between_vals),
+               value = between_vals / d_overall,
+               stringsAsFactors = FALSE)
+  )
+  df_dist$type  <- factor(df_dist$type, levels = c("Intra-profil", "Inter-profil"))
+  df_dist$label <- factor(df_dist$label, levels = df_dist$label)
+
+  p_dist <- ggplot(df_dist, aes(x = label, y = value, fill = type)) +
+    geom_col(width = 0.65) +
+    geom_hline(yintercept = 1, linetype = "dashed", color = "grey40", linewidth = 0.4) +
+    geom_text(aes(label = sprintf("%.2f", value)), vjust = -0.4, size = 2.4, color = "black") +
+    scale_fill_manual(values = c("Intra-profil" = "#2c6fad", "Inter-profil" = "#e07b39")) +
+    scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+    labs(x = NULL, y = "Distance relative à l'ensemble", fill = NULL) +
+    theme_bw(base_size = 8) +
+    theme(
+      legend.position    = "top",
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor   = element_blank(),
+      panel.border       = element_blank(),
+      axis.line          = element_line(color = "black", linewidth = 0.3),
+      axis.ticks         = element_line(color = "black", linewidth = 0.3),
+      axis.text          = element_text(color = "black", size = 6.5),
+      axis.text.x        = element_text(lineheight = 0.85),
+      plot.margin        = margin(t = 3, r = 8, b = 3, l = 3)
+    )
+  ggsave("../figures/distances_profils_budget_k3.pdf", p_dist,
+         width = 4.5, height = 3.2, device = cairo_pdf)
+  cat("→ ../figures/distances_profils_budget_k3.pdf\n")
+}
+
+
+##### 4b. R² moyen et LMG des attitudes sur le profil (budget k=3) #####
+{
+  e$cluster_b3 <- factor(km_resp_b3$cluster)
+
+  # R² moyen des attitudes ~ profil budget k=3
+  r2_cl <- sapply(attitudes, function(v) {
+    y  <- as.numeric(e[[v]])
+    ok <- !is.na(y) & !is.na(e$cluster_b3)
+    if (sum(ok) < 4) return(NA_real_)
+    summary(lm(y[ok] ~ e$cluster_b3[ok], weights = e$no_weight[ok]))$r.squared
+  })
+  cat(sprintf("\nR² moyen des attitudes sur le profil budget k=3 : %.1f%%\n",
+              mean(r2_cl, na.rm = TRUE) * 100))
+
+  # LMG moyen avec profil + socio-démos
+  det_labels_cl <- c("cluster_b3" = "Profil (budget k=3)", det_labels)
+  det_with_cl   <- c("cluster_b3", determinants)
+  det_novote_cl <- c("cluster_b3", determinants[determinants != "no.na(vote_agg)"])
+
+  avg_lmg_for <- function(det) {
+    lmg_mat <- matrix(NA_real_, nrow = length(det), ncol = length(attitudes),
+                      dimnames = list(det, attitudes))
+    for (v in attitudes) {
+      res <- fit_decomp(v, det = det)
+      if (!is.null(res)) {
+        shared <- intersect(det, names(res$lmg))
+        lmg_mat[shared, v] <- res$lmg[shared]
+      }
+    }
+    rowMeans(lmg_mat, na.rm = TRUE) * 100
+  }
+
+  bar_fig_lmg <- function(avg_lmg, det_lbs, tag) {
+    avg_lmg[!is.finite(avg_lmg)] <- 0
+    df <- data.frame(
+      label = factor(det_lbs[names(avg_lmg)],
+                     levels = det_lbs[names(avg_lmg)[order(avg_lmg)]]),
+      value = avg_lmg,
+      stringsAsFactors = FALSE
+    )
+    p <- ggplot(df, aes(x = value, y = label)) +
+      geom_col(fill = "#2c6fad", width = 0.7) +
+      geom_text(aes(label = sprintf("%.1f%%", value)), hjust = -0.1, size = 2.4, color = "black") +
+      scale_x_continuous(expand = expansion(mult = c(0, 0.18)),
+                         labels = function(x) paste0(x, "%")) +
+      labs(x = "Part moyenne de variance expliquée (%)", y = NULL) +
+      theme_bw(base_size = 8) +
+      theme(panel.grid.major.y  = element_blank(),
+            panel.grid.minor    = element_blank(),
+            panel.border        = element_blank(),
+            axis.line           = element_line(color = "black", linewidth = 0.3),
+            axis.ticks          = element_line(color = "black", linewidth = 0.3),
+            axis.text           = element_text(color = "black"),
+            axis.title          = element_text(color = "black"),
+            plot.margin         = margin(t = 3, r = 12, b = 3, l = 3))
+    ggsave(sprintf("../figures/%s.pdf", tag), p, width = 2.5, height = 2.2, device = cairo_pdf)
+    cat("→ ../figures/", tag, ".pdf\n", sep = "")
+  }
+
+  cat("\nComputing LMG (profil + socio-démos) ...\n")
+  lmg_with_cl <- avg_lmg_for(det_with_cl)
+  cat(sprintf("LMG moyen Profil budget k=3 : %.1f%%\n", lmg_with_cl["cluster_b3"]))
+  bar_fig_lmg(lmg_with_cl, det_labels_cl, "lmg_profil_sociodemos")
+
+  cat("\nComputing LMG (profil + socio-démos hors vote) ...\n")
+  lmg_novote_cl <- avg_lmg_for(det_novote_cl)
+  cat(sprintf("LMG moyen Profil budget k=3 (hors vote) : %.1f%%\n", lmg_novote_cl["cluster_b3"]))
+  bar_fig_lmg(lmg_novote_cl, det_labels_cl, "lmg_profil_sociodemos_hors_vote")
+}
+
+
+##### 4c. Paquets à majorité conjointe par profil (budget k=2/3/4) #####
+{
+  lbl_bfr <- if (exists("labels_budget_fr")) labels_budget_fr else
+    setNames(gsub("_", " ", short_b), short_b)
+
+  km_list_pkgs <- list("2" = km_b2, "3" = km_b3, "4" = km_b4)
+
+  rows_pkg <- list()
+  for (k_c in c(2L, 3L, 4L)) {
+    km_c   <- km_list_pkgs[[as.character(k_c)]]
+    cl_vec <- km_c$cluster
+    n_tot  <- length(cl_vec)
+    sub_k  <- tbl_tex[tbl_tex$vars_set == "budget" & !is.na(tbl_tex$k) & tbl_tex$k == k_c, ]
+
+    for (ri in seq_len(nrow(sub_k))) {
+      j      <- sub_k$cluster[ri]
+      lbl    <- sub_k$desc[ri]
+      n_pct  <- sub_k$n_pct[ri]
+      wgt_cl <- ifelse(!is.na(cl_vec) & cl_vec == j, e$no_weight, 0)
+
+      ind_sup <- sapply(seq_len(m_b), function(i) js_cl(i, wgt_cl))
+
+      feas    <- apriori_cl(wgt_cl, label = sprintf("k%d_cl%d", k_c, j))
+      pkg_idx <- integer(0); js_pkg <- NA_real_; amt_pkg <- NA_real_
+      if (length(feas)) {
+        js_vec  <- sapply(feas, function(p) js_cl(p, wgt_cl))
+        best    <- which.max(js_vec)
+        pkg_idx <- feas[[best]]
+        js_pkg  <- js_vec[best]
+        amt_pkg <- sum(amt_b[pkg_idx], na.rm = TRUE)
+      }
+
+      prof_lbl <- if (!is.na(js_pkg))
+        sprintf("%s (%d%%)\nSCS %.0f%%, %.0f Mds€", lbl, n_pct, js_pkg * 100, amt_pkg)
+      else
+        sprintf("%s (%d%%)\n∅", lbl, n_pct)
+
+      for (i in seq_len(m_b)) {
+        rows_pkg[[length(rows_pkg) + 1]] <- data.frame(
+          k_label   = paste0("k = ", k_c),
+          prof_ord  = paste0(k_c, "_", sprintf("%02d", ri)),
+          profile   = prof_lbl,
+          measure   = vars_b[i],
+          meas_key  = short_b[i],
+          in_pkg    = i %in% pkg_idx,
+          sup       = ind_sup[i] * 100,
+          stringsAsFactors = FALSE
+        )
+      }
+    }
+  }
+
+  df_pkg <- do.call(rbind, rows_pkg)
+
+  # Keep only measures that appear in at least one profile's package
+  vars_in_pkg <- unique(df_pkg$measure[df_pkg$in_pkg])
+  df_pkgf     <- df_pkg[df_pkg$measure %in% vars_in_pkg, ]
+
+  # French labels
+  df_pkgf$meas_lbl <- lbl_bfr[df_pkgf$meas_key]
+  df_pkgf$meas_lbl[is.na(df_pkgf$meas_lbl)] <-
+    gsub("_", " ", df_pkgf$meas_key[is.na(df_pkgf$meas_lbl)])
+
+  # Y-axis: overall SCS support ascending → most supported at top
+  overall_sup_pkg <- setNames(
+    sapply(vars_in_pkg, function(v) js_cl(which(vars_b == v), e$no_weight)),
+    vars_in_pkg)
+  y_ord     <- vars_in_pkg[order(overall_sup_pkg)]
+  lbl_y_ord <- unique(df_pkgf$meas_lbl[match(y_ord, df_pkgf$measure)])
+  df_pkgf$meas_lbl <- factor(df_pkgf$meas_lbl, levels = lbl_y_ord)
+
+  # X-axis: profiles ordered left→right by political leaning within each k
+  prof_levs       <- unique(df_pkgf$profile[order(df_pkgf$prof_ord)])
+  df_pkgf$profile <- factor(df_pkgf$profile, levels = prof_levs)
+  df_pkgf$k_label <- factor(df_pkgf$k_label, levels = paste0("k = ", 2:4))
+
+  p_pkg <- ggplot(df_pkgf, aes(x = profile, y = meas_lbl)) +
+    geom_tile(aes(fill = sup), color = "white", linewidth = 0.15) +
+    geom_tile(data = df_pkgf[df_pkgf$in_pkg, ],
+              aes(x = profile, y = meas_lbl),
+              fill = NA, color = "#e07b39", linewidth = 0.75) +
+    geom_text(aes(label = sprintf("%.0f", sup)), size = 1.7, color = "grey20") +
+    scale_fill_gradient(low = "#eef4fb", high = "#1a4f8a",
+                        name = "Soutien SCS (%)",
+                        limits = c(0, 100), breaks = c(0, 50, 100)) +
+    facet_grid(. ~ k_label, scales = "free_x", space = "free_x") +
+    labs(x = NULL, y = NULL) +
+    theme_bw(base_size = 7.5) +
+    theme(
+      strip.background  = element_rect(fill = "grey90", color = NA),
+      strip.text        = element_text(face = "bold", size = 7.5),
+      axis.text.x       = element_text(size = 6.5, lineheight = 0.82),
+      axis.text.y       = element_text(size = 6.5),
+      axis.ticks        = element_line(linewidth = 0.25),
+      legend.position   = "bottom",
+      legend.key.width  = unit(1.2, "cm"),
+      legend.key.height = unit(0.3, "cm"),
+      panel.grid        = element_blank(),
+      panel.border      = element_rect(color = "grey70", linewidth = 0.3),
+      panel.spacing     = unit(0.4, "lines"),
+      plot.margin       = margin(t = 3, r = 5, b = 3, l = 5)
+    )
+
+  ggsave("../figures/paquets_profils_budget.pdf", p_pkg,
+         width = 8.5, height = 5.5, device = cairo_pdf)
+  cat("→ ../figures/paquets_profils_budget.pdf\n")
 }
 
 

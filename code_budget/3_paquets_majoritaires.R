@@ -883,7 +883,7 @@ plot_dist_heatmap <- function(mat, title, outfile,
   cat("  →", outfile, "\n")
 }
 
-# Normalisation par la distance intra-Ensemble (≈ 54.7 : distance moyenne entre
+# Normalisation par la distance intra-Ensemble (≈ 54.7/47=1.16 : distance moyenne entre
 # deux individus de la population complète) pour rendre les valeurs comparables
 # et centrées sur 1.
 ref_dist <- dist_mat_indiv["Overall", "Overall"]
@@ -893,8 +893,9 @@ dist_mat_norm       <- (dist_mat       / ref_dist - 1) * 100
 dist_mat_indiv_norm <- (dist_mat_indiv / ref_dist - 1) * 100
 
 plot_dist_heatmap(
-  dist_mat_norm,
-  "Distance entre groupes (∑ |Δ moyennes|) : écart vs. intra-Ensemble (en %)",
+  round(dist_mat_norm),
+  # "Distance entre groupes (∑ |Δ moyennes|) : écart vs. intra-Ensemble (en %)",
+  NULL,
   "../figures/distance_matrix_means.pdf"
 )
 plot_dist_heatmap(
@@ -930,6 +931,29 @@ plot_dist_heatmap(
   NULL,
   "../figures/distance_matrix_pairwise_dispersees.pdf"
 )
+
+## (4b) Robustesse — means avec effect_program recodé en −1/0/+1
+means_ep_recoded  <- group_mean_vec(variables_effect_program, ep_score_recoded)
+means_all_recoded <- rbind(means_ep_recoded, means_bud)
+dist_mat_recoded  <- matrix(0, ng, ng, dimnames = list(gnames, gnames))
+for (i in seq_len(ng))
+  for (j in seq_len(ng))
+    if (i != j) dist_mat_recoded[i, j] <-
+      sum(abs(means_all_recoded[, i] - means_all_recoded[, j]), na.rm = TRUE)
+dist_mat_recoded_norm <- (dist_mat_recoded / ref_dist_recoded - 1) * 100
+plot_dist_heatmap(round(dist_mat_recoded_norm), NULL,
+                  "../figures/distance_matrix_means_recoded.pdf")
+
+## (4c) Robustesse — means sur les 15 attitudes les plus dispersées
+means_all_dispersees  <- means_all[top15_idx, , drop = FALSE]
+dist_mat_dispersees   <- matrix(0, ng, ng, dimnames = list(gnames, gnames))
+for (i in seq_len(ng))
+  for (j in seq_len(ng))
+    if (i != j) dist_mat_dispersees[i, j] <-
+      sum(abs(means_all_dispersees[, i] - means_all_dispersees[, j]), na.rm = TRUE)
+dist_mat_dispersees_norm <- (dist_mat_dispersees / ref_dist_disp - 1) * 100
+plot_dist_heatmap(round(dist_mat_dispersees_norm), NULL,
+                  "../figures/distance_matrix_means_dispersees.pdf")
 
 cat("\nTerminé.\n")
 Sys.time() - start # 15h

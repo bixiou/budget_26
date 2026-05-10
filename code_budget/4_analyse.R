@@ -896,11 +896,12 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
       vote_col_nms, bloc_pcts)
 
     tex_v <- c(
-      "\\begin{tabular}{clcccc}",
+      "\\begin{tabular}{clccccc}",
       "\\toprule",
-      paste0("& & \\multicolumn{4}{c}{Part du profil dans le bloc politique (\\%)} \\\\"),
-      "\\cmidrule(lr){3-6}",
-      paste0(c("$k$", "\\makecell[l]{Description du profil}", col_hdrs), collapse = " & "),
+      paste0("& & & \\multicolumn{4}{c}{Part du profil dans le bloc politique (\\%)} \\\\"),
+      "\\cmidrule(lr){4-7}",
+      paste0(c("$k$", "\\makecell[l]{Description du profil}",
+               "\\makecell{Taille\\\\du profil\\\\(\\%)}", col_hdrs), collapse = " & "),
       " \\\\",
       "\\midrule"
     )
@@ -920,10 +921,10 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
         cc     <- if (nchar(color) > 0) sprintf("\\cellcolor{%s!15}", color) else ""
         desc   <- sub_c$desc[sub_c$cluster == ji]
         n_pct  <- sub_c$n_pct[sub_c$cluster == ji]
-        desc_n <- sprintf("%s (%d\\,\\%%)", desc, n_pct)
         k_cell <- if (ri == 1) as.character(k_c) else ""
         tex_v  <- c(tex_v, paste(
-          c(k_cell, paste0(cc, desc_n),
+          c(k_cell, paste0(cc, desc),
+            paste0(cc, n_pct),
             paste0(cc, shares)),
           collapse = " & "), " \\\\")
       }

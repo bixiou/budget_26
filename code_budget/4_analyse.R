@@ -1726,29 +1726,23 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
 }
 
 
-##### 4c. Paquets à majorité conjointe par profil (budget k=2/3/4) #####
+##### 4c. Paquets à majorité conjointe par profil (budget k=2/3/4 + ep k=2 + both k=2) #####
 {
   lbl_bfr <- if (exists("labels_budget_fr")) labels_budget_fr else
     setNames(gsub("_", " ", short_b), short_b)
 
-  km_list_pkgs <- list("2" = km_b2, "3" = km_b3, "4" = km_b4)
-
-  rows_pkg <- list()
-  for (k_c in c(2L, 3L, 4L)) {
-    km_c   <- km_list_pkgs[[as.character(k_c)]]
+  # Helper commun : construit rows pour une configuration (km, vars_set, k_c, k_label, pfx)
+  build_rows_pkg <- function(km_c, vs, k_c, k_label, pfx) {
     cl_vec <- km_c$cluster
-    n_tot  <- length(cl_vec)
-    sub_k  <- tbl_tex[tbl_tex$vars_set == "budget" & !is.na(tbl_tex$k) & tbl_tex$k == k_c, ]
-
+    sub_k  <- tbl_tex[tbl_tex$vars_set == vs & !is.na(tbl_tex$k) & tbl_tex$k == k_c, ]
+    out    <- list()
     for (ri in seq_len(nrow(sub_k))) {
       j      <- sub_k$cluster[ri]
       lbl    <- sub_k$desc[ri]
       n_pct  <- sub_k$n_pct[ri]
       wgt_cl <- ifelse(!is.na(cl_vec) & cl_vec == j, e$no_weight, 0)
-
       ind_sup <- sapply(seq_len(m_b), function(i) js_cl(i, wgt_cl))
-
-      feas    <- apriori_cl(wgt_cl, label = sprintf("k%d_cl%d", k_c, j))
+      feas    <- apriori_cl(wgt_cl, label = sprintf("%s_cl%d", pfx, j))
       pkg_idx <- integer(0); js_pkg <- NA_real_; amt_pkg <- NA_real_
       if (length(feas)) {
         js_vec  <- sapply(feas, function(p) js_cl(p, wgt_cl))
@@ -1757,81 +1751,97 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
         js_pkg  <- js_vec[best]
         amt_pkg <- sum(amt_b[pkg_idx], na.rm = TRUE)
       }
-
       prof_lbl <- if (!is.na(js_pkg))
         sprintf("%s (%d%%)\nSCS %.0f%%, %.0f Mds€", lbl, n_pct, js_pkg * 100, amt_pkg)
-      else
-        sprintf("%s (%d%%)\n∅", lbl, n_pct)
-
-      for (i in seq_len(m_b)) {
-        rows_pkg[[length(rows_pkg) + 1]] <- data.frame(
-          k_label   = paste0("k = ", k_c),
-          prof_ord  = paste0(k_c, "_", sprintf("%02d", ri)),
-          profile   = prof_lbl,
-          measure   = vars_b[i],
-          meas_key  = short_b[i],
-          in_pkg    = i %in% pkg_idx,
-          sup       = ind_sup[i] * 100,
-          stringsAsFactors = FALSE
-        )
-      }
+      else sprintf("%s (%d%%)\n∅", lbl, n_pct)
+      for (i in seq_len(m_b))
+        out[[length(out) + 1]] <- data.frame(
+          k_label  = k_label,
+          prof_ord = paste0(pfx, "_", sprintf("%02d", ri)),
+          profile  = prof_lbl,
+          measure  = vars_b[i], meas_key = short_b[i],
+          in_pkg   = i %in% pkg_idx, sup = ind_sup[i] * 100,
+          stringsAsFactors = FALSE)
     }
+    out
   }
 
-  df_pkg <- do.call(rbind, rows_pkg)
-
-  # Keep only measures that appear in at least one profile's package
-  vars_in_pkg <- unique(df_pkg$measure[df_pkg$in_pkg])
-  df_pkgf     <- df_pkg[df_pkg$measure %in% vars_in_pkg, ]
-
-  # French labels
-  df_pkgf$meas_lbl <- lbl_bfr[df_pkgf$meas_key]
-  df_pkgf$meas_lbl[is.na(df_pkgf$meas_lbl)] <-
-    gsub("_", " ", df_pkgf$meas_key[is.na(df_pkgf$meas_lbl)])
-
-  # Y-axis: overall SCS support ascending → most supported at top
-  overall_sup_pkg <- setNames(
-    sapply(vars_in_pkg, function(v) js_cl(which(vars_b == v), e$no_weight)),
-    vars_in_pkg)
-  y_ord     <- vars_in_pkg[order(overall_sup_pkg)]
-  lbl_y_ord <- unique(df_pkgf$meas_lbl[match(y_ord, df_pkgf$measure)])
-  df_pkgf$meas_lbl <- factor(df_pkgf$meas_lbl, levels = lbl_y_ord)
-
-  # X-axis: profiles ordered left→right by political leaning within each k
-  prof_levs       <- unique(df_pkgf$profile[order(df_pkgf$prof_ord)])
-  df_pkgf$profile <- factor(df_pkgf$profile, levels = prof_levs)
-  df_pkgf$k_label <- factor(df_pkgf$k_label, levels = paste0("k = ", 2:4))
-
-  p_pkg <- ggplot(df_pkgf, aes(x = profile, y = meas_lbl)) +
-    geom_tile(aes(fill = sup), color = "white", linewidth = 0.15) +
-    geom_tile(data = df_pkgf[df_pkgf$in_pkg, ],
-              aes(x = profile, y = meas_lbl),
-              fill = NA, color = "#e07b39", linewidth = 0.75) +
-    geom_text(aes(label = sprintf("%.0f", sup)), size = 1.7, color = "grey20") +
-    scale_fill_gradient(low = "#eef4fb", high = "#1a4f8a",
-                        name = "Soutien SCS (%)",
-                        limits = c(0, 100), breaks = c(0, 50, 100)) +
-    facet_grid(. ~ k_label, scales = "free_x", space = "free_x") +
-    labs(x = NULL, y = NULL) +
-    theme_bw(base_size = 7.5) +
-    theme(
-      strip.background  = element_rect(fill = "grey90", color = NA),
-      strip.text        = element_text(face = "bold", size = 7.5),
-      axis.text.x       = element_text(size = 6.5, lineheight = 0.82),
-      axis.text.y       = element_text(size = 6.5),
-      axis.ticks        = element_line(linewidth = 0.25),
-      legend.position   = "bottom",
-      legend.key.width  = unit(1.2, "cm"),
-      legend.key.height = unit(0.3, "cm"),
-      panel.grid        = element_blank(),
-      panel.border      = element_rect(color = "grey70", linewidth = 0.3),
-      panel.spacing     = unit(0.4, "lines"),
-      plot.margin       = margin(t = 3, r = 5, b = 3, l = 5)
+  # ── Bloc A : profils budget k = 2/3/4 ──────────────────────────────────
+  {
+    rows_pkg_budget <- c(
+      build_rows_pkg(km_b2, "budget", 2L, "Budget k = 2", "b2"),
+      build_rows_pkg(km_b3, "budget", 3L, "Budget k = 3", "b3"),
+      build_rows_pkg(km_b4, "budget", 4L, "Budget k = 4", "b4")
     )
+  }
 
-  ggsave("../figures/paquets_profils_budget.pdf", p_pkg,
-         width = 8.5, height = 5.5, device = cairo_pdf)
-  cat("→ ../figures/paquets_profils_budget.pdf\n")
+  # ── Bloc B : profils effect_program k=2 et both k=2 ────────────────────
+  # Peut être relancé seul sans refaire le Bloc A.
+  {
+    set.seed(42); km_e2    <- kmeans(mat_e,    centers = 2, nstart = 20)
+    set.seed(42); km_both2 <- kmeans(mat_both, centers = 2, nstart = 20)
+    rows_pkg_new <- c(
+      build_rows_pkg(km_e2,    "effect_program", 2L, "Programme k = 2", "e2"),
+      build_rows_pkg(km_both2, "both",            2L, "Toutes k = 2",    "t2")
+    )
+  }
+
+  # ── Figure (combine A + B) ──────────────────────────────────────────────
+  {
+    df_pkg <- do.call(rbind, c(rows_pkg_budget, rows_pkg_new))
+
+    vars_in_pkg <- unique(df_pkg$measure[df_pkg$in_pkg])
+    df_pkgf     <- df_pkg[df_pkg$measure %in% vars_in_pkg, ]
+
+    df_pkgf$meas_lbl <- lbl_bfr[df_pkgf$meas_key]
+    df_pkgf$meas_lbl[is.na(df_pkgf$meas_lbl)] <-
+      gsub("_", " ", df_pkgf$meas_key[is.na(df_pkgf$meas_lbl)])
+
+    overall_sup_pkg <- setNames(
+      sapply(vars_in_pkg, function(v) js_cl(which(vars_b == v), e$no_weight)),
+      vars_in_pkg)
+    y_ord     <- vars_in_pkg[order(overall_sup_pkg)]
+    lbl_y_ord <- unique(df_pkgf$meas_lbl[match(y_ord, df_pkgf$measure)])
+    df_pkgf$meas_lbl <- factor(df_pkgf$meas_lbl, levels = lbl_y_ord)
+
+    prof_levs       <- unique(df_pkgf$profile[order(df_pkgf$prof_ord)])
+    df_pkgf$profile <- factor(df_pkgf$profile, levels = prof_levs)
+    facet_levs      <- c("Budget k = 2", "Budget k = 3", "Budget k = 4",
+                         "Programme k = 2", "Toutes k = 2")
+    df_pkgf$k_label <- factor(df_pkgf$k_label,
+                               levels = facet_levs[facet_levs %in% df_pkgf$k_label])
+
+    p_pkg <- ggplot(df_pkgf, aes(x = profile, y = meas_lbl)) +
+      geom_tile(aes(fill = sup), color = "white", linewidth = 0.15) +
+      geom_tile(data = df_pkgf[df_pkgf$in_pkg, ],
+                aes(x = profile, y = meas_lbl),
+                fill = NA, color = "#e07b39", linewidth = 0.75) +
+      geom_text(aes(label = sprintf("%.0f", sup)), size = 1.7, color = "grey20") +
+      scale_fill_gradient(low = "#eef4fb", high = "#1a4f8a",
+                          name = "Soutien SCS (%)",
+                          limits = c(0, 100), breaks = c(0, 50, 100)) +
+      facet_grid(. ~ k_label, scales = "free_x", space = "free_x") +
+      labs(x = NULL, y = NULL) +
+      theme_bw(base_size = 7.5) +
+      theme(
+        strip.background  = element_rect(fill = "grey90", color = NA),
+        strip.text        = element_text(face = "bold", size = 7.5),
+        axis.text.x       = element_text(size = 6.5, lineheight = 0.82),
+        axis.text.y       = element_text(size = 6.5),
+        axis.ticks        = element_line(linewidth = 0.25),
+        legend.position   = "bottom",
+        legend.key.width  = unit(1.2, "cm"),
+        legend.key.height = unit(0.3, "cm"),
+        panel.grid        = element_blank(),
+        panel.border      = element_rect(color = "grey70", linewidth = 0.3),
+        panel.spacing     = unit(0.4, "lines"),
+        plot.margin       = margin(t = 3, r = 5, b = 3, l = 5)
+      )
+
+    ggsave("../figures/paquets_profils_budget.pdf", p_pkg,
+           width = 11, height = 5.5, device = cairo_pdf)
+    cat("→ ../figures/paquets_profils_budget.pdf\n")
+  }
 }
 
 

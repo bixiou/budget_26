@@ -1594,7 +1594,7 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
 
 ##### 4a. Distances inter-individuelles (budget k=3) #####
 {
-  d_b    <- as.matrix(dist(mat_b))
+  d_b    <- as.matrix(dist(mats[["budget"]]))
   cl_vec <- km_resp_b3$cluster
   cl_map <- setNames(resp3_desc, as.character(resp3_j))
 

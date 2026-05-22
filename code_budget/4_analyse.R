@@ -454,16 +454,17 @@ print(round(cluster_means, 2))
           cands[[length(cands) + 1L]] <- c(s1, s2[length(s2)])
         }
       if (!length(cands)) break
-      feas_k <- list()
+      feas_k <- list(); found_90 <- FALSE
       for (cand in cands) {
         sv <- js_cl(freq[cand], wgt)
         if (!is.na(sv) && sv > threshold) {
           feas_k[[length(feas_k) + 1L]] <- cand
           all_feas[[length(all_feas) + 1L]] <- freq[cand]
+          if (sum(amt_b[freq[cand]], na.rm = TRUE) > 90) { found_90 <- TRUE; break }
         }
       }
       cat(sprintf("  k=%d: %d faisables\n", k, length(feas_k)))
-      if (!length(feas_k)) break
+      if (!length(feas_k) || found_90) break
     }
     all_feas
   }
@@ -491,6 +492,7 @@ print(round(cluster_means, 2))
                   amts[idx], js_all[idx] * 100, paste(short_b[feas[[idx]]], collapse = " + ")))
     }
     pkg_cluster[[cl]] <- best_s
+    save.image('.RData')
   }
 }
 

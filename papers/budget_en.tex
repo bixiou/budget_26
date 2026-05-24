@@ -52,8 +52,6 @@ What measures are the French willing to accept to reduce the public deficit? I a
 Dissatisfaction with all political parties manifests in a dispersion of individual preferences, far more varied within the voters of any given party than between the average preferences of voters of different parties.
 \end{abstract}
 
-% TODO! paquets majo profils
-% TODO! budget_en, effect_program_en
 \clearpage
 \tableofcontents
 \newpage
@@ -128,7 +126,7 @@ Figure~\ref{fig:effect_program} presents the effect of various measures on the a
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{../figures/effect_program.pdf}
+  \includegraphics[width=\linewidth]{../figures/effect_program_en.pdf}
   \caption{Effect of measures on the assessment of a presidential programme.} {\small \textit{For each of the following measures, would its inclusion in a candidate's programme for the 2027 presidential}\\\textit{election make you more or less favorable toward that candidate?}}
   \label{fig:effect_program}
 \end{figure}
@@ -142,7 +140,7 @@ Savings reach 174.8~bn when adding measures that a majority finds \textit{tolera
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{../figures/budget.pdf}
+  \includegraphics[width=\linewidth]{../figures/budget_en.pdf}
   \caption{Assessments of fiscal measures.}
   \label{fig:budget}
 \end{figure}
@@ -271,9 +269,10 @@ clusterings that incorporate the \texttt{programme} question yield \textit{progr
 This automatic tripartition yields profiles somewhat different from the usual political blocs, in particular the \textit{deficit hawks}. When the exercise is repeated with four profiles rather than three, the \textit{deficit hawks} profile reappears almost intact (18\% of respondents), while \blue{the \textit{conservatives} split into two groups: 24\% of \textit{liberal-nativists} who are largely opposed to taxes on the wealthy, and 36\% of \textit{social-nativists} who are mostly in favor of them}. Note that the \textit{social-nativists}, while largely drawn from \textit{conservatives}, also include about a third of the \textit{progressives}, essentially those who support nativist measures. Although the \textit{social-nativists} broadly overlap with far-right voters,
 they are more favorable to taxes on the wealthy than those voters; their attitudes thus do not correspond to any existing partisan offer.
 
-\blue{It is instructive to reproduce the exercise with a partition into two profiles rather than three. One then observes a profile of 46\% of relatively unchanged \textit{conservatives}, and a coalition of the \textit{deficit hawks} and the \textit{progressives} within a majority profile I term the \textit{social coalition}. This electoral partition could potentially emerge at the 2027 presidential election in the event of a second round between a candidate who unites the conservative camp and another who succeeds in simultaneously addressing the main concerns of the \textit{progressives} (inequality) and the \textit{deficit hawks} (the deficit).}
+\blue{It is instructive to reproduce the exercise with a partition into two profiles rather than three. One then observes a profile of 46\% of relatively unchanged \textit{conservatives}, and a coalition of the \textit{deficit hawks} and the \textit{progressives} within a majority profile I term the \textit{socials}. This electoral partition could potentially emerge at the 2027 presidential election in the event of a second round between a candidate who unites the conservative camp and another who succeeds in simultaneously addressing the main concerns of the \textit{progressives} (inequality) and the \textit{deficit hawks} (the deficit).}
 
-In such a scenario, the left would ally with fiscally hawkish nativists around issues of taxing the wealthy and deficit reduction. \blue{Conversely, if the political game puts migration front and center and the right-wing candidate appears more credible on deficit reduction, the electorate would partition differently and would likely hand victory to the \textit{conservatives}.} This is the scenario that occurs when \texttt{programme} measures are used to identify the partition (see Table~\ref{tab:cluster_comparison}).
+In such a scenario, the left would ally with fiscally hawkish nativists around issues of taxing the wealthy and deficit reduction. \blue{Conversely, if the political game puts migration front and center and the right-wing candidate appears more credible on deficit reduction, the electorate would partition differently and would likely hand victory to the \textit{conservatives}.} In fact, the largest package supported by a majority of the \textit{socials} includes 91 billion in savings (half of which comes from taxes on the wealthiest), matching the 92 billion in savings in the \textit{deficit hawks}' package (Figure \ref{fig:paquets_profils_budget}). 
+This is the scenario that occurs when \texttt{programme} measures are used to identify the partition (see Table~\ref{tab:cluster_comparison}).
 
 
 \subsection{Clustering of Measures}
@@ -419,6 +418,13 @@ To enable voters to make an informed choice, it would also be very useful to imp
   \includegraphics[width=\linewidth]{../figures/clusters_combined_polarises.pdf}
   \caption{Most polarizing attitudes by type of respondent clustering. \texttt{budget} and \texttt{programme} measures with the greatest inter-profile gap, for clustering by political bloc (top right), by \texttt{budget} profile at $k=3$ (top left) and $k=4$ (bottom left), and at $k=2$ (bottom right). Dots indicate mean support rates (\textit{appropriate} or \textit{desirable}) with 95\% confidence intervals.}
   \label{fig:clusters_combined_polarises}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{../figures/paquets_profils_budget.pdf}
+  \caption{Largest policy packages accepted by a joint majority, by profile. \\ {\footnotesize A majority is \textit{joint} if none of the respondents composing it finds any measure in the package \textit{unacceptable}.}}
+  \label{fig:paquets_profils_budget}
 \end{figure}
 
 \end{document}

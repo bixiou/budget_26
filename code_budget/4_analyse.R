@@ -454,17 +454,17 @@ print(round(cluster_means, 2))
           cands[[length(cands) + 1L]] <- c(s1, s2[length(s2)])
         }
       if (!length(cands)) break
-      feas_k <- list(); found_90 <- FALSE
+      feas_k <- list(); found_110 <- FALSE
       for (cand in cands) {
         sv <- js_cl(freq[cand], wgt)
         if (!is.na(sv) && sv > threshold) {
           feas_k[[length(feas_k) + 1L]] <- cand
           all_feas[[length(all_feas) + 1L]] <- freq[cand]
-          if (sum(amt_b[freq[cand]], na.rm = TRUE) > 90) { found_90 <- TRUE; break }
+          if (sum(amt_b[freq[cand]], na.rm = TRUE) > 110) { found_110 <- TRUE; break }
         }
       }
       cat(sprintf("  k=%d: %d faisables\n", k, length(feas_k)))
-      if (!length(feas_k) || found_90) break
+      if (!length(feas_k) || found_110) break
     }
     all_feas
   }
@@ -492,7 +492,6 @@ print(round(cluster_means, 2))
                   amts[idx], js_all[idx] * 100, paste(short_b[feas[[idx]]], collapse = " + ")))
     }
     pkg_cluster[[cl]] <- best_s
-    save.image('.RData')
   }
 }
 
@@ -1740,7 +1739,7 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
     out    <- list()
     for (ri in seq_len(nrow(sub_k))) {
       j      <- sub_k$cluster[ri]
-      lbl    <- sub_k$desc[ri]
+      lbl    <- assign_label(leans_for_cl(km_c, j))
       n_pct  <- sub_k$n_pct[ri]
       wgt_cl <- ifelse(!is.na(cl_vec) & cl_vec == j, e$no_weight, 0)
       ind_sup <- sapply(seq_len(m_b), function(i) js_cl(i, wgt_cl))
@@ -1748,11 +1747,12 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
       pkg_idx <- integer(0); js_pkg <- NA_real_; amt_pkg <- NA_real_
       if (length(feas)) {
         js_vec  <- sapply(feas, function(p) js_cl(p, wgt_cl))
-        best    <- which.max(js_vec)
+        best    <- which.max(sapply(feas, function(p) sum(amt_b[p], na.rm = TRUE)))
         pkg_idx <- feas[[best]]
         js_pkg  <- js_vec[best]
         amt_pkg <- sum(amt_b[pkg_idx], na.rm = TRUE)
       }
+      save.image('.RData')
       prof_lbl <- if (!is.na(js_pkg))
         sprintf("%s (%d%%)\nSCS %.0f%%, %.0f Mds€", lbl, n_pct, js_pkg * 100, amt_pkg)
       else sprintf("%s (%d%%)\n∅", lbl, n_pct)
@@ -1798,50 +1798,123 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
     df_pkgf$meas_lbl <- lbl_bfr[df_pkgf$meas_key]
     df_pkgf$meas_lbl[is.na(df_pkgf$meas_lbl)] <-
       gsub("_", " ", df_pkgf$meas_key[is.na(df_pkgf$meas_lbl)])
+    amt_key <- setNames(amt_b, short_b)
+    df_pkgf$meas_lbl <- paste0(df_pkgf$meas_lbl,
+      ifelse(!is.na(amt_key[df_pkgf$meas_key]) & amt_key[df_pkgf$meas_key] > 0,
+             paste0(" (", gsub("\\.", ",", sprintf("%g", amt_key[df_pkgf$meas_key])), " Mds)"), ""))
 
+    # y-axis order: ascending overall SCS support (most popular at top)
     overall_sup_pkg <- setNames(
       sapply(vars_in_pkg, function(v) js_cl(which(vars_b == v), e$no_weight)),
       vars_in_pkg)
     y_ord     <- vars_in_pkg[order(overall_sup_pkg)]
     lbl_y_ord <- unique(df_pkgf$meas_lbl[match(y_ord, df_pkgf$measure)])
-    df_pkgf$meas_lbl <- factor(df_pkgf$meas_lbl, levels = lbl_y_ord)
 
-    prof_levs       <- unique(df_pkgf$profile[order(df_pkgf$prof_ord)])
-    df_pkgf$profile <- factor(df_pkgf$profile, levels = prof_levs)
-    facet_levs      <- c("Budget k = 2", "Budget k = 3", "Budget k = 4",
-                         "Programme k = 2", "Toutes k = 2")
-    df_pkgf$k_label <- factor(df_pkgf$k_label,
-                               levels = facet_levs[facet_levs %in% df_pkgf$k_label])
+    # Per-profile summary: extract SCS support % and savings from profile label
+    # Profile labels have format "Label (N%)\nSCS X%, Y Mds€" or "Label (N%)\n∅"
+    prof_rows <- unique(df_pkgf[, c("profile", "prof_ord", "k_label")])
+    prof_rows$scs_pct <- ifelse(
+      grepl("SCS", prof_rows$profile),
+      as.numeric(sub(".*SCS ([0-9.]+)%.*", "\\1", prof_rows$profile)),
+      NA_real_)
+    prof_rows$scs_amt <- ifelse(
+      grepl("SCS", prof_rows$profile),
+      as.numeric(sub(".*SCS [0-9.]+%, ([0-9.]+) Mds.*", "\\1", prof_rows$profile)),
+      NA_real_)
 
-    p_pkg <- ggplot(df_pkgf, aes(x = profile, y = meas_lbl)) +
-      geom_tile(aes(fill = sup), color = "white", linewidth = 0.15) +
-      geom_tile(data = df_pkgf[df_pkgf$in_pkg, ],
-                aes(x = profile, y = meas_lbl),
-                fill = NA, color = "#e07b39", linewidth = 0.75) +
-      geom_text(aes(label = sprintf("%.0f", sup)), size = 1.7, color = "grey20") +
-      scale_fill_gradient(low = "#eef4fb", high = "#1a4f8a",
-                          name = "Soutien SCS (%)",
-                          limits = c(0, 100), breaks = c(0, 50, 100)) +
-      facet_grid(. ~ k_label, scales = "free_x", space = "free_x") +
+    # Gradient fill for summary rows (white → dark blue), keyed by position
+    blue_pal <- colorRampPalette(c("#ffffff", "#1f3a93"))(100)
+    max_amt  <- max(prof_rows$scs_amt, na.rm = TRUE)
+    n_prof   <- nrow(prof_rows)
+    sav_keys <- paste0("sav_", seq_len(n_prof))
+    sup_keys <- paste0("sup_", seq_len(n_prof))
+    sav_hex  <- ifelse(is.na(prof_rows$scs_amt), "grey90",
+                       blue_pal[pmin(100, pmax(1, round(prof_rows$scs_amt / max(max_amt, 1) * 99) + 1))])
+    sup_hex  <- ifelse(is.na(prof_rows$scs_pct), "grey90",
+                       blue_pal[pmin(100, pmax(1, round(prof_rows$scs_pct / 100 * 99) + 1))])
+
+    df_sav_pkg <- data.frame(
+      profile = prof_rows$profile, prof_ord = prof_rows$prof_ord,
+      k_label = prof_rows$k_label, meas_lbl = "Économies (Mds€)",
+      lbl_txt = ifelse(is.na(prof_rows$scs_amt), "∅", sprintf("%.0f", prof_rows$scs_amt)),
+      fill_cat = sav_keys, txt_col = "black", stringsAsFactors = FALSE)
+
+    df_sup_pkg <- data.frame(
+      profile = prof_rows$profile, prof_ord = prof_rows$prof_ord,
+      k_label = prof_rows$k_label, meas_lbl = "Soutien au paquet d'Ensemble (%)",
+      lbl_txt = ifelse(is.na(prof_rows$scs_pct), "∅", sprintf("%.0f", prof_rows$scs_pct)),
+      fill_cat = sup_keys,
+      txt_col  = ifelse(!is.na(prof_rows$scs_pct) & prof_rows$scs_pct > 55, "white", "black"),
+      stringsAsFactors = FALSE)
+
+    # All fills through scale_fill_manual (same trick as coalition_packages_matrix)
+    fill_vals <- c(in_pkg = "#2c6fad", out_pkg = "grey92",
+                   setNames(sav_hex, sav_keys), setNames(sup_hex, sup_keys))
+
+    # y-axis levels: policies (bottom, ascending) → SCS support → savings (top)
+    pol_levs <- c(lbl_y_ord, "Soutien au paquet d'Ensemble (%)", "Économies (Mds€)")
+    face_y   <- ifelse(pol_levs %in% c("Économies (Mds€)", "Soutien au paquet d'Ensemble (%)"), "bold", "plain")
+
+    # Profile x-axis: strip SCS/savings line (now shown in summary rows)
+    prof_levs <- unique(df_pkgf$profile[order(df_pkgf$prof_ord)])
+    x_lbls    <- setNames(gsub("(\\d)%", "\\1 %", sub("\n.*", "", as.character(prof_levs))), as.character(prof_levs))
+
+    df_pkgf$fill_cat  <- ifelse(df_pkgf$in_pkg, "in_pkg", "out_pkg")
+    df_pkgf$meas_lbl  <- factor(df_pkgf$meas_lbl,  levels = pol_levs)
+    df_pkgf$profile   <- factor(df_pkgf$profile,    levels = prof_levs)
+    df_sav_pkg$meas_lbl <- factor(df_sav_pkg$meas_lbl, levels = pol_levs)
+    df_sav_pkg$profile  <- factor(df_sav_pkg$profile,  levels = prof_levs)
+    df_sup_pkg$meas_lbl <- factor(df_sup_pkg$meas_lbl, levels = pol_levs)
+    df_sup_pkg$profile  <- factor(df_sup_pkg$profile,  levels = prof_levs)
+
+    lvl_k <- c("Budget k = 2", "Budget k = 3", "Budget k = 4", "Programme k = 2", "Toutes k = 2")
+    lvl_k <- lvl_k[lvl_k %in% df_pkgf$k_label]
+    lvl_k_disp <- gsub(" = ", "=", lvl_k)
+    df_pkgf$k_label    <- factor(gsub(" = ", "=", df_pkgf$k_label),    levels = lvl_k_disp)
+    df_sav_pkg$k_label <- factor(gsub(" = ", "=", df_sav_pkg$k_label), levels = lvl_k_disp)
+    df_sup_pkg$k_label <- factor(gsub(" = ", "=", df_sup_pkg$k_label), levels = lvl_k_disp)
+
+    df_all <- rbind(df_pkgf[,    c("k_label","profile","meas_lbl","fill_cat")],
+                    df_sav_pkg[, c("k_label","profile","meas_lbl","fill_cat")],
+                    df_sup_pkg[, c("k_label","profile","meas_lbl","fill_cat")])
+    df_txt <- rbind(df_sav_pkg[, c("k_label","profile","meas_lbl","lbl_txt","txt_col")],
+                    df_sup_pkg[, c("k_label","profile","meas_lbl","lbl_txt","txt_col")])
+
+    p_pkg <- ggplot() +
+      geom_tile(data = df_all,
+                aes(x = profile, y = meas_lbl, fill = fill_cat),
+                color = "white", linewidth = 0.15, width = 1) +
+      geom_text(data = df_txt,
+                aes(x = profile, y = meas_lbl, label = lbl_txt, color = I(txt_col)),
+                size = 2.3, fontface = "bold") +
+      geom_hline(yintercept = length(lbl_y_ord) + 0.5, color = "grey45", linewidth = 0.5) +
+      scale_fill_manual(
+        values = fill_vals,
+        breaks = c("in_pkg", "out_pkg"),
+        labels = c(in_pkg = "Dans le paquet", out_pkg = "Hors du paquet"),
+        name   = NULL) +
+      scale_x_discrete(labels = x_lbls, position = "top") +
+      facet_grid(. ~ k_label, scales = "free_x", space = "free_x", switch = "x") +
       labs(x = NULL, y = NULL) +
       theme_bw(base_size = 7.5) +
       theme(
         strip.background  = element_rect(fill = "grey90", color = NA),
-        strip.text        = element_text(face = "bold", size = 7.5),
-        axis.text.x       = element_text(size = 6.5, lineheight = 0.82),
-        axis.text.y       = element_text(size = 6.5),
+        strip.text        = element_text(face = "bold", size = 5),
+        strip.placement   = "outside",
+        axis.text.x       = element_text(size = 6.5, angle = 45, hjust = 0, vjust = 0),
+        axis.text.y       = element_text(size = 6.5, face = face_y),
         axis.ticks        = element_line(linewidth = 0.25),
         legend.position   = "bottom",
         legend.key.width  = unit(1.2, "cm"),
         legend.key.height = unit(0.3, "cm"),
         panel.grid        = element_blank(),
         panel.border      = element_rect(color = "grey70", linewidth = 0.3),
-        panel.spacing     = unit(0.4, "lines"),
-        plot.margin       = margin(t = 3, r = 5, b = 3, l = 5)
+        panel.spacing     = unit(0, "lines"),
+        plot.margin       = margin(t = 3, r = 60, b = 3, l = 5)
       )
 
     ggsave("../figures/paquets_profils_budget.pdf", p_pkg,
-           width = 11, height = 5.5, device = cairo_pdf)
+           width = 6.5, height = 5.5, device = cairo_pdf)
     cat("→ ../figures/paquets_profils_budget.pdf\n")
   }
 }

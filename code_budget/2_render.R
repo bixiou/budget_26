@@ -155,7 +155,56 @@ labels_vars_en <- c("intl_policy_mondialisation" = "Globalization, that is to sa
                     "assembly_outcome_referendum_mondial" = "Submitted to a worldwide referendum and implemented in countries where the 'Yes' vote wins", 
                     "assembly_outcome_referendum_pays_par_pays" = "Submitted to a referendum and implemented in all countries if the 'Yes' vote wins at the global level", 
                     "assembly_outcome_appliquees_institutions_inter" = "Implemented directly by international institutions",
-                    "group_considered" = "When citizens get involved in politics, what key factors should they consider?"
+                    "group_considered" = "When citizens get involved in politics, what key factors should they consider?",
+                    # effect_program
+                    "effect_program_reduire_aide_developpement"      = "Reduce development aid for low-income countries",
+                    "effect_program_taxe_millionaires_onu"           = "Propose a UN international tax on millionaires, 30% of which would fund health and education in low-income countries",
+                    "effect_program_fin_dutreil"                     = "End the inheritance tax exemption for billionaires (Dutreil pact)",
+                    "effect_program_education_sante"                 = "Increase the national education and health budget",
+                    "effect_program_augmenter_allocs_familiales"     = "Increase family allowances",
+                    "effect_program_reduire_deficit"                 = "Reduce the public deficit below 3% of GDP and stabilize public debt by 2032",
+                    "effect_program_reduire_depenses_fonctionnement" = "Significantly reduce the state's operating expenditure",
+                    "effect_program_restreindre_aides_etrangers"     = "Restrict access to welfare benefits, medical aid, and social housing for foreigners",
+                    "effect_program_appliquer_oqtf"                  = "Systematically enforce deportation orders (OQTF)",
+                    "effect_program_regulariser_sans_papiers"        = "Regularize undocumented workers in shortage occupations",
+                    "effect_program_peines_planchers_recidive"       = "Introduce mandatory minimum sentences for repeat offenders and criminal liability from age 16",
+                    "effect_program_retraite_65_ans"                 = "Raise the legal retirement age to 65",
+                    "effect_program_retraite_62_ans"                 = "Restore the legal retirement age to 62",
+                    "effect_program_augmenter_smic"                  = "Raise the minimum wage (SMIC) by 10%, to €1,600 net per month",
+                    "effect_program_ric"                             = "Introduce the Citizens' Initiative Referendum (RIC) for any proposal gathering 1 million signatures",
+                    "effect_program_proportionnelle"                 = "Elect MPs by proportional representation",
+                    "effect_program_maintenir_green_deal"            = "Maintain Green Deal climate policies: carbon price on oil and gas, phase-out of combustion engine vehicles",
+                    # budget
+                    "budget_aligner_tva_restauration"                        = "Align the restaurant VAT rate (10%) with the standard rate (20%)",
+                    "budget_augmenter_age_retraite_65"                       = "Raise the legal retirement age from 64 to 65, except for long careers or arduous work",
+                    "budget_augmenter_cotisations_salaires_moyens"           = "Increase contributions on average wages (reduce CICE payroll tax cuts)",
+                    "budget_augmenter_csg_1pt"                               = "Raise the CSG rate by one point (a tax applying to almost all income)",
+                    "budget_augmenter_duree_travail_droit_chomage"           = "Extend the qualifying work period for unemployment benefits by 4 months",
+                    "budget_augmenter_impot_heritages_eleves"                = "Increase inheritance tax for the top 10% of estates",
+                    "budget_augmenter_impot_revenu_aises"                    = "Raise income tax on the wealthy by adding higher brackets, with a top rate of 65%",
+                    "budget_augmenter_impot_revenu_tous"                     = "Raise income tax rates by one point and lower thresholds to broaden the taxpayer base",
+                    "budget_augmenter_impot_societes"                        = "Raise the corporate tax rate from 25% to 33.5%",
+                    "budget_augmenter_taxe_revenus_capital"                  = "Raise the capital income tax from 30% to 33%",
+                    "budget_augmenter_tva_1pt"                               = "Raise the standard VAT rate by one point (from 20% to 21%)",
+                    "budget_diminuer_credit_impot_recherche"                 = "Reduce the research tax credit for large companies",
+                    "budget_diminuer_subventions_ecole_privee"               = "Cut private school subsidies by one third",
+                    "budget_eliminer_doublons_territoriaux"                  = "Eliminate overlaps between territorial levels",
+                    "budget_geler_aides_sociales"                            = "Freeze welfare benefits (excl. housing aid), cut housing aid by 5% and restrict it to low-income households",
+                    "budget_geler_depenses_etat_collectivites"               = "Freeze state and local authority spending for two years",
+                    "budget_reduire_aides_apprentissage"                     = "Reduce subsidies to firms for apprenticeship contracts",
+                    "budget_reduire_depenses_educatives_demographie"         = "Reduce education spending in line with demographic decline",
+                    "budget_reduire_depenses_militaires"                     = "Reduce military spending (cancel the planned increase)",
+                    "budget_reduire_pensions_retraite"                       = "Reduce the annual pension indexation by 0.5 points for 4 years",
+                    "budget_reduire_remboursement_soins"                     = "Reduce reimbursement of certain healthcare costs, sick pay, and patient transport",
+                    "budget_restaurer_taxe_habitation_aises"                 = "Restore the housing tax for the wealthiest 20%",
+                    "budget_retablir_isf"                                    = "Reinstate a strengthened wealth tax for millionaires (with a 2% rate for billionaires)",
+                    "budget_retirer_aides_sociales_etrangers"                = "Remove welfare benefits from non-European foreigners (RSA, family allowances, housing aid, minimum pension)",
+                    "budget_soumettre_livret_a_impot"                        = "Subject Livret A and LDDS savings account interest to income tax and social levies",
+                    "budget_supprimer_abattement_ir_retraites"               = "Remove the 10% income tax allowance on pensions",
+                    "budget_supprimer_ame"                                   = "Abolish the State Medical Aid covering emergency care for undocumented migrants",
+                    "budget_supprimer_avantages_fiscaux_complements_salaire" = "Remove tax advantages on pay supplements (profit-sharing, meal vouchers, etc.)",
+                    "budget_supprimer_exonerations_taxes_carburants"         = "Remove tax exemptions on fuel in maritime, aviation, road, and farming sectors, and raise the air ticket tax",
+                    "budget_tva_luxe"                                        = "Create a 25% VAT rate for luxury goods (watches, yachts, sports cars...)"
 )
 for (v in names(e)) { 
   if (grepl("-", Label(e[[v]])) & labels_vars[v] == v) labels_vars[v] <- sub("(.*)- ", "", Label(e[[v]]))
@@ -224,8 +273,10 @@ barres_defs <- fill_barres(c("custom_losers_agg", "custom_winners_agg", "custom_
                              "intl_policy", "group_identified", "intl_governance", "assembly_outcome", "variables_sustainable_future", "variables_group_defended",
                              "variables_gcs_support", "tax_policy", "inheritance_agg", "group_considered", "gcs_comprehension", "custom_redistr", "custom_redistr_all", "wtp_certainty"), 
                            barres_defs, df = e)
-barres_defs_en <- fill_barres(c("intl_policy", "group_identified", "intl_governance", "assembly_outcome"), 
-                              list("intl_governance" = list(vars = variables_intl_governance, width = 900, height = 500)), df = e, labels = labels_vars_en)
+barres_defs_en <- fill_barres(c("effect_program", "budget", "intl_policy", "group_identified", "intl_governance", "assembly_outcome"), 
+                              list("intl_governance" = list(vars = variables_intl_governance, width = 900, height = 500),
+                                   "effect_program" = list(vars = variables_effect_program, width = 860),
+                                   "budget" = list(vars = variables_budget, width = 1100, height = 1500, miss = T)), df = e, labels = labels_vars_en)
 
 barres_defs_en_label[["group_considered"]]$legend <- c("Own interests", "Community/country", "All humans")
 barres_defs_en[["intl_governance"]]$legend <- c("Completely unfavorable", "Unfavorable", "Rather unfavorable", "Rather favorable", "Favorable", "Completely favorable")
@@ -247,7 +298,17 @@ sum(grepl("<br>.*<br", barres_defs[["budget"]]$labels))
 # barres_defs[["budget"]]$labels[1] <- paste(barres_defs[["budget"]]$labels[1], "Mds €")
 # barres_defs[["budget"]]$labels[17] <- break_strings(labels_vars[variables_budget[17]], 90)
 barres_multiple(barres_defs["budget"], weights = F)
-barres_multiple(barres_defs["budget"], weights = F)
+barres_multiple(barres_defs["effect_program"])
+
+# barres_defs_en[["effect_program"]] <- list(vars = variables_effect_program, width = 980, labels = labels_vars_en[variables_effect_program])
+barres_defs_en[["effect_program"]]$legend <- c("Much less favorable", "Less favorable", "No change", "More favorable", "Much more favorable")
+barres_defs_en[["effect_program"]]$labels[2] <- "Propose a UN international tax on millionaires, with 30%<br>funding health and education in low-income countries"
+barres_multiple(barres_defs_en["effect_program"], append_name = "_en", weights = F)
+
+# barres_defs_en[["budget"]] <- list(vars = variables_budget, width = 1100, height = 1500, miss = TRUE)
+barres_defs_en[["budget"]]$legend <- c(rev(c("Desirable", "Acceptable", "Tolerable", "Unacceptable")), "Don't know")
+barres_defs_en[["budget"]]$labels <- break_strings(paste0(labels_vars_en[variables_budget], ": ", as.character(budget_policies_amounts), " bn"), 64)
+barres_multiple(barres_defs_en["budget"], append_name = "_en", weights = F)
 
 # barres_multiple(barres_defs["wtp"]) 
 # barres_multiple(barres_defs_label["custom_min_income_agg"], nolabel = FALSE) 

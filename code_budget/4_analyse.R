@@ -368,8 +368,8 @@ cat("\n=== K-means clustering of respondents (k selected by silhouette) ===\n")
 # Cluster on the Likert scores (Inacceptable=-1, Supportable=0, Convenable=1, Souhaitable=2).
 # Impute NAs (Ne sais pas) with the column mean so all respondents are kept.
 # Create numeric matrix of budget support
-attitudes_binary <- c(budget_accept, program_favorable) # program_favorable # budget_accept # c(budget_accept, program_favorable)
-mat_imputed <- as.data.frame(sapply(c(variables_budget, variables_effect_program), function(v) e[[v]])) # c(variables_budget, variables_effect_program) variables_budget variables_effect_program
+attitudes_binary <- budget_accept # program_favorable # budget_accept # c(budget_accept, program_favorable)
+mat_imputed <- as.data.frame(sapply(variables_budget, function(v) e[[v]])) # c(variables_budget, variables_effect_program) variables_budget variables_effect_program
 mat_imputed[mat_imputed == -.1] <- NA
 for (v in names(mat_imputed)) {
   col_mean <- mean(mat_imputed[[v]], na.rm = TRUE)
@@ -901,7 +901,7 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
       "\\toprule",
       paste0("& & & \\multicolumn{4}{c}{Part du profil dans le bloc politique (\\%)} \\\\"),
       "\\cmidrule(lr){4-7}",
-      paste0(c("$k$", "\\makecell[l]{Description du profil}",
+      paste0(c("$k$", "\\makecell[l]{Description\\\\du profil}",
                "\\makecell{Taille\\\\du profil\\\\(\\%)}", col_hdrs), collapse = " & "),
       " \\\\",
       "\\midrule"

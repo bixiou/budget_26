@@ -57,3 +57,4 @@ Outputs go to `figures/` (PDF), `xlsx/`, and `tables/` (LaTeX `.tex`).
 - When referencing `@Folder`, analyze files to ensure consistency between the cleaning script and the analysis script.
 - Qualtrics credentials are in `code_budget/qualtrics_credential.R` (gitignored).
 - Don't compile .tex files in `/papers` but in `papers/build/`: there should be no auxiliary files in `/papers`.
+- When you export a .csv, always round income values.

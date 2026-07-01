@@ -1,0 +1,352 @@
+% Slides — Préférences budgétaires des Français
+% Compilation (depuis le dossier papers/, sans laisser d'auxiliaires dans papers/) :
+%   mkdir -p build && pdflatex -output-directory=build slides.tex && pdflatex -output-directory=build slides.tex
+% Les figures sont incluses depuis ../figures/ (résolues par rapport à ce fichier source).
+\documentclass[11pt,aspectratio=169,french]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{mathpazo}              % Palatino, comme le rapport
+\usepackage[scaled=0.85]{beramono}
+\usepackage{babel}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{appendixnumberbeamer}
+
+% ── Couleurs (reprises de budget.tex) ─────────────────────────────────
+\definecolor{cleft}{RGB}{248,118,109}   % Gauche
+\definecolor{ccdroit}{RGB}{97,156,255}  % Centre-droit / droite
+\definecolor{ced}{RGB}{160,32,240}      % Extrême-droite
+\definecolor{cfrug}{RGB}{0,150,0}       % Frugaux
+\definecolor{accent}{RGB}{120,40,140}   % violet (titres)
+
+% ── Thème épuré ───────────────────────────────────────────────────────
+\usetheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{frametitle}{fg=accent}
+\setbeamercolor{title}{fg=accent}
+\setbeamercolor{structure}{fg=accent}
+\setbeamercolor{section in toc}{fg=black}
+\setbeamerfont{frametitle}{series=\bfseries}
+\setbeamertemplate{frametitle}{\vskip6pt\insertframetitle\par\vskip3pt{\color{accent}\hrule height0.5pt}\vskip2pt}
+\setbeamertemplate{itemize item}{\color{accent}\textbullet}
+\setbeamertemplate{itemize subitem}{\color{accent}\textendash}
+\setbeamertemplate{footline}{\hfill\color{gray}\scriptsize\insertframenumber\,/\,\inserttotalframenumber\hspace*{2ex}\vskip4pt}
+
+\newcommand{\g}[1]{\textcolor{cleft}{#1}}
+\newcommand{\cd}[1]{\textcolor{ccdroit}{#1}}
+\newcommand{\ed}[1]{\textcolor{ced}{#1}}
+\newcommand{\fr}[1]{\textcolor{cfrug}{#1}}
+\newcommand{\fig}[2][height=0.82\textheight]{\centering\includegraphics[#1]{../figures/#2}}
+
+\title{Préférences budgétaires des Français}
+\subtitle{Résultats d'une enquête représentative}
+\author{Adrien Fabre\,\footnotesize(CNRS, CIRED)}
+\date{Juin 2026}
+
+\begin{document}
+
+% ── Titre ─────────────────────────────────────────────────────────────
+\begin{frame}[plain]
+  \titlepage
+  \begin{center}\footnotesize\color{gray}
+    Données, code et figures : \texttt{github.com/bixiou/budget\_26}
+  \end{center}
+\end{frame}
+
+% ── Plan ──────────────────────────────────────────────────────────────
+\begin{frame}{Plan}
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+    \begin{enumerate}
+      \item Contexte \& méthode
+      \item Quelles mesures les Français acceptent-ils ?
+      \item Des préférences très hétérogènes
+    \end{enumerate}
+    \column{0.5\textwidth}
+    \begin{enumerate}\setcounter{enumi}{3}
+      \item Trois blocs, des distances
+      \item Quel paquet pour une majorité ?
+      \item Trois profils d'électeurs
+      \item Enseignements
+    \end{enumerate}
+  \end{columns}
+\end{frame}
+
+% ══ 1. CONTEXTE ═══════════════════════════════════════════════════════
+\section{Contexte \& méthode}
+
+\begin{frame}{Le défi : 90 Mds d'économies}
+  \begin{itemize}
+    \item Déficit public français : \textbf{5\,\% du PIB} en 2025.
+    \item Le Conseil d'Analyse Économique recommande de le ramener à \textbf{2,7\,\% du PIB}
+          pour stabiliser la dette $\Rightarrow$ \textbf{$\sim$90 Mds d'économies} d'ici 2032.
+    \item Trois initiatives récentes ont nourri le débat et fourni les mesures testées :
+          l'\textbf{outil interactif du CAE}, la \textbf{Plateforme Progressiste},
+          le simulateur \textbf{budget-citoyen.fr}.
+  \end{itemize}
+  \vfill
+  \begin{block}{Questions}
+    Les Français sont-ils prêts à une telle consolidation ? Quelles mesures accepteraient-ils ?
+    \textbf{Une majorité peut-elle se dégager sur un programme budgétaire ?}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Méthode}
+  \begin{itemize}
+    \item Enquête en ligne, \textbf{1\,000 résidents français adultes}, 6--20 mars 2026. % (panéliste Bilendi).
+    \item Représentativité par quotas : genre, âge, niveau de vie, diplôme, région, urbanité.
+    \item Deux questions posées après le profil sociodémographique et le vote :
+  \end{itemize}
+  \vfill
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+    \begin{block}{Question \texttt{programme} (17 mesures)}
+      « Cette mesure dans le programme d'un candidat à 2027 vous rendrait-elle plus ou moins favorable ? »
+      \\[2pt]\footnotesize Échelle en 5 points : \emph{beaucoup moins} $\to$ \emph{beaucoup plus favorable}.
+    \end{block}
+    \column{0.5\textwidth}
+    \begin{block}{Question \texttt{budget} (30 mesures)}
+      Chaque mesure chiffrée jugée :
+      \emph{inacceptable}, \emph{supportable}, \emph{convenable} ou \emph{souhaitable}.
+      \\[2pt]\footnotesize Total des économies « convenables » affiché en direct au répondant.
+    \end{block}
+  \end{columns}
+\end{frame}
+
+% ══ 2. RÉSULTATS DESCRIPTIFS ══════════════════════════════════════════
+\section{Quelles mesures les Français acceptent-ils ?}
+
+\begin{frame}{Mesures les plus valorisantes pour un candidat}
+  \begin{columns}[c]
+    \column{0.56\textwidth}
+    \fig[width=\linewidth]{effect_program.pdf}
+    \column{0.44\textwidth}
+    \small
+    \textbf{Plébiscitées :}
+    \begin{itemize}\small
+      \item Réduire les dépenses de fonctionnement de l'État
+      \item Peines planchers \& majorité pénale à 16 ans, OQTF systématiques
+      \item Budget éducation \& santé
+      \item Réduction du déficit
+      \item SMIC +10\,\%
+    \end{itemize}
+    \vskip4pt
+    \textbf{Rejetée :} hausse de l'âge de la retraite à 65 ans
+    (\textbf{53\,\%} défavorables, 26\,\% favorables).
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Évaluation des 30 mesures budgétaires}
+  \begin{columns}[c]
+    \column{0.55\textwidth}
+    \fig[height=0.92\textheight]{budget.pdf}
+    \column{0.45\textwidth}
+    \small
+    Mesures \emph{convenables} pour une majorité : \textbf{96,9 Mds} (dont 53,2 en recettes).
+    \begin{itemize}\small
+      \item +\,supportables $\to$ \textbf{174,8 Mds}
+      \item limité aux \emph{souhaitables} $\to$ 31,5 Mds
+      \item répondant médian : \textbf{93 Mds}
+    \end{itemize}
+    \vskip4pt
+    \textbf{13 mesures} convenables pour une majorité :
+    taxation des aisés (5 mes., 37,5 Mds), gel/rationalisation
+    de la dépense (2 mes., 30,4 Mds), retrait des aides aux étrangers (2 mes., 8 Mds).
+    \vskip4pt
+    \textbf{Inacceptables :} hausses indifférenciées (TVA, CSG), baisse du niveau de vie des retraités, retraite à 65 ans.
+  \end{columns}
+\end{frame}
+
+% ══ 3. HÉTÉROGÉNÉITÉ ══════════════════════════════════════════════════
+\section{Des préférences très hétérogènes}
+
+\begin{frame}{Le profil sociodémographique prédit mal les attitudes}
+  \begin{itemize}
+    \item Les caractéristiques sociodémographiques expliquent \textbf{13\,\% de la variance}
+          des attitudes (standard pour les attitudes politiques).
+    \item Affinité partisane : \textbf{7\,\%} (par bloc) à \textbf{9\,\%} (par parti) de la variance.
+    \item Variance \emph{additionnelle} : bloc politique 6\,\%, âge 1,5\,\%, patrimoine 1,3\,\%,
+          le reste (genre, revenu, diplôme\dots) $<$1\,\%.
+  \end{itemize}
+  \vfill
+  \begin{block}{Message clé}
+    Les attitudes sont presque aussi \textbf{variables au sein d'un bloc politique} que dans la
+    population entière. Peu d'électeurs sont pleinement alignés avec un parti.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Attitudes moyennes par bloc — \texttt{budget}}
+  \fig{notes_groupes_budget.pdf}
+\end{frame}
+
+\begin{frame}{Attitudes moyennes par bloc — \texttt{programme}}
+  \fig{notes_groupes_effect_program.pdf}
+\end{frame}
+
+\begin{frame}{Ce qui distingue chaque bloc}
+  \begin{columns}[T]
+    \column{0.33\textwidth}
+    \begin{block}{\g{Gauche}}
+      \small Rejette les \textbf{mesures nativistes} (retrait des aides aux
+      étrangers). Soutient un peu plus la taxation des aisés.
+    \end{block}
+    \column{0.33\textwidth}
+    \begin{block}{\cd{Centre-droit / droite}}
+      \small Soutien le \textbf{report de l'âge de la retraite à 65 ans}.
+    \end{block}
+    \column{0.33\textwidth}
+    \begin{block}{\ed{Extrême-droite}}
+      \small Proche du centre-droit, mais plus unanime pour \textbf{restreindre les aides aux étrangers}
+      et plus défavorable au \textbf{Green Deal}.
+    \end{block}
+  \end{columns}
+\end{frame}
+
+% ══ 4. DISTANCES ══════════════════════════════════════════════════════
+\section{Trois blocs, des distances}
+
+\begin{frame}{Distances entre groupes électoraux}
+  \begin{columns}[c]
+    \column{0.62\textwidth}
+    \fig[width=\linewidth]{distance_matrix_pairwise.pdf}
+    \column{0.38\textwidth}
+    \small
+    \begin{itemize}\small
+      \item Distance inter-individuelle la plus grande : \textbf{LR–LFI} (+18,5\,\%).
+      \item La plus faible : au sein du \textbf{PS} ($-$7,8\,\%).
+      \item Plus de disparités \emph{au sein} d'un groupe qu'entre les \emph{moyennes} des groupes.
+    \end{itemize}
+    \vskip4pt
+    La \textbf{tripartition} Gauche / Centre-droit / Extrême-droite émerge naturellement.
+    Le \textbf{RN} est le plus proche de l'ensemble, \textbf{LFI} le plus éloigné.
+  \end{columns}
+\end{frame}
+
+% ══ 5. PAQUETS ════════════════════════════════════════════════════════
+\section{Quel paquet pour une majorité ?}
+
+\begin{frame}{Le plus grand paquet à majorité conjointe : 70 Mds}
+  \begin{columns}[c]
+    \column{0.6\textwidth}
+    \fig[width=\linewidth]{coalition_packages_matrix.pdf}
+    \column{0.4\textwidth}
+    \small
+    Plus grand paquet accepté par une majorité (aucune mesure jugée \emph{inacceptable}) :
+    \textbf{69,6 Mds} via 
+    \begin{itemize}\small
+      \item gel des dépenses + doublons : 30,4 Mds
+      \item ISF, taxe d'habitation, IR sur les aisés : 25 Mds
+      \item fin d'exonérations sur les carburants : 14,2 Mds
+    \end{itemize}
+    \vskip3pt
+    Soutenu par 57\,\% de la \g{Gauche} et la coalition \cd{LÉ+PS+Centre}, mais aucune autre.
+    \vskip3pt
+    Un paquet à \textbf{$\geq$90 Mds} n'obtient que \textbf{34\,\%} d'acceptation conjointe.
+  \end{columns}
+\end{frame}
+
+% ══ 6. TYPOLOGIES ═════════════════════════════════════════════════════
+\section{Trois profils d'électeurs}
+
+\begin{frame}{Partitionnement des répondants (k=3, sur le \texttt{budget})}
+  \begin{columns}[T]
+    \column{0.62\textwidth}
+    \begin{itemize}
+      \item \textbf{Conservateurs (48\,\%)} : majorité des électeurs de droite ;
+            soutien minoritaire aux taxes sur les aisés (sauf l'ISF).
+      \item \fr{\textbf{Progressistes (31\,\%)}} : majoritaires à gauche ; taxation des riches,
+            État-providence ; contre les impôts indifférenciés et les mesures nativistes.
+      \item \fr{\textbf{Frugaux (21\,\%)}} : soutiennent \emph{presque tout} —
+            économies, mesures nativistes, restriction de l'État-providence, impôts impopulaires.
+            \textbf{146 Mds} de mesures convenables/souhaitables (vs 93 Mds en moyenne).
+    \end{itemize}
+    \column{0.38\textwidth}
+    \footnotesize
+    \begin{block}{Scénario 2027}
+      En cas de second tour entre un candidat \textbf{conservateur} et un candidat
+      réunissant \fr{progressistes} (inégalités) et \fr{frugaux} (déficit), l'électorat
+      se scinderait en \emph{conservateurs} vs \emph{sociaux}.
+      \\[2pt]
+      Mais si la question migratoire domine, les \textbf{conservateurs} l'emportent probablement.
+    \end{block}
+  \end{columns}
+\end{frame}
+
+% \begin{frame}{Trois familles de mesures}
+%   \begin{itemize}
+%     \item \textbf{15 mesures impopulaires} (122 Mds) : impôts indifférenciés, retraite à 65 ans,
+%           baisse des dépenses militaires / d'apprentissage / de remboursement des soins.
+%           Rejetées par la plupart — sauf les \fr{frugaux}.
+%     \item \g{\textbf{9 mesures « de gauche »}} (58 Mds) : taxes sur les plus riches, fin des
+%           exonérations sur les carburants. Majoritaires dans \emph{chaque} bloc, sauf chez les conservateurs.
+%     \item \cd{\textbf{6 mesures « de droite »}} (44 Mds) : gel/rationalisation de la dépense,
+%           mesures nativistes. Majoritaires dans \emph{chaque} bloc, sauf chez les progressistes.
+%   \end{itemize}
+%   \vfill
+%   \begin{block}{}
+%     Les mesures se séparent selon le clivage gauche/droite, mais leurs soutiens
+%     se recoupent largement d'un bloc à l'autre.
+%   \end{block}
+% \end{frame}
+
+% \begin{frame}{Comparaison avec la Plateforme Progressiste}
+%   \begin{itemize}
+%     \item Conférence de consensus en ligne (fin 2025, $\sim$150 sympathisants).
+%     \item Mesures soutenues : \textbf{99,9 Mds} d'économies — proche des 96,9 Mds convenables de l'enquête.
+%     \item Préférences proches des \textbf{électeurs PS} : défavorables au report de l'âge de la retraite,
+%           favorables aux taxes écologiques.
+%     \item Mais, contrairement à la majorité des Français : \textbf{opposés aux mesures visant les étrangers},
+%           et favorables à des mesures « techniques » (baisse des aides à l'apprentissage, fin de
+%           l'abattement fiscal des retraités).
+%   \end{itemize}
+%   \vfill
+%   \footnotesize\color{gray} Illustre le rôle de l'information et de la délibération
+%   dans la formation des attitudes (sous réserve d'un biais de sélection).
+% \end{frame}
+
+% ══ 7. DISCUSSION ═════════════════════════════════════════════════════
+\section{Enseignements}
+
+\begin{frame}{Enseignements}
+  \begin{itemize}
+    \item Soutien majoritaire à des mesures \textbf{de tous bords} : ISF, rationalisation de la dépense,
+          budgets éducation/santé, OQTF, réduction du déficit.
+    \item Rejet, à gauche comme à droite : recul de l'âge de la retraite, hausse des allocations
+          familiales, baisse des dépenses militaires.
+    \item Le plus grand paquet majoritaire ressemble à un \textbf{programme de gauche sans nativisme}\dots
+          mais l'électorat penche plutôt droite/extrême-droite (« assistanat », croissance, sécurité).
+  \end{itemize}
+  \vfill
+  \begin{alertblock}{Le choix du prochain gouvernement}
+    Pour réduire le déficit, il faudra soit \textbf{taxer les plus aisés}, soit \textbf{être impopulaire},
+    soit \textbf{laisser filer la dette}.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Limites \& perspectives}
+  \begin{itemize}
+    \item Importance de la réduction du déficit possiblement \textbf{surestimée} (focus de l'enquête).
+    \item Certaines mesures populaires sont juridiquement fragiles (peines planchers,
+          OQTF systématiques, suppression de l'AME, taux d'ISF $>$1\,\%).
+    \item Économies parfois surestimées (doublons territoriaux, TVA sur le luxe).
+    \item Précision limitée sur les sous-groupes ($N=1\,000$).
+    \item Les attitudes peuvent évoluer avec le débat.
+  \end{itemize}
+  \vfill
+  \begin{block}{Pistes}
+    Conventions citoyennes / délibération pour créer du consensus.\\
+
+    Chiffrage indépendant des programmes : dette, croissance, inégalités, émissions.
+  \end{block}
+\end{frame}
+
+\begin{frame}[plain]
+  \centering
+  \vfill
+  {\Large\color{accent}\textbf{Merci}}\\[1em]
+  \normalsize Adrien Fabre — CNRS, CIRED\\[0.5em]
+  \footnotesize\color{gray}\texttt{github.com/bixiou/budget\_26}
+  \vfill
+\end{frame}
+
+\end{document}

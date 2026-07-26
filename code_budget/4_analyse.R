@@ -79,7 +79,7 @@
 e$no_weight <- 1
 
 ##### GCS #####
-summary(lm(gcs_support == "Yes" ~ variant_gcs, data = e, weights = weight)) # -.10**
+summary(lm(gcs_support == "Yes" ~ variant_gcs, data = e, weights = weight)) # -.10** Bandwagon effect!
 summary(lm(gcs_support == "Yes" ~ gcs_understood, data = e, weights = weight)) # -.02
 summary(lm(gcs_support == "Yes" ~ (climate_belief >= 0), data = e, weights = weight)) # .29***
 summary(lm(gcs_support == "Yes" ~ (climate_belief > 0), data = e, weights = weight)) # .23***

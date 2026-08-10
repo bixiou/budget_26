@@ -311,6 +311,7 @@ barres_defs_en[["budget"]]$labels <- break_strings(paste0(labels_vars_en[variabl
 barres_multiple(barres_defs_en["budget"], append_name = "_en", weights = F)
 
 # barres_multiple(barres_defs["wtp"], df = e[e$wtp_certainty >= 7,], append_name = "_certainty_7_10")
+barres_multiple(barres_defs["wtp"], df = e[e$income_quartile > 2 & e$wtp_certainty >= 7,], append_name = "_income_top50")
 
 # barres_multiple(barres_defs["wtp"]) 
 # barres_multiple(barres_defs_label["custom_min_income_agg"], nolabel = FALSE) 

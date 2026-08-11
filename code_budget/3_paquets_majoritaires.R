@@ -612,7 +612,11 @@ dist_groups <- c(
     "Far right"                = !is.na(e$vote_agg) & e$vote_agg == 2,
     "Left + Far right"         = !is.na(e$vote_agg) & e$vote_agg %in% c(0, 2),
     "Center-right + Far right" = !is.na(e$vote_agg) & e$vote_agg %in% c(1, 2),
-    "Center-right + Left"      = !is.na(e$vote_agg) & e$vote_agg %in% c(0, 1)
+    "Center-right + Left"      = !is.na(e$vote_agg) & e$vote_agg %in% c(0, 1),
+    # RN seul : absent de display_order (donc des figures), mais nécessaire aux
+    # vérifications d'observations du texte, qui portent sur le RN et non sur
+    # le bloc Extrême-droite (= RN + Reconquête).
+    "RN"                       = !is.na(e$vote_original) & e$vote_original %in% party_rn
   ),
   # Ajouter les coalitions
   lapply(coalition_defs, function(parties) {
@@ -629,6 +633,7 @@ group_labels_fr <- c(
   "Left + Far right"         = "Gauche + Extr. droite",
   "Center-right + Far right" = "Centre + LR + Extr. droite",
   "Center-right + Left"      = "Gauche + Centre + LR",
+  "RN"                       = "RN",
   "LFI"                      = "LFI",
   "LFI_EELV_PCF"             = "LFI + LÉ + PCF",
   "EELV"                     = "LÉ",
@@ -651,6 +656,7 @@ group_labels_short <- c(
   "Left + Far right"         = "G+ED",
   "Center-right + Far right" = "C+LR+ED",
   "Center-right + Left"      = "G+C+LR",
+  "RN"                       = "RN",
   "LFI"                      = "LFI",
   "LFI_EELV_PCF"             = "LFI+LÉ+PCF",
   "EELV"                     = "LÉ",
@@ -809,6 +815,53 @@ dist_mat_indiv_dispersees <- compute_pairwise_dist(score_list_dispersees)
 cat("\nMatrice (15 attitudes les plus dispersées, robustesse) :\n")
 print(round(dist_mat_indiv_dispersees, 3))
 
+## ── (3d) Robustesse : regroupement des évaluations en 2 catégories ─────────
+## Les modalités de budget sont ordinales : les traiter comme cardinales suppose
+## que chaque graduation vaut autant que les autres (rapporteur #2, point 1).
+## On teste cette hypothèse en regroupant les 4 modalités en 2 catégories, aux
+## deux seuils naturels :
+##   soutien       : Convenable/Souhaitable (1) vs Supportable/Inacceptable (0)
+##   acceptabilité : tout sauf Inacceptable (1) vs Inacceptable (0)
+## Variante « tout binaire » : programme aussi regroupé (favorable vs le reste).
+bud_score_bin_sout <- function(x) case_when(
+  x %in% c("Souhaitable", "Convenable")   ~ 1,
+  x %in% c("Supportable", "Inacceptable") ~ 0, TRUE ~ NA_real_)
+bud_score_bin_acc <- function(x) case_when(
+  x %in% c("Souhaitable", "Convenable", "Supportable") ~ 1,
+  x == "Inacceptable"                                  ~ 0, TRUE ~ NA_real_)
+ep_score_bin <- function(x) case_when(
+  x %in% c("Beaucoup plus favorable", "Plus favorable") ~ 1,
+  x %in% c("Ne changerait rien", "Moins favorable", "Beaucoup moins favorable") ~ 0,
+  TRUE ~ NA_real_)
+
+## Liste de scores (une entrée par mesure) pour un couple de recodages
+scores_of <- function(bud_fn, ep_fn = ep_score) c(
+  lapply(variables_effect_program, function(v) ep_fn(e[[v]])),
+  lapply(variables_budget,         function(v) bud_fn(e[[v]])))
+
+dist_mat_indiv_bin_sout <- compute_pairwise_dist(scores_of(bud_score_bin_sout))
+dist_mat_indiv_bin_acc  <- compute_pairwise_dist(scores_of(bud_score_bin_acc))
+dist_mat_indiv_bin_tout <- compute_pairwise_dist(scores_of(bud_score_bin_sout, ep_score_bin))
+cat("\nMatrice (budget binarisé : Conv+Souh vs Supp+Inacc, robustesse) :\n")
+print(round(dist_mat_indiv_bin_sout, 3))
+cat("\nMatrice (budget binarisé : acceptable vs Inacceptable, robustesse) :\n")
+print(round(dist_mat_indiv_bin_acc, 3))
+
+## Matrices inter-groupes (∑|Δ moyennes|) correspondantes
+dist_mat_from_means <- function(mm) {
+  m <- matrix(0, ng, ng, dimnames = list(gnames, gnames))
+  for (i in seq_len(ng)) for (j in seq_len(ng))
+    if (i != j) m[i, j] <- sum(abs(mm[, i] - mm[, j]), na.rm = TRUE)
+  m
+}
+dist_mat_bin_sout <- dist_mat_from_means(
+  rbind(means_ep, group_mean_vec(variables_budget, bud_score_bin_sout)))
+dist_mat_bin_acc  <- dist_mat_from_means(
+  rbind(means_ep, group_mean_vec(variables_budget, bud_score_bin_acc)))
+dist_mat_bin_tout <- dist_mat_from_means(
+  rbind(group_mean_vec(variables_effect_program, ep_score_bin),
+        group_mean_vec(variables_budget,         bud_score_bin_sout)))
+
 ## ── Export des matrices en heatmaps (cellules d'autant plus sombres que d est faible) ──
 # Ordre d'affichage des lignes/colonnes dans les matrices
 display_order <- c(
@@ -954,6 +1007,76 @@ for (i in seq_len(ng))
 dist_mat_dispersees_norm <- (dist_mat_dispersees / ref_dist_disp - 1) * 100
 plot_dist_heatmap(round(dist_mat_dispersees_norm), NULL,
                   "../figures/distance_matrix_means_dispersees.pdf")
+
+## (3d/4d) Robustesse — regroupements en 2 catégories (rapporteur #2, point 1)
+## Chaque matrice est normalisée par la distance intra-Ensemble de sa propre
+## variante, pour rester comparable aux figures principales.
+ref_bin_sout <- dist_mat_indiv_bin_sout["Overall", "Overall"]
+ref_bin_acc  <- dist_mat_indiv_bin_acc["Overall", "Overall"]
+ref_bin_tout <- dist_mat_indiv_bin_tout["Overall", "Overall"]
+norm_by <- function(m, ref) (m / ref - 1) * 100
+plot_dist_heatmap(norm_by(dist_mat_indiv_bin_sout, ref_bin_sout), NULL,
+                  "../figures/distance_matrix_pairwise_binaire.pdf")
+plot_dist_heatmap(norm_by(dist_mat_indiv_bin_acc, ref_bin_acc), NULL,
+                  "../figures/distance_matrix_pairwise_binaire_acceptabilite.pdf")
+plot_dist_heatmap(norm_by(dist_mat_indiv_bin_tout, ref_bin_tout), NULL,
+                  "../figures/distance_matrix_pairwise_binaire_tout.pdf")
+plot_dist_heatmap(round(norm_by(dist_mat_bin_sout, ref_bin_sout)), NULL,
+                  "../figures/distance_matrix_means_binaire.pdf")
+
+## ── Vérification automatique des observations de la Section « Distances » ───
+## Les 5 observations du texte, testées sur chaque définition de la distance.
+## Les observations (4) et (5) portent sur les partis (dont le RN, et non le bloc
+## Extrême-droite = RN + Reconquête) ; on rapporte aussi le groupe le plus proche
+## toutes catégories confondues (blocs et coalitions), cf. note de bas de page.
+check_observations <- function(mat, label) {
+  d       <- function(a, b) mat[a, b]
+  partis  <- c("LFI", "EELV", "PS", "centre", "LR", "RN")
+  others  <- setdiff(rownames(mat), "Overall")
+  closest_p  <- partis[which.min(mat["Overall", partis])]
+  farthest_p <- partis[which.max(mat["Overall", partis])]
+  closest_a  <- others[which.min(mat["Overall", others])]
+  obs <- c(
+    "(1) PS et LÉ plus proches de LFI que du Centre" =
+      d("PS", "LFI") < d("PS", "centre") && d("EELV", "LFI") < d("EELV", "centre"),
+    "(2) Centre plus proche de LR que du PS ou de LÉ" =
+      d("centre", "LR") < d("centre", "PS") && d("centre", "LR") < d("centre", "EELV"),
+    "(3) LR plus proche du Centre que de l'Extrême-droite" =
+      d("LR", "centre") < d("LR", "Far right"),
+    "(4) RN : parti le plus proche de l'Ensemble"     = closest_p  == "RN",
+    "(5) LFI : parti le plus éloigné de l'Ensemble"   = farthest_p == "LFI")
+  cat(sprintf("\n── %s ──\n", label))
+  for (i in seq_along(obs)) cat(sprintf("  %-53s %s\n", names(obs)[i],
+                                        if (obs[i]) "OUI" else "NON"))
+  cat(sprintf("  d(PS,LFI)=%.2f vs d(PS,C)=%.2f | d(LÉ,LFI)=%.2f vs d(LÉ,C)=%.2f\n",
+              d("PS", "LFI"), d("PS", "centre"), d("EELV", "LFI"), d("EELV", "centre")))
+  cat(sprintf("  d(C,LR)=%.2f vs d(C,PS)=%.2f / d(C,LÉ)=%.2f | d(LR,C)=%.2f vs d(LR,ED)=%.2f\n",
+              d("centre", "LR"), d("centre", "PS"), d("centre", "EELV"),
+              d("LR", "centre"), d("LR", "Far right")))
+  ord_p <- sort(mat["Overall", partis])
+  cat("  Ensemble — distance aux partis (croissante) :",
+      paste(sprintf("%s %.2f", names(ord_p), ord_p), collapse = " | "), "\n")
+  cat(sprintf("  Ensemble — toutes catégories, le plus proche : %s (%.2f)\n",
+              group_labels_fr[closest_a], mat["Overall", closest_a]))
+  invisible(obs)
+}
+
+cat("\n══════════════════════════════════════════════════════════\n")
+cat("Robustesse des observations aux définitions de la distance\n")
+checks <- list(
+  "Référence : inter-individuelle, budget −1..2 / programme −2..2" = dist_mat_indiv,
+  "Inter-groupe (∑|Δ moyennes|)"                                  = dist_mat,
+  "15 attitudes les plus dispersées"                              = dist_mat_indiv_dispersees,
+  "programme recodé −1/0/+1"                                      = dist_mat_indiv_recoded,
+  "budget binaire : Conv+Souh vs Supp+Inacc"                      = dist_mat_indiv_bin_sout,
+  "budget binaire : acceptable vs Inacceptable"                   = dist_mat_indiv_bin_acc,
+  "budget et programme binaires"                                  = dist_mat_indiv_bin_tout,
+  "budget binaire (Conv+Souh), inter-groupe"                      = dist_mat_bin_sout,
+  "budget binaire (acceptable), inter-groupe"                     = dist_mat_bin_acc,
+  "budget et programme binaires, inter-groupe"                    = dist_mat_bin_tout)
+res_checks <- mapply(check_observations, checks, names(checks), SIMPLIFY = FALSE)
+cat("\nSynthèse (nombre d'observations confirmées sur 5) :\n")
+print(sapply(res_checks, sum))
 
 cat("\nTerminé.\n")
 Sys.time() - start # 15h

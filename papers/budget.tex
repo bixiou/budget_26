@@ -96,6 +96,7 @@ J'ai mené une enquête d'opinion pour répondre à ces questions. Je me suis in
 Dans cette enquête, je teste des mesures identifiées dans les initiatives précédentes auprès d'un échantillon représentatif de 1~000 Français. % Dans cet article, je décris tour à tour la méthode employée (section~\ref{sec:methode})~; les attitudes par mesures (section~\ref{sec:resultats})~; leurs déterminants sociodémographiques (section~\ref{sec:determinants})~; les proximités entre groupes d'électeurs (section~\ref{sec:ecarts})~; les paquets de mesures acceptés par une même majorité, par groupe d'électeurs (section~\ref{sec:paquets})~; les profils de répondants en termes de mesures soutenues et vice versa (section~\ref{sec:clusters})~; et la proximité partisane des sympathisants de la Plateforme Progressiste (section~\ref{sec:progressistes}). Enfin, je résume les résultats et tire de nombreux enseignements de cette enquête en guise de conclusion (section~\ref{sec:conclusion}).
 Après sept sections qui décrivent les résultats, je les résume et en tire de nombreux enseignements dans la discussion finale.
 
+Si le cadre d'analyse de cette étude est a-théorique, certains résultats peuvent s'interpréter à l'aide des modèles spatiaux du vote avec programmes multidimensionnels. En particulier, l'insatisfaction de nombreux Français envers l'ensemble des partis peut refléter le \textit{théorème du chaos de McKelvey} qui énonce que bien souvent, aucun vainqueur de Condorcet ne se dégage \citep{downs_economic_1957,davis_expository_1970,enelow_spatial_1984,mckelvey_intransitivities_1976}. 
 % Notre enquête adopte une approche complémentaire~: plutôt que de demander aux répondants de composer eux-mêmes un budget équilibré, nous leur soumettons une liste de mesures concrètes et mesurons le niveau d'acceptabilité de chacune. Cela permet d'analyser les déterminants du soutien, les distances entre groupes électoraux, les typologies de répondants et de mesures, et — surtout — d'identifier des \emph{paquets majoritaires}~: des ensembles de mesures pour lesquels une même majorité des citoyens soutient simultanément chacune des mesures du paquet.
 
 % La note est organisée comme suit. La section~\ref{sec:methode} détaille la méthode et la représentativité de l'échantillon. La section~\ref{sec:resultats} présente les résultats descriptifs. La section~\ref{sec:determinants} analyse les déterminants du soutien. La section~\ref{sec:paquets} identifie les paquets de mesures acceptables conjointement par une majorité d'électeurs. La section~\ref{sec:ecarts} examine les distances entre groupes électoraux. La section~\ref{sec:clusters} présente les typologies de répondants et de mesures. La section~\ref{sec:progressistes} compare les résultats à l'exercice des \textit{Progressistes}. La section~\ref{sec:conclusion} conclut. 
@@ -120,8 +121,10 @@ Notons que pour simplifier la formulation de la question, celle-ci contient une 
 pour \textit{réduire} l'endettement et se prémunir contre une nouvelle crise. %(cohérent avec un horizon 2032). 
 Par ailleurs, l'écart entre la cible pour stabiliser l'endettement à 2,7~\% du PIB d'après la question et les 2,5~\% du PIB impliqué par les 76~Mds résulte du fait que le CAE a surestimé le déficit pour 2025 (+0,4~\%), ne tenait pas compte du déficit conjoncturel (+0,5~\%) et ignorait l'impulsion budgétaire du PLF 2026 ($-$0,7~\%).
 %  (qui permettrait de stabiliser l'endettement) et l'économie de 90~Mds (recommandée par le CAE pour réduire l'endettement, et qui représente 3 points de PIB, ramenant le déficit à 2~\%).
- } \\ Les répondants doivent choisir une valeur parmi les quatre décrites ou \textit{Ne sais pas} pour 30 mesures, avec l'économie budgétaire qu'elles représentent entre parenthèses. 
+ } \\ Les répondants doivent choisir une valeur parmi les quatre décrites ou \textit{Ne sais pas} pour 30 mesures, avec l'économie budgétaire qu'elles représentent entre parenthèses.
 \end{itemize}
+
+Les captures d'écran des deux questions telles qu'elles ont été présentées aux répondants sont reproduites en annexe~\ref{sec:annexe_questionnaire}.
 
 Le \cite{CAE2025} indique qu'un <<~effort d'ajustement d'environ 112 milliards d'euros est requis pour stabiliser la dette et se prémunir contre la prochaine crise économique~>>, ramenant ainsi le solde primaire de $-$3,2~\% à +0,5~\% du PIB%
 \footnote{Pour rappel, un solde primaire nul permet de stabiliser l'endettement lorsque le taux de croissance nominale (\textit{g}) est égal au taux d'intérêt moyen d'emprunt (\textit{r}). Lorsque $r>g$, un excédent primaire est nécessaire pour stabiliser la dette. Le CAE fait l'hypothèse $r=g$ (et pointe le risque d'avoir $r>g$) et appelle ainsi à une consolidation budgétaire suffisante pour amorcer une réduction de l'endettement.}. 
@@ -292,6 +295,8 @@ Je cherche ici des paquets de mesures tels qu'une même majorité de citoyens ac
 % \footnote{Formellement, un paquet est \textit{acceptable} si la proportion de répondants qui trouvent \textit{inacceptable} aucune des mesures du paquet dépasse 50\,\%.}. 
 En particulier, \blue{j'identifie le \textit{plus grand} paquet accepté, c'est-à-dire le paquet permettant la plus grande économie tel qu'une majorité de répondants ne trouve aucune des mesures du paquet \textit{inacceptable}}. Je réalise cette recherche pour l'ensemble de l'électorat, mais aussi pour les électeurs de chaque bloc politique, de chaque parti, et de plusieurs coalition de partis. 
 La figure~\ref{fig:coalition_packages_matrix} présente les plus grands paquets acceptés au sein de chaque regroupement politique. 
+
+Notons que le plus grand paquet accepté par une majorité ne coïncide pas nécessairement avec le paquet préféré des Français, puisque l'exercice ne tient pas compte de l'importance relative de différentes mesures aux yeux des répondants, qui pourrait affecter les préférences collectives entre différents programmes. 
 
 \blue{Le plus grand paquet accepté par une majorité de répondants permet d'économiser 69,6~Mds grâce à 6 mesures~: le gel des dépenses publiques pendant deux ans et l'élimination des doublons territoriaux (30,4~Mds), une taxation accrue des plus aisés par l'ISF, la taxe d'habitation et l'impôt sur le revenu (25~Mds), et la suppression des exonérations sectorielles de taxes sur les carburants (14,2~Mds). Ce paquet est soutenu par 57~\% des électeurs de Gauche et par une majorité d'une coalition formée par Les Écologistes, le PS et le Centre-droit, mais il n'est soutenu par une majorité d'électeurs d'aucune autre coalition. }
 
@@ -590,6 +595,37 @@ Pour permettre aux électeurs de faire un choix éclairé, il serait aussi fort 
   \includegraphics[width=\linewidth]{../figures/paquets_profils_budget.pdf}
   \caption{Plus grands paquets de mesures acceptés par une majorité conjointe, par profil.\hfill~(Retour~section~\ref{sec:clusters}) \\ {\footnotesize Une majorité est \textit{conjointe} si aucun des répondants qui la compose ne juge une mesure du paquet \textit{inacceptable}.}}
   \label{fig:paquets_profils_budget}
+\end{figure}
+
+\clearpage
+\section{Présentation des questions de l'enquête}
+\label{sec:annexe_questionnaire}
+
+Cette annexe reproduit les captures d'écran des deux questions principales telles qu'elles ont été présentées aux répondants en ligne. La question \texttt{programme} (figure~\ref{fig:questionnaire_programme}) demande, pour chaque mesure, si sa présence dans le programme d'un candidat à l'élection présidentielle de 2027 rendrait le répondant plus ou moins favorable à ce candidat, sur une échelle à cinq niveaux (de \textit{beaucoup moins favorable} à \textit{beaucoup plus favorable}). La question \texttt{budget} (figure~\ref{fig:questionnaire_budget}) demande d'évaluer chaque mesure d'économie ou de recette sur une échelle à quatre niveaux (\textit{inacceptable}, \textit{supportable}, \textit{convenable}, \textit{souhaitable}), avec une option \textit{ne sais pas}~; un compteur affiché en marge indique en continu le total des économies réalisées par les mesures jugées \textit{convenables} ou \textit{souhaitables}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{../questionnaire/program.png}
+  \caption{Question \texttt{programme} telle que présentée aux répondants~: pour chaque mesure, effet de sa présence dans le programme d'un candidat à la présidentielle de 2027 sur la propension à voter pour ce candidat, sur une échelle de \textit{beaucoup moins favorable} à \textit{beaucoup plus favorable}. \hfill~(Retour~section~\ref{sec:methode})}
+  \label{fig:questionnaire_programme}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{../questionnaire/budget.png}
+    \subcaption{Consigne et premières mesures d'économie.}
+    \label{fig:questionnaire_budget_a}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{../questionnaire/budget2.png}
+    \subcaption{Dernières mesures d'économie.}
+    \label{fig:questionnaire_budget_b}
+  \end{subfigure}
+  \caption{Question \texttt{budget} telle que présentée aux répondants~: évaluation de chaque mesure sur l'échelle \textit{inacceptable}~/~\textit{supportable}~/~\textit{convenable}~/~\textit{souhaitable}, avec le total cumulé des économies affiché en marge. \hfill~(Retour~section~\ref{sec:methode})}
+  \label{fig:questionnaire_budget}
 \end{figure}
 
 % \begin{table}[htbp]

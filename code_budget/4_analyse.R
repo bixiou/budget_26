@@ -1540,6 +1540,8 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
         bw <- isTRUE(getOption("fig_bw"))
         n_g <- length(pd$colors)
         shapes_g <- setNames(if (bw) c(16, 2, 15, 1, 17, 0)[seq_len(n_g)] else rep(16, n_g), names(pd$colors))
+        i_g <- grep("^Gauche", names(shapes_g)); i_c <- grep("^Centre", names(shapes_g))
+        if (bw && length(i_g) == 1 && length(i_c) == 1) shapes_g[c(i_g, i_c)] <- shapes_g[c(i_c, i_g)] # Gauche ↔ Centre-droit
         if (bw) pd$colors[] <- rep(c("black", "grey45"), length.out = n_g)
         ggplot(df_i, aes(y = measure, x = mean, color = cluster, group = cluster, shape = cluster)) +
           geom_hline(yintercept = minor_yi, color = "grey85", linewidth = 0.3) +

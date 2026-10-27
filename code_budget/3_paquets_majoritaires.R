@@ -519,7 +519,7 @@ colors_groups <- c(
   "Extrême-droite"        = "#A020F0"   # violet
 )
 # Version noir et blanc (options(fig_bw = TRUE)) : symboles différents et nuances de gris
-shapes_groups <- c("Ensemble" = 16, "Gauche" = 2, "Centre-droit / droite" = 15, "Extrême-droite" = 5)
+shapes_groups <- c("Ensemble" = 16, "Gauche" = 15, "Centre-droit / droite" = 2, "Extrême-droite" = 5)
 if (isTRUE(getOption("fig_bw"))) colors_groups[] <- c("black", "grey45", "grey45", "black")
 
 plot_lines <- function(df, title, xlab, show_vline = TRUE,

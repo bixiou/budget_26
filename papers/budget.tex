@@ -41,6 +41,10 @@
 \definecolor{cdjc}{RGB}{155,160,115}
 \definecolor{mgt}{RGB}{240,80,155}
 % Tableaux en niveaux de gris : \cellcolor{<couleur>!15} est remplacé par le gris g<couleur>
+\newif\ifgreytables
+% \greytablestrue % décommenter pour des tableaux en niveaux de gris
+\greytablesfalse % tableaux en couleur
+\ifgreytables
 \definecolor{gcleft}{gray}{0.96}
 \definecolor{gmgt}{gray}{0.96}
 \definecolor{gcfrug}{gray}{0.87}
@@ -51,6 +55,7 @@
 \let\colorcellcolor\cellcolor
 \def\graycellcolor#1!#2\relax{\colorcellcolor{g#1}}
 \renewcommand{\cellcolor}[1]{\expandafter\graycellcolor\detokenize{#1}\relax} % \detokenize : « ! » est actif avec babel french
+\fi
 % Limites de l'exercice : les répondants n'avaient pas le pour et contre des mesures. Prometteur : on pourrait demander à une convention citoyenne de plancher sur le sujet, ça permettrait de créer du consensus dans la population.
 % Tout parti doit être sérieux sur le budget s'il veut gagner.
 % Éliminer doublons: ptet pas 9 Mds (Ravignon dit 7.5), mais il faut ajouter d'autres mesures consensuelles de rationalisation des dépenses: baisse des prix des produits de santé 2.65,  Généralisation de la massification des achats et de la mutualisation des circuits entre les collectivités 3...
@@ -111,7 +116,7 @@ I analyze the results of a survey on programmatic and budgetary preferences cond
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{Introduction}
+\section{Introduction}
 \label{sec:intro}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -624,7 +629,7 @@ Pour permettre aux électeurs de faire un choix éclairé, il serait aussi fort 
 \begin{table}[htbp]
 \centering\footnotesize\setlength{\tabcolsep}{4pt}
 \input{../tables/cluster_comparison.tex}
-\caption{Profils de répondants pour différents partitionnements (variant en variables utilisées et nombre de profils) et par bloc politique. La description et la nuance de gris des profils sont choisies à partir de leurs caractéristiques. Le \textit{bloc politique} code le vote réel ou hypothétique entre $-$1 (Gauche) et 1 (Extrême-droite). Le \textit{paquet soutenu} correspond aux économies réalisées par les mesures jugées \textit{convenables} ou \textit{souhaitables} par le répondant. Les mesures \texttt{budget} (hors mesures sectorielles) sont réparties en quatre catégories et les dernières colonnes rapportent le soutien moyen aux mesures de ces catégories, par profil. Pour chaque ensemble de variables utilisées, le gras indique le partitionnement le plus pertinent (celui avec la plus grande silhouette, score qui combine cohésion et séparation). \hfill~(Retour~section~\ref{sec:clusters}.)}
+\caption{Profils de répondants pour différents partitionnements (variant en variables utilisées et nombre de profils) et par bloc politique. La description et la \ifgreytables nuance de gris\else coloration\fi{} des profils sont choisies à partir de leurs caractéristiques. Le \textit{bloc politique} code le vote réel ou hypothétique entre $-$1 (Gauche) et 1 (Extrême-droite). Le \textit{paquet soutenu} correspond aux économies réalisées par les mesures jugées \textit{convenables} ou \textit{souhaitables} par le répondant. Les mesures \texttt{budget} (hors mesures sectorielles) sont réparties en quatre catégories et les dernières colonnes rapportent le soutien moyen aux mesures de ces catégories, par profil. Pour chaque ensemble de variables utilisées, le gras indique le partitionnement le plus pertinent (celui avec la plus grande silhouette, score qui combine cohésion et séparation). \hfill~(Retour~section~\ref{sec:clusters}.)}
 \label{tab:cluster_comparison}
 \end{table}
 

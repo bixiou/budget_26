@@ -1,5 +1,4 @@
 % publi: EJPE (75), Revue d'économie politique, Revue de l'OFCE
-% TODO? Cite Bourquard et al?; https://labatailledubudget.netlify.app/ 
 \documentclass[12pt,french]{article} 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -11,7 +10,7 @@
 \usepackage{setspace}
 \onehalfspacing
 \usepackage{babel}
-\addto\captionsenglish{\renewcommand{\tablename}{Tableau}}
+\addto\captionsfrench{\def\tablename{Tableau}}
 \usepackage{csquotes}
 \usepackage{booktabs}
 \usepackage{makecell}
@@ -19,15 +18,17 @@
 \usepackage{subcaption}
 \usepackage{amsmath}
 \usepackage{xcolor}
-\newcommand{\blue}[1]{\textcolor{blue!60!black}{#1}} % submission
-% \newcommand{\blue}[1]{\textcolor{black}{#1}} % submission
+% \newcommand{\blue}[1]{\textcolor{blue!60!black}{#1}} % submission
+\newcommand{\blue}[1]{\textcolor{black}{#1}} % submission
 \usepackage{textcomp}
 \usepackage{lineno}
 \usepackage{bibunits}
 \usepackage{colortbl}
 \usepackage[round,authoryear,sort&compress]{natbib}
-\defaultbibliographystyle{plainnaturl_clean}
-\usepackage[colorlinks=true,linkcolor=violet,citecolor=violet,urlcolor=blue,backref=true]{hyperref}
+\defaultbibliographystyle{budget_fr}
+\setlength{\bibhang}{0pt}
+\renewcommand{\bibsection}{\begin{center}\textbf{\large\refname}\end{center}}
+\usepackage[colorlinks=true,linkcolor=violet,citecolor=violet,urlcolor=blue]{hyperref}
   % colorlinks=true, % breaklinks=true,
   % urlcolor=purple,    % color of external links
   % linkcolor=blue,  % color of toc, list of figs etc.
@@ -39,6 +40,17 @@
 \definecolor{cfrug}{RGB}{0,150,0}
 \definecolor{cdjc}{RGB}{155,160,115}
 \definecolor{mgt}{RGB}{240,80,155}
+% Tableaux en niveaux de gris : \cellcolor{<couleur>!15} est remplacé par le gris g<couleur>
+\definecolor{gcleft}{gray}{0.96}
+\definecolor{gmgt}{gray}{0.96}
+\definecolor{gcfrug}{gray}{0.87}
+\definecolor{gcdjc}{gray}{0.84}
+\definecolor{gccdroit}{gray}{0.80}
+\definecolor{gcdroite}{gray}{0.76}
+\definecolor{gced}{gray}{0.68}
+\let\colorcellcolor\cellcolor
+\def\graycellcolor#1!#2\relax{\colorcellcolor{g#1}}
+\renewcommand{\cellcolor}[1]{\expandafter\graycellcolor\detokenize{#1}\relax} % \detokenize : « ! » est actif avec babel french
 % Limites de l'exercice : les répondants n'avaient pas le pour et contre des mesures. Prometteur : on pourrait demander à une convention citoyenne de plancher sur le sujet, ça permettrait de créer du consensus dans la population.
 % Tout parti doit être sérieux sur le budget s'il veut gagner.
 % Éliminer doublons: ptet pas 9 Mds (Ravignon dit 7.5), mais il faut ajouter d'autres mesures consensuelles de rationalisation des dépenses: baisse des prix des produits de santé 2.65,  Généralisation de la massification des achats et de la mutualisation des circuits entre les collectivités 3...
@@ -55,7 +67,7 @@
   % Comment boucler le budget~? \\ L'élusive coalition pour gouverner la France
   Préférences budgétaires des Français :\\ résultats d'une enquête représentative
 }
-\author{Adrien Fabre\thanks{CNRS; CIRED. %0610379051. adrien.fabre@cnrs.fr.
+\author{Adrien Fabre\thanks{Centre National de la Recherche Scientifique; Centre International de Recherche sur l'Environnement et le Développement; Global Redistribution Advocates. adrien.fabre@cnrs.fr; 45bis av. de la Belle Gabrielle, 94130 Nogent-sur-Marne, France. \\ 
 Données, code et figures disponibles sur % submission
 \url{https://github.com/bixiou/budget_26}.
 }}
@@ -75,14 +87,27 @@ Le paquet de mesures majoritaire permettant la plus grande réduction du défici
 % La plupart des Français ne se reconnaissent dans aucun parti. 
 % L'insatisfaction envers l'ensemble des partis politiques se matérialise par une dispersion d
 Enfin, j'observe que les préférences individuelles sont bien plus variées au sein des électeurs d'un même parti qu'entre préférences moyennes des électeurs de partis différents. \\
-% An \href{https://github.com/bixiou/budget_26/raw/main/papers/budget_en.pdf}{English version} is available. % submission
+An \href{https://github.com/bixiou/budget_26/raw/main/papers/budget_en.pdf}{English version} is available. % submission
 \end{abstract}
-% \textbf{ % submission
-% Codes JEL~:} D72~; H60~; H63~; P16.\\
-% \textbf{Mots-clés~:} Préférences~; déficit~; sondage~; opinion~; attitudes.
+\textbf{ % submission
+Codes JEL~:} D72~; H60~; H63~; P16.\\
+\textbf{Mots-clés~:} Préférences~; déficit~; sondage~; opinion~; attitudes.
 
 \clearpage
-\tableofcontents % submission
+\newpage
+
+\begin{center}
+  {\Large\bfseries French Fiscal Preferences:\\ Results from a Representative Survey\par}
+\end{center}
+
+\section*{Abstract}
+I analyze the results of a survey on programmatic and budgetary preferences conducted in 2026 on a representative sample of 1,000 French people. The French prefer measures that rationalize public spending, taxes on the wealthiest, and the elimination of welfare benefits for foreigners; they reject raising the retirement age and across-the-board tax hikes (VAT, CSG). Moreover, a majority wishes to improve public services, raise the minimum wage, or see tougher law enforcement. The tripartite division of parties between the left, the centre-right/right and the far right emerges naturally from programmatic preferences. The left stands out mainly on the question of foreigners, the centre-right/right on pensions. The majority-backed package of measures achieving the largest deficit reduction yields 70 billion euros of savings, through higher taxes on the wealthiest, a freeze on public spending, and sector-specific environmental taxes. A group of deficit hawks who support any kind of fiscal consolidation measure could determine the next election by ensuring the victory of the candidate with the most credible budget plan. Finally, I observe that individual preferences are far more varied among the voters of a given party than between the average preferences of voters of different parties.
+% \tableofcontents % submission
+
+\medskip\noindent
+\textbf{Keywords:} Preferences; deficit; survey; opinion; attitudes.
+
+\clearpage
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -95,10 +120,11 @@ nécessiterait un effort supplémentaire d'environ 90~milliards d'euros à l'hor
 % La question n'est pas seulement économique~: elle est profondément politique. 
 \blue{Les Français sont-ils prêts à une telle consolidation budgétaire~? Quelles mesures sont-ils disposés à accepter~? Une majorité peut-elle se dégager sur un programme budgétaire~?}
 
-J'ai mené une enquête d'opinion pour répondre à ces questions. Je me suis inspiré de trois initiatives récentes sur le sujet. Le \cite{CAE2025} a publié une note et développé un \href{https://claude.ai/public/artifacts/74cd0701-a4f0-499e-a409-cae1da524ee4}{outil interactif} permettant à chacun de composer son propre programme de réduction du déficit. La \href{https://laplateformeprogressiste.org/wp-content/uploads/2025/12/20251210_Resultats-par-mesure-1.pdf}{Plateforme Progressiste} a organisé fin 2025 une conférence de consensus en ligne permettant à ses sympathisants de s'informer et de voter sur différentes propositions budgétaires\footnote{Cette plateforme a été cofondée par Pascal Canfin, Sarah Faivre et Éric Hazan, avec pour vocation d'élaborer un programme pour le centre-gauche. Les différentes mesures soumises au vote des sympathisants ont été sélectionnées et chiffrées par un collectif d'économistes incluant Jean Pisani-Ferry, Olivier Blanchard, Antonin Bergeaud, Anne Epaulard et Pascal Saint-Amans.}. Enfin, le citoyen Adrien Abécassis a créé le simulateur \href{budget-citoyen.fr}{budget-citoyen.fr}, proposant au grand public de choisir son budget préféré en faisant varier les postes de dépenses, de recettes, ou en sélectionnant des mesures pré-définies. Ces démarches partagent l'ambition d'identifier des mesures de réduction du déficit en vue du prochain quinquennat.
+J'ai mené une enquête d'opinion pour répondre à ces questions. Je me suis inspiré de trois initiatives récentes sur le sujet. Le \cite{CAE2025} a publié une note et développé un \href{https://simulateur-budgetaire.netlify.app/}{outil interactif} 
+permettant à chacun de composer son propre programme de réduction du déficit. La \href{https://laplateformeprogressiste.org/wp-content/uploads/2025/12/20251210_Resultats-par-mesure-1.pdf}{Plateforme Progressiste} a organisé fin 2025 une conférence de consensus en ligne permettant à ses sympathisants de s'informer et de voter sur différentes propositions budgétaires\footnote{Cette plateforme a été cofondée par Pascal Canfin, Sarah Faivre et Éric Hazan, avec pour vocation d'élaborer un programme pour le centre-gauche. Les différentes mesures soumises au vote des sympathisants ont été sélectionnées et chiffrées par un collectif d'économistes incluant Jean Pisani-Ferry, Olivier Blanchard, Antonin Bergeaud, Anne Epaulard et Pascal Saint-Amans.}. Enfin, le citoyen Adrien Abécassis a créé le simulateur \href{https://budget-citoyen.fr}{budget-citoyen.fr}, proposant au grand public de choisir son budget préféré en faisant varier les postes de dépenses, de recettes, ou en sélectionnant des mesures pré-définies.\footnote{Depuis le \href{https://claude.ai/public/artifacts/74cd0701-a4f0-499e-a409-cae1da524ee4}{premier simulateur du CAE}, d'autres initiatives ont fleuri~: un \href{https://monbudgetpourlafrance.fr/}{simulateur citoyen}, un inventaire de réductions de dépenses par l'Institut Montaigne \citep{bourquard_2024}, et même un \href{https://labatailledubudget.netlify.app/}{jeu vidéo} en ligne.} Ces démarches partagent l'ambition d'identifier des mesures de réduction du déficit en vue du prochain quinquennat.
 
 Dans cette enquête, je teste des mesures identifiées dans les initiatives précédentes auprès d'un échantillon représentatif de 1~000 Français. % Dans cet article, je décris tour à tour la méthode employée (section~\ref{sec:methode})~; les attitudes par mesures (section~\ref{sec:resultats})~; leurs déterminants sociodémographiques (section~\ref{sec:determinants})~; les proximités entre groupes d'électeurs (section~\ref{sec:ecarts})~; les paquets de mesures acceptés par une même majorité, par groupe d'électeurs (section~\ref{sec:paquets})~; les profils de répondants en termes de mesures soutenues et vice versa (section~\ref{sec:clusters})~; et la proximité partisane des sympathisants de la Plateforme Progressiste (section~\ref{sec:progressistes}). Enfin, je résume les résultats et tire de nombreux enseignements de cette enquête en guise de conclusion (section~\ref{sec:conclusion}).
-Après sept sections qui décrivent les résultats, je les résume et en tire de nombreux enseignements dans la discussion finale.
+Après six sections qui décrivent la méthode et les résultats, je les résume et en tire de nombreux enseignements dans la discussion finale.
 
 Si le cadre d'analyse de cette étude est a-théorique, certains résultats peuvent s'interpréter à l'aide des modèles spatiaux du vote avec programmes multidimensionnels. En particulier, l'insatisfaction de nombreux Français envers l'ensemble des partis peut refléter le \textit{théorème du chaos de McKelvey} qui énonce que bien souvent, aucun vainqueur de Condorcet ne se dégage \citep{downs_economic_1957,davis_expository_1970,enelow_spatial_1984,mckelvey_intransitivities_1976}. 
 % Notre enquête adopte une approche complémentaire~: plutôt que de demander aux répondants de composer eux-mêmes un budget équilibré, nous leur soumettons une liste de mesures concrètes et mesurons le niveau d'acceptabilité de chacune. Cela permet d'analyser les déterminants du soutien, les distances entre groupes électoraux, les typologies de répondants et de mesures, et — surtout — d'identifier des \emph{paquets majoritaires}~: des ensembles de mesures pour lesquels une même majorité des citoyens soutient simultanément chacune des mesures du paquet.
@@ -123,7 +149,7 @@ Après avoir renseigné leurs caractéristiques sociodémographiques et leur vot
 Le total des économies réalisées par les mesures }convenables\textit{ ou }souhaitables\textit{ est affiché à gauche}\footnote{La barre affichée à côté du montant des économies réalisées est colorée en rouge tant que les économies sont inférieures à 76~Mds, en orange entre 76 et 90~Mds, et en vert au-delà. Le chiffre de 76~Mds correspond au déficit primaire actuel, soit l'effort stabilisant l'endettement d'après le CAE. % dans les figures de la note du \cite{CAE2025}. 
 Notons que pour simplifier la formulation de la question, celle-ci contient une petite incohérence entre la cible de déficit à 2,7~\% du PIB visée par le CAE pour \textit{stabiliser} l'endettement dès 2030 et l'effort supplémentaire nécessaire %de 0,5~\% de PIB 
 pour \textit{réduire} l'endettement et se prémunir contre une nouvelle crise. %(cohérent avec un horizon 2032). 
-Par ailleurs, l'écart entre la cible pour stabiliser l'endettement à 2,7~\% du PIB d'après la question et les 2,5~\% du PIB impliqué par les 76~Mds résulte du fait que le CAE a surestimé le déficit pour 2025 (+0,4~\%), ne tenait pas compte du déficit conjoncturel (+0,5~\%) et ignorait l'impulsion budgétaire du PLF 2026 ($-$0,7~\%).
+Par ailleurs, l'écart entre la cible pour stabiliser l'endettement à 2,7~\% du PIB d'après la question et les 2,5~\% du PIB impliqués par les 76~Mds résulte du fait que le CAE a surestimé le déficit pour 2025 (+0,4~\%), ne tenait pas compte du déficit conjoncturel (+0,5~\%) et ignorait l'impulsion budgétaire du PLF 2026 ($-$0,7~\%).
 %  (qui permettrait de stabiliser l'endettement) et l'économie de 90~Mds (recommandée par le CAE pour réduire l'endettement, et qui représente 3 points de PIB, ramenant le déficit à 2~\%).
  }. \\ Les répondants doivent choisir une valeur parmi les quatre décrites ou \textit{Ne sais pas} pour 30 mesures, avec l'économie budgétaire qu'elles représentent entre parenthèses.
 \end{itemize}
@@ -146,7 +172,7 @@ La représentativité est assurée à l'aide de quotas indépendants sur le genr
 Les résultats non pondérés sont présentés pour une plus grande transparence et précision des estimations, mais les résultats redressés sont très proches.
 % L'échantillon a été pondéré par raking (calage) sur le genre, l'âge, le revenu, le niveau de diplôme, l'urbanité et la région, de façon à correspondre aux distributions de la population française.
 
-Le tableau~\ref{tab:representativite} présente les statistiques de représentativité. L'échantillon présente une légère sur-représentation des revenus faibles (Q1~: 31\,\% vs 25\,\%), des diplômés du supérieur (33\,\% vs 26\,\%) et des électeurs \textit{Les Républicains} (9\,\% vs. 4\,\%), ainsi qu'une sous-représentation des abstentionnistes (31\,\% vs. 51\,\%). Notons que la sous-représentation apparente des abstentionnistes est habituelle et s'explique en grande partie par une sous-déclaration de l'abstention \citep{sciarini_turnout_2016}. 
+Le tableau~\ref{tab:representativite} présente les statistiques de représentativité. L'échantillon présente une légère sur-représentation des revenus faibles (Q1~: 31\,\% vs. 25\,\%), des diplômés du supérieur (33\,\% vs. 26\,\%) et des électeurs \textit{Les Républicains} (9\,\% vs. 4\,\%), ainsi qu'une sous-représentation des abstentionnistes (31\,\% vs. 51\,\%). Notons que la sous-représentation apparente des abstentionnistes est habituelle et s'explique en grande partie par une sous-déclaration de l'abstention \citep{sciarini_turnout_2016}. 
 
 \begin{table}[htbp]
   \centering
@@ -195,7 +221,7 @@ Au niveau individuel, le répondant moyen juge 93~Mds de mesures \textit{convena
   \label{fig:budget}
 \end{figure}
 
-\blue{Les treize mesures \textit{convenables} pour une majorité sont avant tout des mesures de taxation des plus aisés (5 mesures totalisant 37,5~Mds d'économie), de gel ou rationalisation de la dépense publique (2 mesures pour 30,4~Mds) et de suppression des aides sociales aux étrangers (2 mesures pour 8~Mds). Le report de l'âge légal de départ à la retraite à 65 ans est \textit{inacceptable} pour 40\,\% des Français, tandis que les hausses d'impôts indifférenciées (TVA, CSG) ou  les baisses de niveaux de vie de retraités sont \textit{inacceptables} pour une majorité.}% de concitoyens.
+\blue{Les treize mesures \textit{convenables} pour une majorité sont avant tout des mesures de taxation des plus aisés (5 mesures totalisant 37,5~Mds d'économie), de gel ou rationalisation de la dépense publique (2 mesures pour 30,4~Mds) et de suppression des aides sociales aux étrangers (2 mesures pour 8~Mds). Le report de l'âge légal de départ à la retraite à 65 ans est \textit{inacceptable} pour 40\,\% des Français, tandis que les hausses d'impôts indifférenciées (TVA, CSG) ou les baisses de niveaux de vie de retraités sont \textit{inacceptables} pour une majorité.}% de concitoyens.
 
 % À l'inverse, les mesures les plus rejetées sont le report de l'âge de départ à la retraite à 65~ans (rejeté par une large majorité sauf chez les électeurs de centre-droite), les hausses de TVA et de CSG d'un point (rejetées par environ 80\,\% des répondants).
 
@@ -211,7 +237,7 @@ J'étudie ici comment les attitudes politiques peuvent être prédites par un en
 \footnote{Plus précisément, j'applique la méthode LMG à chaque attitude, c'est-à-dire que pour chaque attitude, je calcule la moyenne de l'analyse de variance (ANOVA) pour chaque permutation des variables sociodémographiques \citep{lindeman_introduction_1980,gromping_estimators_2007}. Les 47 attitudes politiques étudiées contiennent chaque variable de \texttt{budget} (recodée entre $-1$ et 2) et de \texttt{programme} (de $-2$ à 2), ainsi que deux autres variables~: la somme des économies impliquées par les mesures \textit{convenables} pour un répondant, et de même pour les mesures \textit{souhaitables}. Les variables sociodémographiques utilisées sont le bloc politique (soit le regroupement en trois familles politiques du vote réel ou hypothétique), les indicatrices de genre, d'âge, de niveau de vie, de diplôme, d'urbanité, de région, de patrimoine, de statut d'emploi, d'abstention aux élections européennes, ainsi que la taille du ménage et le nombre d'enfants de moins de 14 ans dans le ménage. D'autres variables ou des interactions de variables n'ont pas été retenues car leur pouvoir prédictif est apparu trop faible.}.
 
 
-Les caractéristiques sociodémographiques expliquent 13\,\% de la variance, un chiffre standard pour les attitudes politiques. Pour interpréter ce chiffre, prenons un cas simplifié, où 50\,\% des répondants sont \textit{Pour} une mesure et autant \textit{Contre}. Imaginons que le genre soit la seule caractéristique qui prédit cette attitude~: 68\,\% des femmes sont \textit{Pour} vs. 32\,\% des hommes. En d'autres termes, on a une chance sur deux de correctement prédire l'attitude quand on ne sait rien de la personne, et 68\,\% de chances lorsqu'on connaît son genre. Dans ce cas, un rapide calcul montre que 13\,\% de la variance est expliqué par les caractéristiques sociodémographiques\footnote{En effet, on a 36\,\% de chances supplémentaires de faire une prédiction correcte en connaissant le genre. Cela signifie que le genre explique 36\,\% de l'écart-type, soit une part $0,36^2=0,13$ de la variance.}.
+Les caractéristiques sociodémographiques expliquent 13\,\% de la variance, un chiffre standard pour les attitudes politiques. Pour interpréter ce chiffre, prenons un cas simplifié, où 50\,\% des répondants sont \textit{Pour} une mesure et autant \textit{Contre}. Imaginons que le genre soit la seule caractéristique qui prédit cette attitude~: 68\,\% des femmes sont \textit{Pour} vs. 32\,\% des hommes. En d'autres termes, on a une chance sur deux de correctement prédire l'attitude quand on ne sait rien de la personne, et 68\,\% de chances lorsqu'on connaît son genre. Dans ce cas, un rapide calcul montre que 13\,\% de la variance est expliquée par les caractéristiques sociodémographiques\footnote{En effet, on a 36\,\% de chances supplémentaires de faire une prédiction correcte en connaissant le genre. Cela signifie que le genre explique 36\,\% de l'écart-type, soit une part $0,36^2=0,13$ de la variance.}.
 % Pour mieux comprendre, la variance totale de l'attitude (codée comme $\{0;\,1\}$) est 0,25. Avec 52\,\% de femmes, la variance expliquée par le genre est $0,51\cdot (0,68-0,50)^2+0,49\cdot (0,32-0,50)^2=0,18^2=0,0325$, soit 13\,\% de la variance totale.}. 
 % Si on connaît le vote, qui explique 9\% de la variance, on a .5+(.09*.25)^.5=65% de prédire l'attitude correcte plutôt que 50%.
 
@@ -279,16 +305,16 @@ Pour étudier les disparités entre groupes d'électeurs, je définis d'abord la
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=\linewidth]{../figures/distance_matrix_pairwise.pdf}
-  \caption{Distances moyennes entre (et au sein) de groupes électoraux.}
+  \caption{Distances moyennes entre (et au sein des) groupes électoraux.}
   {\footnotesize Distance inter-individuelle moyenne aux questions \texttt{budget} et \texttt{programme}, exprimée en variation par rapport à la distance moyenne au sein de l'Ensemble de l'échantillon.}
   \label{fig:distance_matrix_pairwise}
 \end{figure}
 
-Il est intéressant de comparer la distance inter-individuelle à la distance <<~inter-groupe~>>, définie comme la moyenne des écarts entre les évaluations moyennes de deux groupes d'électeurs. La plus grande distance inter-groupes est observée entre LFI et LR, à 0,81, soit $-$31~\% par rapport à la distance inter-individuelle moyenne (cf. figure~\ref{fig:distance_matrix_means}), une distance plus faible que la distance inter-individuelle au sein des électeurs PS. % TODO? Cette observation se maintient avec  dispersees, recoded
+Il est intéressant de comparer la distance inter-individuelle à la distance <<~inter-groupe~>>, définie comme la moyenne des écarts entre les évaluations moyennes de deux groupes d'électeurs. La plus grande distance inter-groupe est observée entre LFI et LR, à 0,81, soit $-$31~\% par rapport à la distance inter-individuelle moyenne (cf. figure~\ref{fig:distance_matrix_means}), une distance plus faible que la distance inter-individuelle au sein des électeurs PS. % TODO? Cette observation se maintient avec  dispersees, recoded
 Ainsi, \blue{il y a davantage de disparités dans les attitudes individuelles au sein d'un groupe électoral qu'entre les attitudes moyennes de toute paire de groupes. 
 Ce phénomène pourrait expliquer que la plupart des électeurs ne se reconnaissent dans aucun parti, car aucun programme ne les satisfait pleinement.} 
 
-\blue{Malgré les fortes disparités au sein de chaque groupe, les distances inter-individuelles entre électeurs de différents partis permettent de reconstituer le spectre politique~: (1) les électeurs PS et Les Écologistes sont légèrement plus proches de LFI que du Centre-droit, (2) les électeurs du Centre-droit sont plus proches de LR que du PS ou LÉ, et (3) les électeurs LR sont légèrement plus proche du Centre-droit que de l'Extrême-droite. Ainsi, la tripartition Gauche, Centre-droit/Droite et Extrême-droite émerge naturellement des préférences individuelles.} Ces observations sont pour l'essentiel robustes à des définitions alternatives de la distance%
+\blue{Malgré les fortes disparités au sein de chaque groupe, les distances inter-individuelles entre électeurs de différents partis permettent de reconstituer le spectre politique~: (1) les électeurs PS et Les Écologistes sont légèrement plus proches de LFI que du Centre-droit, (2) les électeurs du Centre-droit sont plus proches de LR que du PS ou LÉ, et (3) les électeurs LR sont légèrement plus proches du Centre-droit que de l'Extrême-droite. Ainsi, la tripartition Gauche, Centre-droit/Droite et Extrême-droite émerge naturellement des préférences individuelles.} Ces observations sont pour l'essentiel robustes à des définitions alternatives de la distance%
 \footnote{J'ai testé cinq définitions alternatives~: la distance inter-groupe (écart entre évaluations moyennes de deux groupes)~; la distance restreinte aux 15 attitudes les plus clivantes (celles avec la plus grande variance)~; le recodage des variables \texttt{programme} entre $-1$ et $1$ plutôt qu'entre $-2$ et $2$ (ignorant l'intensité des évaluations)~; et deux regroupements des évaluations \texttt{budget} en seulement deux catégories, qui ne supposent plus qu'une graduation vaille autant qu'une autre~: \textit{convenable} ou \textit{souhaitable} vs. \textit{supportable} ou \textit{inacceptable}, ou bien \textit{acceptable} (c'est-à-dire non-\textit{inacceptable}) vs. \textit{inacceptable}. Chacune de ces définitions confirme la plupart des observations. %, et le classement des blocs politiques -- observations (1) à (3) -- résiste aux regroupements binaires. 
 Les observations mises en défaut sont les suivantes. L'observation (3) l'est lorsque les évaluations \texttt{programme} sont recodées ou que la distance est restreinte aux 15 attitudes les plus clivantes~: les électeurs LR sont alors très légèrement plus proches de l'extrême-droite que du centre-droit. % (17,6 contre 17,9 dans ce dernier cas). 
 L'observation (1) l'est pour le seul PS et le seul regroupement en \textit{acceptable} vs. \textit{inacceptable}, où les électeurs PS sont marginalement plus proches du centre-droit que de LFI. % (31,8 contre 32,2). 
@@ -303,7 +329,7 @@ tandis que les électeurs de LFI en sont les plus éloignés.
 
 Je cherche ici des paquets de mesures tels qu'une même majorité de citoyens accepte simultanément chacune des mesures du paquet. %
 % \footnote{Formellement, un paquet est \textit{acceptable} si la proportion de répondants qui trouvent \textit{inacceptable} aucune des mesures du paquet dépasse 50\,\%.}. 
-En particulier, \blue{j'identifie le \textit{plus grand} paquet accepté, c'est-à-dire le paquet permettant la plus grande économie tel qu'une majorité de répondants ne trouve aucune des mesures du paquet \textit{inacceptable}}. Je réalise cette recherche pour l'ensemble de l'électorat, mais aussi pour les électeurs de chaque bloc politique, de chaque parti, et de plusieurs coalition de partis. 
+En particulier, \blue{j'identifie le \textit{plus grand} paquet accepté, c'est-à-dire le paquet permettant la plus grande économie tel qu'une majorité de répondants ne trouve aucune des mesures du paquet \textit{inacceptable}}. Je réalise cette recherche pour l'ensemble de l'électorat, mais aussi pour les électeurs de chaque bloc politique, de chaque parti, et de plusieurs coalitions de partis. 
 La figure~\ref{fig:coalition_packages_matrix} présente les plus grands paquets acceptés au sein de chaque regroupement politique. 
 
 \begin{figure}[!htbp]
@@ -345,10 +371,10 @@ Si jusqu'à présent j'ai regroupé les répondants en fonction de leur vote ou 
 les partitionnements qui font intervenir % tiennent compte des attitudes à 
 la question \texttt{programme} voient émerger des profils \textit{progressistes} qui restent minoritaires. 
 
-\blue{La partition présentée utilise \texttt{budget} et crée trois profils}\footnote{Je choisis le nombre $k$=3 de profils car dans notre cas, c'est celui qui maximise le \textit{coefficient de silhouette}, c'est-à-dire la pertinence du partitionnement.}, qu'on peut nommer ainsi\footnote{Les noms donnés aux profils (\textit{conservateurs}, \textit{progressistes}, \textit{frugaux}, puis plus loin \textit{libéraux-nativistes}, \textit{sociaux-nativistes} et \textit{sociaux}) sont des étiquettes choisies a posteriori pour résumer les attitudes qui caractérisent chaque profil issu du partitionnement~: soutien majoritaire ou minoritaire aux grandes catégories de mesures (taxation des plus aisés, État-providence, mesures nativistes, impôts indifférenciés). Elles ne renvoient ni à des catégories partisanes ni à une typologie établie de la littérature. En particulier, contrairement à la tripartition (en blocs \textit{social-écologique}, \textit{libéral-progressiste} et \textit{national-patriote}) de \cite{cage_histoire_2023} fondée sur les programmes des partis, les profils étudiés ici émergent des préférences uniquement programmatiques et peuvent regrouper des électeurs d'appartenances partisanes différentes -- ainsi les \textit{sociaux-nativistes} réunissent-ils des électeurs à la fois favorables aux mesures nativistes et à la redistribution, combinaison que ne capture aucune offre partisane. Si l'analyse de \cite{cage_histoire_2023} a l'avantage de reposer sur des préférences révélées, elle identifie les préférences des électeurs au programme de leur parti et est incapable d'observer un décalage entre les deux, comme le soutien majoritaire des électeurs tel que le soutien majoritaire des électeurs centristes à des mesures redistributives ou nativistes, à rebours des \textit{programmes} centristes.}~:
+\blue{La partition présentée utilise \texttt{budget} et crée trois profils}\footnote{Je choisis le nombre $k$=3 de profils car dans notre cas, c'est celui qui maximise le \textit{coefficient de silhouette}, c'est-à-dire la pertinence du partitionnement.}, qu'on peut nommer ainsi~:
 
 \begin{enumerate}
-  \item \blue{\textbf{Les conservateurs} (48\,\% des répondants)}~: comme rapporté tableau~\ref{tab:cluster_vote}, ce profil rassemble une majorité des électeurs de droite (du centre-droit à l'extrême-droite). Cependant, contrairement aux électeurs de droite, le soutien aux mesures de taxation des plus aisés est généralement minoritaire chez les \textit{conservateurs} (avec des exceptions~: une majorité de \textit{conservateurs} soutient l'ISF, cf. figure~\ref{fig:clusters_combined_polarises}).   
+  \item \blue{\textbf{Les conservateurs} (48\,\% des répondants)}~: comme rapporté au tableau~\ref{tab:cluster_vote}, ce profil rassemble une majorité des électeurs de droite (du centre-droit à l'extrême-droite). Cependant, contrairement aux électeurs de droite, le soutien aux mesures de taxation des plus aisés est généralement minoritaire chez les \textit{conservateurs} (avec des exceptions~: une majorité de \textit{conservateurs} soutient l'ISF, cf. figure~\ref{fig:clusters_combined_polarises}).   
   \item \blue{\textbf{Les progressistes} (31\,\%)}~: profil majoritaire parmi les électeurs de gauche. % les attitudes de ce profil sont généralement conforme aux programmes de gauche, et est logiquement majoritaire parmi les électeurs de gauche. 
   Sans surprise, une majorité de \textit{progressistes} soutient la taxation des plus riches ou le maintien de l'État-providence, et s'oppose aux impôts indifférenciés ou aux mesures nativistes. % de suppression d'aides pour les étrangers.
   \item \blue{\textbf{Les frugaux} (21\,\%)~: ce profil se distingue par un soutien majoritaire à la plupart des mesures d'économie, y compris aux mesures nativistes, à celles restreignant l'État-providence, et aux (impopulaires) impôts indifférenciés.} Ce profil ne correspond à aucun parti et est à peine surreprésenté parmi les électeurs de centre-droit ou droite. \blue{Les \textit{frugaux} se démarquent par le total des mesures soutenues~: %les mesures convenables (ou souhaitables) pour les \textit{frugaux} représentent 
@@ -363,7 +389,9 @@ la question \texttt{programme} voient émerger des profils \textit{progressistes
   \input{../tables/cluster_vote_composition}
 \end{table}
 
-Cette tripartition automatique fait apparaître des profils quelque peu différents des blocs politiques habituels, en particulier les \textit{frugaux}. Lorsqu'on retente l'exercice avec quatre profils plutôt que trois, on retrouve le profil des \textit{frugaux} quasiment intact (18~\% des répondants), tandis que \blue{les \textit{conservateurs} éclatent en deux groupes~: 24~\% de \textit{libéraux-nativistes} largement opposés aux taxes sur les plus riches, et 36~\% de \textit{sociaux-nativistes} qui y sont majoritairement favorables}. Notons que les \textit{sociaux-nativistes}, bien que formés en majorité de conservateurs, comprennent aussi environ un tiers des \textit{progressistes}, essentiellement ceux favorables aux mesures nativistes. Si les \textit{sociaux-nativistes} recoupent en grande partie les électeurs d'extrême-droite, % TODO: chiffre
+Les noms donnés aux profils (\textit{conservateurs}, \textit{progressistes}, \textit{frugaux}, puis plus loin \textit{libéraux-nativistes}, \textit{sociaux-nativistes} et \textit{sociaux}) sont des étiquettes choisies a posteriori pour résumer les attitudes qui caractérisent chaque profil issu du partitionnement~: soutien majoritaire ou minoritaire aux grandes catégories de mesures (taxation des plus aisés, État-providence, mesures nativistes, impôts indifférenciés). Elles ne renvoient ni à des catégories partisanes ni à une typologie établie de la littérature. En particulier, contrairement à la tripartition des électeurs (en blocs \textit{social-écologique}, \textit{libéral-progressiste} et \textit{national-patriote}) de \cite{cage_histoire_2023} fondée sur les programmes des partis, les profils étudiés ici émergent des préférences uniquement programmatiques et peuvent regrouper des électeurs d'appartenances partisanes différentes -- ainsi les \textit{sociaux-nativistes} réunissent-ils des électeurs à la fois favorables aux mesures nativistes et à la redistribution, combinaison que ne capture aucune offre partisane. Si l'analyse de \cite{cage_histoire_2023} a l'avantage de reposer sur des préférences révélées, elle identifie les préférences des électeurs au programme de leur parti et est incapable d'observer un décalage entre les deux, tel que le soutien majoritaire des électeurs centristes à des mesures redistributives ou nativistes, à rebours des \textit{programmes} centristes.
+
+La tripartition automatique fait apparaître des profils quelque peu différents des blocs politiques habituels, en particulier les \textit{frugaux}. Lorsqu'on retente l'exercice avec quatre profils plutôt que trois, on retrouve le profil des \textit{frugaux} quasiment intact (18~\% des répondants), tandis que \blue{les \textit{conservateurs} éclatent en deux groupes~: 24~\% de \textit{libéraux-nativistes} largement opposés aux taxes sur les plus riches, et 36~\% de \textit{sociaux-nativistes} qui y sont majoritairement favorables}. Notons que les \textit{sociaux-nativistes}, bien que formés en majorité de conservateurs, comprennent aussi environ un tiers des \textit{progressistes}, essentiellement ceux favorables aux mesures nativistes. Si les \textit{sociaux-nativistes} recoupent en grande partie les électeurs d'extrême-droite, % TODO: chiffre
 ils sont plus favorables que ceux-ci aux taxes sur les plus riches~; ainsi, leurs attitudes ne correspondent à aucune offre partisane existante.
 
 \blue{Il est intéressant de reproduire l'exercice avec une partition en deux profils plutôt que trois. On observe alors un profil de 46~\% de \textit{conservateurs} relativement inchangé, et une coalition des \textit{frugaux} et des \textit{progressistes} au sein d'un profil majoritaire que je qualifie de \textit{sociaux}. Cette partition de l'électorat pourrait éventuellement émerger lors de la présidentielle de 2027 dans le cas d'un second tour entre un candidat qui rassemblerait le camp conservateur et un autre qui réussirait à %le tour de force de 
@@ -384,7 +412,7 @@ Dans ce cas, la gauche s'allierait avec des nativistes frugaux autour des questi
 
 % On peut appliquer un partitionnement analogue aux mesures (regroupées lorsqu'elles sont soutenues par les mêmes répondants). 
 De même qu'on a partitionné les répondants selon leurs attitudes, on %effectuer l'exercice dual de 
-partitionne ici les mesures de \texttt{budget} selon les répondants qui les soutiennent\footnote{Cette fois-ci, les différentes configurations (\textit{k}=2, 3 ou 4~; sur les mesures \texttt{programme}, \texttt{budget}, ou l'ensemble des deux) donnent des partitions assez proches les unes des autres. Il s'avère que le partitionnement en deux ensembles sépare les mesures populaires des mesures impopulaires (sauf quand elle est effectuée sur les seules mesures de \texttt{programme}, où la séparation est gauche/droite). Le partitionnement en trois de l'ensemble des mesures regroupe les partitions effectuées séparement sur les mesures \texttt{budget} ou \texttt{programme} (à l'exception de la réduction de l'aide au développement, qui est à \textit{droite} dans le partitionnement \texttt{programme} mais \textit{impopulaire} quand on considère toutes les mesures). Les partitionnements en quatre ensembles font éclater les mesures de gauche entre mesures majoritaires dans chaque bloc vs. seulement à gauche.}. 
+partitionne ici les mesures de \texttt{budget} selon les répondants qui les soutiennent\footnote{Cette fois-ci, les différentes configurations (\textit{k}=2, 3 ou 4~; sur les mesures \texttt{programme}, \texttt{budget}, ou l'ensemble des deux) donnent des partitions assez proches les unes des autres. Il s'avère que le partitionnement en deux ensembles sépare les mesures populaires des mesures impopulaires (sauf quand il est effectué sur les seules mesures de \texttt{programme}, où la séparation est gauche/droite). Le partitionnement en trois de l'ensemble des mesures regroupe les partitions effectuées séparément sur les mesures \texttt{budget} ou \texttt{programme} (à l'exception de la réduction de l'aide au développement, qui est à \textit{droite} dans le partitionnement \texttt{programme} mais \textit{impopulaire} quand on considère toutes les mesures). Les partitionnements en quatre ensembles font éclater les mesures de gauche entre mesures majoritaires dans chaque bloc vs. seulement à gauche.}. 
 Comme le montre le tableau~\ref{tab:cluster_measures_budget3}, \blue{les trois ensembles de mesures identifiés correspondent assez bien aux trois profils de répondants étudiés précédemment}. On distingue~:
 
 \begin{enumerate}
@@ -395,14 +423,14 @@ Comme le montre le tableau~\ref{tab:cluster_measures_budget3}, \blue{les trois e
 
 % De même qu'on peut partitionner les répondants selon leurs attitudes, on peut %effectuer l'exercice dual de 
 % partitionner les mesures selon les répondants qui les soutiennent. 
-% Cette fois-ci, les différentes configurations donnent des partitions assez proches les unes des autres. La partition en deux ensembles sépare les mesures populaires des mesures impopulaires (sauf quand elle est effectuée sur les seules mesures de \texttt{programme}, où la séparation est gauche/droite). La partition en trois est plus instructive, elle identifie trois ensembles~:
+% Cette fois-ci, les différentes configurations donnent des partitions assez proches les unes des autres. La partition en deux ensembles sépare les mesures populaires des mesures impopulaires (sauf quand il est effectué sur les seules mesures de \texttt{programme}, où la séparation est gauche/droite). La partition en trois est plus instructive, elle identifie trois ensembles~:
 
 
 % Différents clusterings donnent même classification à peu de choses près (k=2 généralement pop/impop sauf dans programme). Pour k=3 c'est impop/g/d. Description. Score moyen proche de 0: peu de polarisation. Correspond mieux à profil qu'au bloc politique,
 % pas sûr: montrant que l'offre politique ne coïncide pas avec les profils d'attitudes les plus saillants. 
 
 \blue{Si les mesures se séparent largement selon le clivage gauche/droite, % les électeurs qui soutiennent chaque ensemble de mesures diffère peu en termes de blocs politiques. 
-la composition des électeurs qui les soutiennent varie en fait peu d'un ensemble de mesures à l'autre}\footnote{En codant le bloc politique entre $-$0,1 (Gauche) et 1 (Extrême-droite), le bloc politique moyen varie de $-$0,1 pour les répondants qui soutiennent les mesures de gauche à 0,2 pour ceux qui soutiennent les mesures de droite (cf. figure~\ref{tab:cluster_measures_budget3}).}. 
+la composition des électeurs qui les soutiennent varie en fait peu d'un ensemble de mesures à l'autre}\footnote{En codant le bloc politique entre $-$1 (Gauche) et 1 (Extrême-droite), le bloc politique moyen varie de $-$0,1 pour les répondants qui soutiennent les mesures de gauche à 0,2 pour ceux qui soutiennent les mesures de droite (cf. tableau~\ref{tab:cluster_measures_budget3}).}. 
 
 % c("Sociales-redistributives", "Co\\^uts indifférenciés", "Contraction de l'État-providence")
 
@@ -419,14 +447,14 @@ Pour compléter cette analyse, la figure~\ref{fig:budget_correlations} présente
 une corrélation positive entre les différents impôts sur les plus aisés, et une corrélation négative entre les mesures de restriction de l'État-providence et celles taxant les riches.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Comparaison avec La Plateforme Progressiste} % submission
-\label{sec:progressistes}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section{Comparaison avec La Plateforme Progressiste} % submission
+% \label{sec:progressistes}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\blue{La Plateforme Progressiste est une initiative ayant pour objectif d'établir le programme d'un <<~arc progressiste [qui] ira de ceux qui disent non à un projet avec Les Républicains pour 2027, à ceux qui disent non à La France insoumise~>>}\footnote{Source~: interview de Pascal Canfin dans \href{https://www.lemonde.fr/politique/article/2025/07/01/pascal-canfin-personne-parmi-les-progressistes-ne-pourra-gagner-seul-l-election-presidentielle_6617180_823448.html}{Le Monde}.}. Lors d'une conférence de consensus en ligne fin 2025, environ 150 sympathisants ont voté sur différentes mesures d'économies budgétaires. Les \href{https://laplateformeprogressiste.org/wp-content/uploads/2025/12/20251210_Resultats-par-mesure-1.pdf}{mesures soutenues} par une majorité de répondants totalisent 99,9~Mds d'économies, un montant proche des 96,9~Mds de mesures \textit{convenables} pour une majorité dans notre échantillon. Les mesures soutenues par une majorité de la Plateforme Progressiste incluent la rationalisation des dépenses publiques, la fin des exonérations sectorielles de taxes sur les carburants, la taxation des plus aisés, et des mesures d'économies sur les retraités (notamment aisés). \blue{Les participants à cet exercice ont des préférences budgétaires proches de celles des électeurs PS}~: contrairement aux électeurs de centre-droit, ils sont majoritairement défavorables au report de l'âge d'ouverture des droits à la retraite et majoritairement favorables aux taxes écologiques. Contrairement à la majorité des Français, les sympathisants la Plateforme Progressiste sont largement opposés à des mesures visant les étrangers, et plus favorables à des mesures appréciées dans la sphère institutionnelle et qui ont probablement été justifiées lors de la conférence de consensus, comme la diminution des aides à l'apprentissage ou la suppression de l'abattement fiscal pour frais professionnels des retraités. %réforme de l'hôpital. % TODO notes CAE
-Cette comparaison illustre le rôle que peuvent jouer l'information et la délibération dans la formation des attitudes, même si elle pourrait aussi être due à un biais de sélection des participants à la conférence de consensus.
-% des participants %à des exercices de démocratie délibérative en ligne sont 
-% plus politisés que l'électeur médian. 
+% \blue{La Plateforme Progressiste est une initiative ayant pour objectif d'établir le programme d'un <<~arc progressiste [qui] ira de ceux qui disent non à un projet avec Les Républicains pour 2027, à ceux qui disent non à La France insoumise~>>}\footnote{Source~: interview de Pascal Canfin dans \href{https://www.lemonde.fr/politique/article/2025/07/01/pascal-canfin-personne-parmi-les-progressistes-ne-pourra-gagner-seul-l-election-presidentielle_6617180_823448.html}{Le Monde}.}. Lors d'une conférence de consensus en ligne fin 2025, environ 150 sympathisants ont voté sur différentes mesures d'économies budgétaires. Les \href{https://laplateformeprogressiste.org/wp-content/uploads/2025/12/20251210_Resultats-par-mesure-1.pdf}{mesures soutenues} par une majorité de répondants totalisent 99,9~Mds d'économies, un montant proche des 96,9~Mds de mesures \textit{convenables} pour une majorité dans notre échantillon. Les mesures soutenues par une majorité de la Plateforme Progressiste incluent la rationalisation des dépenses publiques, la fin des exonérations sectorielles de taxes sur les carburants, la taxation des plus aisés, et des mesures d'économies sur les retraités (notamment aisés). \blue{Les participants à cet exercice ont des préférences budgétaires proches de celles des électeurs PS}~: contrairement aux électeurs de centre-droit, ils sont majoritairement défavorables au report de l'âge d'ouverture des droits à la retraite et majoritairement favorables aux taxes écologiques. Contrairement à la majorité des Français, les sympathisants la Plateforme Progressiste sont largement opposés à des mesures visant les étrangers, et plus favorables à des mesures appréciées dans la sphère institutionnelle et qui ont probablement été justifiées lors de la conférence de consensus, comme la diminution des aides à l'apprentissage ou la suppression de l'abattement fiscal pour frais professionnels des retraités. %réforme de l'hôpital. % TODO notes CAE
+% Cette comparaison illustre le rôle que peuvent jouer l'information et la délibération dans la formation des attitudes, même si elle pourrait aussi être due à un biais de sélection des participants à la conférence de consensus.
+% % des participants %à des exercices de démocratie délibérative en ligne sont 
+% % plus politisés que l'électeur médian. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -443,7 +471,7 @@ Pour comprendre quel budget pourrait être porté par une coalition majoritaire,
 % 0 Mesures appréciées, rôle institutions: suggère que démocratie directe donnerait des résultats différents que parlement: e.g. mesures nativistes et redistributives; rôle partis: dans pays comme Danemark, âge retraite élevé est consensuel (identité politique)
 % 0.5 paquet majo
 
-Notons que mêmes appréciées des Français, certaines mesures seraient difficiles à mettre en œuvre avec les résultats espérés. Ainsi, le gel des dépenses publiques pendant deux ans (en volume, hors inflation) n'est qu'un cadre et nécessiterait d'autres mesures (a priori impopulaires) pour compenser la hausse tendancielle des dépenses (due notamment au vieillissement et à la loi de programmation militaire). Certaines mesures posent des problèmes de conformité à la Constitution et aux engagements internationaux~: les peines planchers contreviennent aux principes constitutionnels d'individualisation des peines et de proportionnalité~; %, la minorité pénale à 16 ans se heurte à la Convention Internationale des Droits de l'Enfant, qui impose que la justice des mineurs soit distincte de celle des adultes~; 
+Notons que même appréciées des Français, certaines mesures seraient difficiles à mettre en œuvre avec les résultats espérés. Ainsi, le gel des dépenses publiques pendant deux ans (en volume, hors inflation) n'est qu'un cadre et nécessiterait d'autres mesures (a priori impopulaires) pour compenser la hausse tendancielle des dépenses (due notamment au vieillissement et à la loi de programmation militaire). Certaines mesures posent des problèmes de conformité à la Constitution et aux engagements internationaux~: les peines planchers contreviennent aux principes constitutionnels d'individualisation des peines et de proportionnalité~; %, la minorité pénale à 16 ans se heurte à la Convention Internationale des Droits de l'Enfant, qui impose que la justice des mineurs soit distincte de celle des adultes~; 
 le Conseil constitutionnel a invalidé la limitation de la taxe d'habitation aux hauts revenus~; %  rompt principe d'égalité devant l'impôt
 il est incertain que celui-ci valide un taux de taxation de la fortune supérieur à 1~\% (bien que l'adoption par référendum permette de se passer d'un contrôle de constitutionnalité)~; le droit européen empêche une mise en œuvre systématique des OQTF en imposant un examen individuel de la situation et un droit de recours~; et %la CEDH peut juger un OQTF disproportionné (
 la Cour européenne des droits de l'Homme (CEDH) considère que les prestations sociales (telles que les allocations familiales et l'Aide Médicale d'État) % les soins médicaux de base) 
@@ -479,14 +507,14 @@ Bien que le plus grand paquet majoritaire s'approche d'un programme de gauche (a
 Ainsi, \blue{l'élection présidentielle sera probablement remportée par le candidat qui réussira la meilleure synthèse entre redistribution, crédibilité budgétaire et fermeté judiciaire}, en conciliant des aspirations variées, dont certaines risquent de rebuter son propre camp.  
 
 Bien que \blue{la structuration de l'électorat en trois blocs (gauche, centre-droit/droite, extrême-droite) émerge naturellement des préférences budgétaires} lorsqu'on analyse la proximité entre groupes d'électeurs, ces blocs ne sont pas figés. Si une bonne partie des électeurs sont loyaux à leur camp, les attitudes programmatiques sont stables et aussi prédictives du vote que l'identité politique \citep{ansolabehere_strength_2008}. De ce fait, un parti risque de perdre des électeurs %ayant précédemment voté pour lui 
-si son programme ne correspond plus à leurs attitudes, et à ne pas en gagner de nouveaux s'il n'ajuste pas son positionnement. 
+si son programme ne correspond plus à leurs attitudes, et de ne pas en gagner de nouveaux s'il n'ajuste pas son positionnement. 
 
 \blue{La gauche diffère du reste de l'électorat par son refus du nativisme.} %Pour gagner, elle devra sans doute} éviter de porter des mesures impopulaires telles que la création d'un statut de réfugié climatique ou la baisse des dépenses militaires, et plutôt
 Sa stratégie électorale pourrait être d'\blue{insister sur la bonne tenue des comptes publics, en arguant %tentant de montrer 
 qu'on ne peut réduire le déficit sans taxer les riches}. 
 
-\blue{Le centre-droit et LR se distinguent par leur soutien au recul de l'âge de la retraite et ne sont pas alignés avec leurs propres électeurs sur la taxation de la fortune}. Bien qu'avantagé par sa position au centre du spectre politique et par une réputation de bloc gestionnaire conscient des réalités économiques (puisque son programme visent la croissance), %le bloc central aura du mal à gagner sur une promesse <<~de sueur et de larmes~>>, % submission
-la majorité préfère taxer les riches plutôt que travailler plus longtemps. %De ce point de vue, la position de Gabriel Attal en faveur d'un système de retraite à points paraît plus prometteuse que les allusions d'Édouard Philippe au recul de l'âge légal à 67 ans. En effet, la proposition d'Attal permettrait à chacun de choisir son âge de départ, avec un montant de la pension ajusté pour que cette décision soit neutre budgétairement. 
+\blue{Le centre-droit et LR se distinguent par leur soutien au recul de l'âge de la retraite et ne sont pas alignés avec leurs propres électeurs sur la taxation de la fortune}. Bien qu'avantagé par sa position au centre du spectre politique et par une réputation de bloc gestionnaire conscient des réalités économiques (puisque son programme vise la croissance), le bloc central aura du mal à gagner sur une promesse <<~de sueur et de larmes~>>, % submission
+la majorité préférant taxer les riches plutôt que travailler plus longtemps. %De ce point de vue, la position de Gabriel Attal en faveur d'un système de retraite à points paraît plus prometteuse que les allusions d'Édouard Philippe au recul de l'âge légal à 67 ans. En effet, la proposition d'Attal permettrait à chacun de choisir son âge de départ, avec un montant de la pension ajusté pour que cette décision soit neutre budgétairement. 
 
 % 2 vainqueur synthèse. paradoxe que programme le plus populaire contient mesures gauche et pas nativistes, mais gauche faible et les favoris sont à droite et ED; structuration de l'électorat en trois blocs (gauche, centre, droite nationaliste) se retrouve dans les préférences budgétaires
 % 2 => Le vainqueur aura le mieux réussi à faire la synthèse entre redistribution, crédibilité budgétaire et fermeté judiciaire; reliant des aspirations qui ne vont généralement pas ensemble et qui risquent de rebuter son propre camp;
@@ -502,8 +530,8 @@ pourrait coûter à l'extrême-droite l'obtention d'une majorité, en détournan
 
 Au vu de l'éclatement du spectre politique, les partis devront sans doute accepter des compromis et former des alliances pour gouverner, au risque de voir leur programme s'éloigner un peu plus de leurs électeurs. Ces manœuvres pourraient contribuer à l'\blue{insatisfaction généralisée envers l'ensemble de la classe politique}, alors que les partis rassemblent déjà des électeurs hétérogènes~: \blue{l'hétérogénéité est plus élevée entre les électeurs d'un même parti qu'entre les attitudes moyennes des électeurs de différents partis}. %Le choix des alliances sera particulièrement cornélien pour le PS et LR, entre une proximité dans les attitudes de leurs électeurs avec les partis sur leur gauche, mais un rapport de force électoral probablement plus favorable aux partis sur leur droite.
 Cela dit, beaucoup de Français sont lassés de la polarisation actuelle, et pourraient justement apprécier une coalition qui transcende les clivages habituels. 
-En tous cas, le choix des alliances sera particulièrement cornélien pour le PS et les Écologistes, et ce dès le prochain Projet de Loi de Finances, entre %la nécessité d'une alliance pour espérer gagner, 
-l'inadéquation d'une alliance avec le centre du fait d'une plus grande proximité de leurs électeurs avec le programme de LFI, et le rejet du ton provocateur et péremptoire de LFI par la plupart des Français, y compris bon nombre de leurs électeurs\footnote{Outre les données de l'enquête, ce paragraphe est informé par des entretiens individuels de 50 minutes menés auprès d'un échantillon représentatif de 100 Français sur leurs attitudes politiques, et notamment par leurs réponses à la question~: \textit{Pouvez-vous énumérer les principaux partis politiques français et dire ce que vous pensez de chacun d’entre eux ?}.}.% de plus grandes chances d'obtenir une majorité parlementaire en s'alliant avec le centre.
+En tout cas, le choix des alliances sera particulièrement cornélien pour le PS et les Écologistes, et ce dès le prochain Projet de Loi de Finances, entre %la nécessité d'une alliance pour espérer gagner, 
+l'inadéquation d'une alliance avec le centre du fait d'une plus grande proximité de leurs électeurs avec le programme de LFI, et le rejet du ton provocateur et péremptoire de LFI par la plupart des Français, y compris bon nombre de leurs électeurs\footnote{Outre les données de l'enquête, ce paragraphe est informé par des entretiens individuels de 50 minutes menés auprès d'un échantillon représentatif de 100 Français sur leurs attitudes politiques, et notamment par leurs réponses à la question~: \textit{Pouvez-vous énumérer les principaux partis politiques français et dire ce que vous pensez de chacun d'entre eux~?}.}.% de plus grandes chances d'obtenir une majorité parlementaire en s'alliant avec le centre.
 
 Tout en espérant contribuer à la qualité du débat public, il faut reconnaître les limitations de cette analyse. Déjà, l'importance de la réduction du déficit pour les électeurs a pu être surestimée, étant donné le focus de l'analyse. La nécessaire concision de l'enquête a conduit à faire l'impasse sur certains domaines (politique étrangère, projet européen\dots{}) et sur certaines propositions (rétablissement complet de la taxe d'habitation, héritage maximal\dots{}) % coupes dans le budget de la culture
 qui se révéleront peut-être déterminantes. Ensuite, il faut relativiser la précision des résultats sur les sous-groupes, étant donné la taille de l'échantillon. Enfin, les attitudes peuvent évoluer lors du débat public. À ce titre, on ne peut que saluer les initiatives de conférences de consensus ou de <<~réunions d'appartements~>> permettant aux citoyens de délibérer, de confronter leurs arguments et de raffiner leurs attitudes. 
@@ -538,7 +566,7 @@ Pour permettre aux électeurs de faire un choix éclairé, il serait aussi fort 
 \bigskip
 
 \clearpage
-\bibliographystyle{plainnaturl_clean}
+\bibliographystyle{budget_fr}
 \bibliography{budget}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -596,7 +624,7 @@ Pour permettre aux électeurs de faire un choix éclairé, il serait aussi fort 
 \begin{table}[htbp]
 \centering\footnotesize\setlength{\tabcolsep}{4pt}
 \input{../tables/cluster_comparison.tex}
-\caption{Profils de répondants pour différents partitionnements (variant en variables utilisées et nombre de profils) et par bloc politique. La description et la coloration des profils sont choisies à partir de leurs caractéristiques. Le \textit{bloc politique} code le vote réel ou hypothétique entre $-$1 (Gauche) et 1 (Extrême-droite). Le \textit{paquet soutenu} correspond aux économies réalisées par les mesures jugées \textit{convenables} ou \textit{souhaitables} par le répondant. Les mesures \texttt{budget} (hors mesures sectorielles) sont réparties en quatre catégories et les dernières colonnes rapportent le soutien moyen aux mesures de ces catégories, par profil. Pour chaque ensemble de variables utilisées, le gras indique le partitionnement le plus pertinent (celui avec la plus grande silhouette, score qui combine cohésion et séparation). \hfill~(Retour~section~\ref{sec:clusters}.)}
+\caption{Profils de répondants pour différents partitionnements (variant en variables utilisées et nombre de profils) et par bloc politique. La description et la nuance de gris des profils sont choisies à partir de leurs caractéristiques. Le \textit{bloc politique} code le vote réel ou hypothétique entre $-$1 (Gauche) et 1 (Extrême-droite). Le \textit{paquet soutenu} correspond aux économies réalisées par les mesures jugées \textit{convenables} ou \textit{souhaitables} par le répondant. Les mesures \texttt{budget} (hors mesures sectorielles) sont réparties en quatre catégories et les dernières colonnes rapportent le soutien moyen aux mesures de ces catégories, par profil. Pour chaque ensemble de variables utilisées, le gras indique le partitionnement le plus pertinent (celui avec la plus grande silhouette, score qui combine cohésion et séparation). \hfill~(Retour~section~\ref{sec:clusters}.)}
 \label{tab:cluster_comparison}
 \end{table}
 

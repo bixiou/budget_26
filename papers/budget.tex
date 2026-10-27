@@ -40,11 +40,15 @@
 \definecolor{cfrug}{RGB}{0,150,0}
 \definecolor{cdjc}{RGB}{155,160,115}
 \definecolor{mgt}{RGB}{240,80,155}
+% Version noir et blanc (tableaux et figures), activée par budget_grey.tex qui définit \greyversion avant \input{budget}
+\newif\ifgreyversion
+\ifdefined\greyversion\greyversiontrue\fi
+% \greyversiontrue % décommenter pour la version noir et blanc
+% Figures : \includefig[<options>]{<fichier>} prend ../figures/grey/<fichier> s'il existe en version noir et blanc, ../figures/<fichier> sinon
+\newcommand{\includefig}[2][]{\ifgreyversion\IfFileExists{../figures/grey/#2}{\includegraphics[#1]{../figures/grey/#2}}{\includegraphics[#1]{../figures/#2}}\else\includegraphics[#1]{../figures/#2}\fi}
 % Tableaux en niveaux de gris : \cellcolor{<couleur>!15} est remplacé par le gris g<couleur>
-\newif\ifgreytables
-% \greytablestrue % décommenter pour des tableaux en niveaux de gris
-\greytablesfalse % tableaux en couleur
-\ifgreytables
+\ifgreyversion
+\hypersetup{allcolors=black}
 \definecolor{gcleft}{gray}{0.96}
 \definecolor{gmgt}{gray}{0.96}
 \definecolor{gcfrug}{gray}{0.87}
@@ -203,7 +207,7 @@ La figure~\ref{fig:effect_program} présente l'effet de différentes mesures sur
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{../figures/effect_program.pdf}
+  \includefig[width=\linewidth]{effect_program.pdf}
   \caption{Effet de mesures sur l'évaluation d'un programme présidentiel.} {\small \textit{Pour chacune des mesures ci-dessous, sa présence dans le programme d'un candidat à}\\\textit{l'élection présidentielle de 2027 vous rendrait-elle plus ou moins favorable à ce candidat~?}}
   \label{fig:effect_program}
 \end{figure}
@@ -221,7 +225,7 @@ Au niveau individuel, le répondant moyen juge 93~Mds de mesures \textit{convena
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{../figures/budget.pdf}
+  \includefig[width=\linewidth]{budget.pdf}
   \caption{Évaluations des mesures budgétaires. }
   \label{fig:budget}
 \end{figure}
@@ -258,7 +262,7 @@ moins de 1\,\% (figure~\ref{fig:lmg})\footnote{De même, en régressant chaque a
 % pas être placé avant son point de déclaration.
 \begin{figure}[!htbp]
   \centering
-  \includegraphics[width=0.95\linewidth]{../figures/notes_groupes_budget.pdf}
+  \includefig[width=0.95\linewidth]{notes_groupes_budget.pdf}
   \caption{Évaluation moyenne des mesures budgétaires, par bloc politique. \\
   {\footnotesize Chaque barre latérale représente l'écart moyen à la moyenne du bloc parmi les évaluations situées du même côté de la moyenne.}}
   \label{fig:notes_groupes_budget}
@@ -266,7 +270,7 @@ moins de 1\,\% (figure~\ref{fig:lmg})\footnote{De même, en régressant chaque a
 
 \begin{figure}[!htbp]
   \centering
-  \includegraphics[width=\linewidth]{../figures/notes_groupes_effect_program.pdf}
+  \includefig[width=\linewidth]{notes_groupes_effect_program.pdf}
   \caption{Évaluation moyenne des mesures programmatiques, par bloc politique. \\
   {\footnotesize Chaque barre latérale représente l'écart moyen à la moyenne du bloc parmi les évaluations situées du même côté de la moyenne.}}
   \label{fig:notes_groupes_effect_program}
@@ -309,7 +313,7 @@ Pour étudier les disparités entre groupes d'électeurs, je définis d'abord la
 % Déclarée ici, juste après le paragraphe qui la cite, pour un placement au plus près.
 \begin{figure}[!htbp]
   \centering
-  \includegraphics[width=\linewidth]{../figures/distance_matrix_pairwise.pdf}
+  \includefig[width=\linewidth]{distance_matrix_pairwise.pdf}
   \caption{Distances moyennes entre (et au sein des) groupes électoraux.}
   {\footnotesize Distance inter-individuelle moyenne aux questions \texttt{budget} et \texttt{programme}, exprimée en variation par rapport à la distance moyenne au sein de l'Ensemble de l'échantillon.}
   \label{fig:distance_matrix_pairwise}
@@ -339,7 +343,7 @@ La figure~\ref{fig:coalition_packages_matrix} présente les plus grands paquets 
 
 \begin{figure}[!htbp]
   \centering
-  \includegraphics[width=\linewidth]{../figures/coalition_packages_matrix.pdf}
+  \includefig[width=\linewidth]{coalition_packages_matrix.pdf}
   \caption{Plus grands paquets de mesures acceptés par une majorité conjointe, par coalition. \\ {\footnotesize Une majorité est \textit{conjointe} si aucun des répondants qui la compose ne juge une mesure du paquet \textit{inacceptable}.}}
   \label{fig:coalition_packages_matrix}
 \end{figure} 
@@ -588,13 +592,13 @@ Pour permettre aux électeurs de faire un choix éclairé, il serait aussi fort 
   \centering
   \begin{subfigure}[b]{0.49\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{../figures/r2_iso_attitudes.pdf}
+    \includefig[width=\linewidth]{r2_iso_attitudes.pdf}
     \subcaption{R\textsuperscript{2} isolés (un seul régresseur à la fois).}
     \label{fig:r2_iso_attitudes}
   \end{subfigure}\hfill
   \begin{subfigure}[b]{0.49\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{../figures/lmg_attitudes.pdf}
+    \includefig[width=\linewidth]{lmg_attitudes.pdf}
     \subcaption{Décomposition du R\textsuperscript{2} (régression jointe).}
     \label{fig:lmg_attitudes}
   \end{subfigure}
@@ -604,7 +608,7 @@ Pour permettre aux électeurs de faire un choix éclairé, il serait aussi fort 
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{../figures/distance_matrix_means.pdf}
+  \includefig[width=\linewidth]{distance_matrix_means.pdf}
   \caption{Distances entre attitudes moyennes pour chaque paire de groupes électoraux. \hfill~(Retour~section~\ref{sec:ecarts})}
   {\footnotesize Distance entre attitudes moyennes de groupes électoraux aux questions \texttt{budget} et \texttt{programme}, exprimée en variation par rapport à la distance inter-individuelle moyenne au sein de l'Ensemble de l'échantillon.}
   \label{fig:distance_matrix_means} 
@@ -613,14 +617,14 @@ Pour permettre aux électeurs de faire un choix éclairé, il serait aussi fort 
 \begin{figure}[htbp]
   \centering
   \vspace{-1cm}
-  \includegraphics[width=\linewidth]{../figures/coalition_support_heatmap.pdf}
+  \includefig[width=\linewidth]{coalition_support_heatmap.pdf}
   \caption{Taux d'évaluations \textit{convenable} ou \textit{souhaitable} par mesure et par coalition (en \%). Les trois premières lignes rapportent la médiane de la somme des mesures soutenues par les répondants d'une coalition. \hfill~(Retour~section~\ref{sec:paquets})}
   \label{fig:coalition_support_heatmap}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{../figures/budget_correlations.pdf}
+  \includefig[width=\textwidth]{budget_correlations.pdf}
   \caption{Matrice des corrélations entre évaluations de mesures budgétaires. \\\hfill~(Retour~section~\ref{sec:clusters})}
   \label{fig:budget_correlations}
 \end{figure}
@@ -629,20 +633,20 @@ Pour permettre aux électeurs de faire un choix éclairé, il serait aussi fort 
 \begin{table}[htbp]
 \centering\footnotesize\setlength{\tabcolsep}{4pt}
 \input{../tables/cluster_comparison.tex}
-\caption{Profils de répondants pour différents partitionnements (variant en variables utilisées et nombre de profils) et par bloc politique. La description et la \ifgreytables nuance de gris\else coloration\fi{} des profils sont choisies à partir de leurs caractéristiques. Le \textit{bloc politique} code le vote réel ou hypothétique entre $-$1 (Gauche) et 1 (Extrême-droite). Le \textit{paquet soutenu} correspond aux économies réalisées par les mesures jugées \textit{convenables} ou \textit{souhaitables} par le répondant. Les mesures \texttt{budget} (hors mesures sectorielles) sont réparties en quatre catégories et les dernières colonnes rapportent le soutien moyen aux mesures de ces catégories, par profil. Pour chaque ensemble de variables utilisées, le gras indique le partitionnement le plus pertinent (celui avec la plus grande silhouette, score qui combine cohésion et séparation). \hfill~(Retour~section~\ref{sec:clusters}.)}
+\caption{Profils de répondants pour différents partitionnements (variant en variables utilisées et nombre de profils) et par bloc politique. La description et la \ifgreyversion nuance de gris\else coloration\fi{} des profils sont choisies à partir de leurs caractéristiques. Le \textit{bloc politique} code le vote réel ou hypothétique entre $-$1 (Gauche) et 1 (Extrême-droite). Le \textit{paquet soutenu} correspond aux économies réalisées par les mesures jugées \textit{convenables} ou \textit{souhaitables} par le répondant. Les mesures \texttt{budget} (hors mesures sectorielles) sont réparties en quatre catégories et les dernières colonnes rapportent le soutien moyen aux mesures de ces catégories, par profil. Pour chaque ensemble de variables utilisées, le gras indique le partitionnement le plus pertinent (celui avec la plus grande silhouette, score qui combine cohésion et séparation). \hfill~(Retour~section~\ref{sec:clusters}.)}
 \label{tab:cluster_comparison}
 \end{table}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{../figures/clusters_combined_polarises.pdf}
+  \includefig[width=\linewidth]{clusters_combined_polarises.pdf}
   \caption{Attitudes les plus polarisantes par type de partitionnement des répondants. Mesures \texttt{budget} et \texttt{programme} dont l'écart entre profils est le plus élevé, pour le partitionnement par bloc politique (en haut à droite), par profil \texttt{budget} à $k=3$ (en haut à gauche) et $k=4$ (en bas à gauche), et à $k=2$ (en bas à droite). Les points indiquent le taux de soutien moyen (\textit{convenable} ou \textit{souhaitable}) avec intervalles de confiance à 95~\%. \hfill~(Retour~section~\ref{sec:clusters})}
   \label{fig:clusters_combined_polarises} % TODO check
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{../figures/paquets_profils_budget.pdf}
+  \includefig[width=\linewidth]{paquets_profils_budget.pdf}
   \caption{Plus grands paquets de mesures acceptés par une majorité conjointe, par profil.\hfill~(Retour~section~\ref{sec:clusters}) \\ {\footnotesize Une majorité est \textit{conjointe} si aucun des répondants qui la compose ne juge une mesure du paquet \textit{inacceptable}.}}
   \label{fig:paquets_profils_budget}
 \end{figure}

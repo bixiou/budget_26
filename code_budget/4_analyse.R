@@ -165,9 +165,11 @@ for (i in top_pos) {
 }
 # Visualize with corrplot (reordered by hierarchical clustering of correlations)
 pdf("../figures/budget_correlations.pdf", width = 14, height = 14)
-corrplot(cor_mat, method = "color", type = "upper", order = "hclust",
+bw <- isTRUE(getOption("fig_bw")) # noir et blanc : gris selon |r|, cases négatives (rouges) hachurées
+cp <- corrplot(cor_mat, method = "color", type = "upper", order = "hclust",
          tl.cex = 0.55, tl.col = "black", addCoef.col = "black", number.cex = 0.45,
-         diag = FALSE, col = colorRampPalette(c("#c0392b", "white", "#2c3e50"))(200))
+         diag = FALSE, col = colorRampPalette(if (bw) c("grey35", "white", "grey35") else c("#c0392b", "white", "#2c3e50"))(200))
+if (bw) with(subset(cp$corrPos, corr < 0), rect(x - 0.5, y - 0.5, x + 0.5, y + 0.5, density = 25, angle = 45, col = "grey20", border = NA, lwd = 0.5))
 dev.off()
 cat("→ ../figures/budget_correlations.pdf\n")
 
@@ -701,6 +703,19 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
     else if  (!b(l1) &&            b(ln) && !b(l0))                          "Libéraux-nativistes"
     else "Centre"
   }
+  # Inputs of assign_label() for cluster j of a kmeans km
+  leans_for_cl <- function(km, j) {
+    mask <- km$cluster == j
+    v <- setNames(c(
+      vapply(lean_vals, function(lv) {
+        vv <- names(leaning_b)[!is.na(leaning_b) & leaning_b == lv]
+        if (!length(vv)) return(NA_real_)
+        100 * mean(rowMeans(budget_accept[mask, vv, drop=FALSE], na.rm=TRUE), na.rm=TRUE)
+      }, numeric(1)),
+      mean(e$sum_convenable[mask], na.rm=TRUE)
+    ), c(lean_nms_df, "sum_conv"))
+    as.list(v)
+  }
 
   tbl_tex$desc  <- ""
   tbl_tex$color <- ""
@@ -1123,7 +1138,6 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
       if (!is.na(both_cl) && both_cl != 1)
         cat(sprintf("  %s -> both cl.%d\n", label_meas(v), both_cl))
     }
-    }
 
     # Assign cluster names by ascending mean leaning
     mean_lean3 <- sapply(1:3, function(j) {
@@ -1213,19 +1227,6 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
   set.seed(42); km_b2 <- kmeans(mat_b, centers = 2, nstart = 20)
   set.seed(42); km_b3 <- kmeans(mat_b, centers = 3, nstart = 20)
   set.seed(42); km_b4 <- kmeans(mat_b, centers = 4, nstart = 20)
-
-  leans_for_cl <- function(km, j) {
-    mask <- km$cluster == j
-    v <- setNames(c(
-      vapply(lean_vals, function(lv) {
-        vv <- names(leaning_b)[!is.na(leaning_b) & leaning_b == lv]
-        if (!length(vv)) return(NA_real_)
-        100 * mean(rowMeans(budget_accept[mask, vv, drop=FALSE], na.rm=TRUE), na.rm=TRUE)
-      }, numeric(1)),
-      mean(e$sum_convenable[mask], na.rm=TRUE)
-    ), c(lean_nms_df, "sum_conv"))
-    as.list(v)
-  }
 
   lbls_b2 <- sapply(1:2, function(j) assign_label(leans_for_cl(km_b2, j)))
   lbls_b3 <- sapply(1:3, function(j) assign_label(leans_for_cl(km_b3, j)))
@@ -1460,13 +1461,14 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
     # Figure combinée: vote_agg + budget k=2/3/4, variables fixées
     {
       fixed_vars <- c(variables_effect_program[c(4, 6:8, 11, 12, 14:17)], variables_budget[c(3, 12, 19, 26, 27)])
+      att_fixed  <- c(budget_accept, program_favorable) # fixed_vars include programme measures, absent from attitudes_binary
 
       # Build per-grouping CI rows for a fixed variable list
       make_rows_fixed <- function(v_list, masks, grp_labels) {
         rows <- list()
         for (v in v_list) for (i in seq_along(grp_labels)) {
           mask <- masks[[i]]
-          vals <- as.numeric(attitudes_binary[[v]])[mask]
+          vals <- as.numeric(att_fixed[[v]])[mask]
           w    <- e$no_weight[mask]; ok <- !is.na(vals) & w > 0
           if (!any(ok)) next
           mu <- weighted.mean(vals[ok], w[ok])
@@ -1534,7 +1536,12 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
         df_i$cluster <- factor(df_i$cluster, levels = names(pd$colors))
         n_rows <- length(fixed_vars)
         minor_yi <- seq(0.5, n_rows - 0.5, by = 1)
-        ggplot(df_i, aes(y = measure, x = mean, color = cluster, group = cluster)) +
+        # Noir et blanc (options(fig_bw = TRUE)) : un symbole par groupe, gris alternés
+        bw <- isTRUE(getOption("fig_bw"))
+        n_g <- length(pd$colors)
+        shapes_g <- setNames(if (bw) c(16, 2, 15, 1, 17, 0)[seq_len(n_g)] else rep(16, n_g), names(pd$colors))
+        if (bw) pd$colors[] <- rep(c("black", "grey45"), length.out = n_g)
+        ggplot(df_i, aes(y = measure, x = mean, color = cluster, group = cluster, shape = cluster)) +
           geom_hline(yintercept = minor_yi, color = "grey85", linewidth = 0.3) +
           geom_vline(xintercept = 0.5, linetype = "dotted", color = "grey50",
                      linewidth = 0.4) +
@@ -1543,9 +1550,11 @@ print(round(tapply(e$sum_souhaitable, km$cluster, mean, na.rm = TRUE), 2))
                          position = position_dodge(width = dodge_w)) +
           geom_point(size = 2.5, position = position_dodge(width = dodge_w)) +
           scale_color_manual(values = pd$colors, drop = FALSE) +
+          scale_shape_manual(values = shapes_g, drop = FALSE) +
           scale_x_continuous(labels = function(x) paste0(round(x * 100), "%")) +
-          guides(color = guide_legend(nrow = if (length(pd$colors) >= 3) 2 else 1)) +
-          labs(y = NULL, x = NULL, color = NULL, title = pd$title) +
+          guides(color = guide_legend(nrow = if (length(pd$colors) >= 3) 2 else 1),
+                 shape = guide_legend(nrow = if (length(pd$colors) >= 3) 2 else 1)) +
+          labs(y = NULL, x = NULL, color = NULL, shape = NULL, title = pd$title) +
           theme_bw(base_size = 14) +
           theme(
             legend.position      = "top",

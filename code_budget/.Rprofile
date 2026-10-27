@@ -1395,6 +1395,22 @@ color <- function(v, grey=FALSE, grey_replaces_last = T, rev_color = FALSE, them
   if (grey & n > 1) return(c(cols, "#D3D3D3")) # lightgrey
   else return(cols)
 }
+#' Plotly marker readable in black and white (used in barres when options(fig_bw = TRUE))
+#'
+#' Reddish colors become hatchings (denser for darker reds), bluish colors become greys of same luminance,
+#' the NSP light grey becomes dots, and other colors (e.g. white) are kept.
+#' @param col A color.
+#' @return A plotly marker list.
+bw_marker <- function(col) {
+  rgb <- col2rgb(col)[, 1]
+  lum <- sum(c(0.299, 0.587, 0.114) * rgb) / 255
+  line <- list(color = 'grey40', width = 0.5)
+  no_pattern <- list(shape = '') # explicit, otherwise plotly reuses the pattern of the previous trace
+  if (rgb[1] - rgb[3] > 40) list(color = 'white', line = line, pattern = list(shape = '/', fgcolor = 'black', bgcolor = 'white', solidity = round(0.6 * (1 - lum), 2)))
+  else if (rgb[3] - rgb[1] > 40) list(color = grey(lum), line = line, pattern = no_pattern)
+  else if (toupper(col) == "#D3D3D3") list(color = 'white', line = line, pattern = list(shape = '.', fgcolor = 'grey30', bgcolor = 'white', solidity = 0.2))
+  else list(color = col, line = line, pattern = no_pattern)
+}
 #' #' # accord5 <- c("Pas du tout d'accord", "Pas vraiment d'accord", "Indifférent-e", "Assez d'accord", "Tout à fait d'accord")
 #' #' oui_non5 <- c("Non, pas du tout", "Non, pas vraiment", "Indifférent-e/NSP", "Oui, plutôt", "Oui, tout à fait")
 #' #' yes_no5 <- c("Not at all", "Not really", "Indifferent/PNR", "Rather yes", "Yes, completely")
@@ -1427,6 +1443,8 @@ barres <- function(data, vars, file, title="", labels, color=c(), rev_color = FA
       if (is.logical(df[[vars[1]]])) hover <- legend <- labels # data1(var = vars[1], data=df, weights = weights)
       else hover <- legend <- dataN(var = vars[1], data=df, miss=miss, weights = weights, return = "legend", fr=fr, rev_legend = rev) } }
   if (length(color)==0) color <- color(data, nsp, rev_color = rev_color)
+  markers <- lapply(color, function(col) if (isTRUE(getOption("fig_bw"))) bw_marker(col) else list(color = col))
+  if (!isTRUE(getOption("fig_bw"))) markers[[1]]$line <- list(color = 'white')
   if (identical(legend, TRUE) & missing(error_margin)) error_margin <- T
   margin_t <- 0 + 25*(!(thin))
   if (title!="") { margin_t <- 100 }
@@ -1501,7 +1519,7 @@ barres <- function(data, vars, file, title="", labels, color=c(), rev_color = FA
 
   bars <- plot_ly(x = data[1,], y = labels, type = 'bar', orientation = 'h', text = values[,1], textposition = 'auto',
                   error_x = list(visible = error_margin, array=qnorm(1-0.05/2)*sqrt(data[1,]*(1-data[1,])/(N-1)), color = color_margin), # sort=FALSE,
-                  hoverinfo = hovers[,1], name=legend[1], marker = list(color = color[1], line = list(color = 'white'))) %>% # , width = 0
+                  hoverinfo = hovers[,1], name=legend[1], marker = markers[[1]]) %>% # , width = 0
 
     plotly::layout(xaxis = list(title = "",
                                 showgrid = show_ticks,
@@ -1573,7 +1591,7 @@ barres <- function(data, vars, file, title="", labels, color=c(), rev_color = FA
   # print(nrow(hovers))
   # print(ncol(hovers))
   if (nrow(data)>1) { for (i in 2:nrow(data)) { # evaluate=TRUE,
-    bars <- add_trace(bars, x = data[i,], name=legend[i], text = values[,i], hoverinfo = 'text', hovertext = hovers[,i], marker = list(color = color[i]),
+    bars <- add_trace(bars, x = data[i,], name=legend[i], text = values[,i], hoverinfo = 'text', hovertext = hovers[,i], marker = markers[[i]],
                       error_x = list(visible = error_margin, array=qnorm(1-0.05/2)*sqrt(data[i,]*(1-data[i,])/(N-1)), color = color_margin)) # width thickness (in px)
   } } # /!\ When data and vars are not provided, N cannot be computed, but error_margin=T still returns a (zero) confidence interval
   if (!is.null(add_means) && any(add_means))  bars <- add_trace(bars, x = means, name = name_mean, marker = list(color = 'black', size = 10, symbol = 'diamond'), showlegend = (!is.null(show_legend_means) && show_legend_means), type = 'scatter', mode = 'markers')

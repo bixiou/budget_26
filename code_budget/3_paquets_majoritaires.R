@@ -518,6 +518,9 @@ colors_groups <- c(
   "Centre-droit / droite" = "#619CFF",
   "Extrême-droite"        = "#A020F0"   # violet
 )
+# Version noir et blanc (options(fig_bw = TRUE)) : symboles différents et nuances de gris
+shapes_groups <- c("Ensemble" = 16, "Gauche" = 2, "Centre-droit / droite" = 15, "Extrême-droite" = 5)
+if (isTRUE(getOption("fig_bw"))) colors_groups[] <- c("black", "grey45", "grey45", "black")
 
 plot_lines <- function(df, title, xlab, show_vline = TRUE,
                        x_breaks = waiver(), x_labels = waiver()) {
@@ -535,19 +538,21 @@ plot_lines <- function(df, title, xlab, show_vline = TRUE,
   xmax <- max(df$mean + df$mad_hi, na.rm = TRUE)
   pad  <- (xmax - xmin) * 0.03
   xlim_range <- c(xmin - pad, xmax + pad)
-  p <- ggplot(df, aes(y = measure, x = mean, color = group_fr, group = group_fr)) +
+  bw <- isTRUE(getOption("fig_bw"))
+  p <- ggplot(df, aes(y = measure, x = mean, color = group_fr, group = group_fr, shape = group_fr)) +
     geom_hline(yintercept = minor_y, color = "grey85", linewidth = 0.3) +
     geom_errorbarh(aes(xmin = mean - mad_lo, xmax = mean + mad_hi),
                    height = 0, alpha = 0.7, linewidth = 0.25,
                    position = dodge) +
-    geom_point(size = 2.1, position = dodge) +
+    geom_point(size = if (bw) 1.8 else 2.1, position = dodge) +
     scale_color_manual(values = colors_groups, drop = FALSE) +
+    scale_shape_manual(values = if (bw) shapes_groups else replace(shapes_groups, TRUE, 16), drop = FALSE) +
     scale_x_continuous(breaks = x_breaks, labels = x_labels) +
     coord_cartesian(xlim = xlim_range) +
     labs(y = NULL,
          # x = xlab, title = title,
          x = NULL,
-         color = "Groupe"
+         color = "Groupe", shape = "Groupe"
          # caption = "Point = moyenne pondérée ; barres = écart moyen à la moyenne (asymétrique : en-dessous / au-dessus de μ)"
          ) +
     theme_bw(base_size = 10) +
@@ -897,18 +902,24 @@ plot_dist_heatmap <- function(mat, title, outfile,
   }
   fill_dark <- if (normalized) abs(df$dist) > text_thresh else df$dist > text_thresh
   legend_fmt <- if (normalized) function(x) sprintf("%+.0f%%", x) else function(x) sprintf("%.1f", x)
-  p <- ggplot(df, aes(x = B, y = A, fill = dist)) +
-    geom_tile(color = "white", linewidth = 0.3) +
-    geom_text(aes(label = sprintf("%.1f", dist),
-                  color = fill_dark),
-              size = 1.9, show.legend = FALSE) +
-    scale_color_manual(values = c(`TRUE` = "white", `FALSE` = "black"))
+  # Version noir et blanc (options(fig_bw = TRUE)) : gris selon |écart|, cases positives (rouges) hachurées
+  bw <- isTRUE(getOption("fig_bw"))
+  p <- ggplot(df, aes(x = B, y = A, fill = dist))
+  p <- if (bw) p + ggpattern::geom_tile_pattern(aes(pattern = ifelse(dist > 0, "stripe", "none")), color = "white", linewidth = 0.3,
+                                                pattern_fill = "grey20", pattern_colour = NA, pattern_density = 0.12,
+                                                pattern_spacing = 0.012, pattern_angle = 45) + ggpattern::scale_pattern_identity() +
+         geom_label(aes(label = sprintf("%.1f", dist)), fill = "white", label.size = 0, label.padding = unit(0.25, "mm"), size = 1.9)
+       else p + geom_tile(color = "white", linewidth = 0.3) +
+         geom_text(aes(label = sprintf("%.1f", dist),
+                       color = fill_dark),
+                   size = 1.9, show.legend = FALSE) +
+         scale_color_manual(values = c(`TRUE` = "white", `FALSE` = "black"))
   if (normalized) {
-    p <- p + scale_fill_gradient2(low = "#2b6cb0", mid = "white", high = "#c53030",
-                                  midpoint = 0, name = fill_name,
+    p <- p + scale_fill_gradient2(low = if (bw) "grey45" else "#2b6cb0", mid = "white", high = if (bw) "grey45" else "#c53030",
+                                  midpoint = 0, name = if (bw) paste0(fill_name, "\n(hachuré si > 0)") else fill_name,
                                   labels = legend_fmt)
   } else {
-    p <- p + scale_fill_gradient(low = "white", high = "#c53030",
+    p <- p + scale_fill_gradient(low = "white", high = if (bw) "grey45" else "#c53030",
                                  name = fill_name, labels = legend_fmt)
   }
   p <- p +

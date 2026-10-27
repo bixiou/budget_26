@@ -20,11 +20,11 @@ while IFS= read -r fname; do
     else
         echo "  ✗ introuvable : $src"
     fi
-done < <(grep -o '\.\./figures/[^}]*\.pdf' budget.tex | sed 's|\.\./figures/||' | sort -u)
+done < <(grep -oE '\includefig(\[[^]]*\])?\{[^}]*\.pdf\}' budget.tex | sed -E 's/.*\{([^}]*)\}$/\1/' | sort -u)
 
 # ── 2. Corriger les chemins des figures dans un .tex temporaire ────────
 echo "=== Correction des chemins ==="
-sed 's|\.\./figures/\([^}]*\)\.pdf|build/figures_png/\1-1.png|g' budget.tex > "$TMPFILE"
+sed -E 's#\\includefig(\[[^]]*\])?\{([^}]*)\.pdf\}#\\includegraphics\1{build/figures_png/\2-1.png}#g' budget.tex > "$TMPFILE"
 
 # ── 3. Pandoc LaTeX → DOCX ────────────────────────────────────────────
 echo "=== Génération du DOCX ==="
